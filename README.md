@@ -42,7 +42,7 @@ You can use the repo as **copyable design assets**, an **experimental Python pac
 
 <!-- COMPONENT_EXAMPLES:START -->
 
-Here are a few example components from AskeeDS:
+Here are a few examples of the 63+ components from AskeeDS:
 
 - **`screen.crafting`** · Templates — Crafting workbench screen with input slots, output preview, and resource costs.
 

@@ -134,12 +134,12 @@ def select_examples(components: list[Component], config: dict[str, Any]) -> list
     return chosen
 
 
-def render_examples_markdown(examples: list[Component]) -> str:
+def render_examples_markdown(examples: list[Component], total_count: int) -> str:
     if not examples:
         return "_No components available yet._"
 
     lines: list[str] = []
-    lines.append("Here are a few example components from AskeeDS:")
+    lines.append(f"Here are a few examples of the {total_count}+ components from AskeeDS:")
     lines.append("")
     for c in examples:
         desc = c.meta.get("description", "").strip()
@@ -179,7 +179,7 @@ def main() -> int:
     components = load_components()
     config = load_config()
     examples = select_examples(components, config)
-    block = render_examples_markdown(examples)
+    block = render_examples_markdown(examples, total_count=len(components))
 
     readme_text = README_PATH.read_text(encoding="utf-8")
     updated = update_readme_block(readme_text, block)
