@@ -7,9 +7,10 @@ This folder is the **source of truth** for the AskeeDS ASCII-based design system
 | File | Purpose |
 |------|---------|
 | **box-drawing.yaml** | Approved border characters (light/heavy/double). Load in code; do not hardcode in component art. |
-| **map-tiles.yaml** | Character/role set for minimap and grid components (empty, wall, door, player, etc.). |
+| **map-tiles.yaml** | Character/role sets for minimap, grid, and world/encounter maps (empty, wall, door, river, player, etc.), plus metadata and adjacency hints for procedural generation. |
 | **manifest.yaml** | List of component names for tooling and discovery; points to the component library file. |
 | **components.txt** | Component library: consumer/author directions, PROP SHAPES, and all components with meta + ASCII art. |
+| **maps/** | Optional ASCII map layouts (`*.txt`) and index/metadata (`index.yaml`) for world maps, dungeons, encounters, and engine-only layouts. |
 
 ## How to parse the component library
 
@@ -26,6 +27,27 @@ Formal grammar: component boundary = line starting with `␟␟␟ COMPONENT: <n
 2. Add a new block: `␟␟␟ COMPONENT: category.variant`, then meta lines (`␟ description:`, `␟ props:`, etc.), then the ASCII art. Use only characters from **box-drawing.yaml** for borders (or the documented exception for decoration.placeholder).
 3. Add the component name to **manifest.yaml**.
 4. If you introduce new list/object shapes, add them to the PROP SHAPES section in components.txt (and any `␟ shape:` on the component).
+
+## Maps: tilesets, layouts, and systems
+
+ASCII maps in AskeeDS are split into three concepts:
+
+- **Map tilesets** (`map-tiles.yaml`): Define what each symbol or role id means (for example floor, wall, river, door, player), plus metadata such as walkability, visibility, tags, and adjacency hints for procedural generation.
+- **Map layouts** (`maps/*.txt`): Plain-text grids of characters authored by designers. Each file is a rectangular grid that references symbols from one tileset and can be used as a playable area, world overview, encounter template, or engine-only configuration.
+- **Map systems** (implementation-side): Code that consumes tilesets and layouts to handle movement, visibility, pathfinding, fog-of-war, and procedural generation. The design folder defines contracts and examples; engines implement behavior.
+
+Recommended file structure for maps:
+
+- `design/ascii/map-tiles.yaml` — canonical tilesets and symbol metadata.
+- `design/ascii/maps/` — folder for map layouts and metadata:
+  - `design/ascii/maps/index.yaml` — optional index mapping map ids to filenames, tilesets, and usage (`engine_only`, `ui_minimap`, `world_map`, and so on).
+  - `design/ascii/maps/*.txt` — ASCII map layouts (80×N or smaller). Lines are raw grid data; avoid using the ␟ delimiter in map bodies.
+
+Engines are encouraged to:
+
+- Validate that every character in a layout has a corresponding tile definition in `map-tiles.yaml`.
+- Treat map files as **data**, not code: parse into a 2D array plus metadata that can be consumed from any language.
+- Optionally use the adjacency hints from `map-tiles.yaml` to drive procedural generation or validation (for example ensure rivers connect and walls are contiguous).
 
 ## Overrides and project-specific components
 

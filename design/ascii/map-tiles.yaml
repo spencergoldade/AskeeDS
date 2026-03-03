@@ -1,27 +1,148 @@
-# AskeeDS — Map tile roles for minimap and grid components
-# Referenced by minimap.default and any grid-based components.
-# Use role id or character in grid data; legend_entries map char to label.
-# See design/ascii/README.md and components (minimap.default).
+# AskeeDS — Map tile roles for minimap, grid, and world/encounter maps
+# Referenced by `minimap.default`, any grid-based components, and ASCII map layouts
+# in `design/ascii/maps/`. Engines should treat this file as the single source of
+# truth for what each symbol means in the world.
+#
+# SCHEMA (per tile)
+# -----------------
+# tiles:
+#   <tile_id>:
+#     char: "<single-character>"   # Symbol as it appears in ASCII maps and grids
+#     label: "<legend label>"      # Short label for legends (e.g. minimap legend)
+#     title: "<designer title>"    # Optional, longer human-readable name
+#     description: "<what this represents in the world>"
+#     tags:                        # Optional tags used for behavior and generation
+#       - walkable                 # Example tags: walkable, solid, liquid, outdoor
+#       - blocks_vision
+#     walkable: <bool>             # Convenience flag for movement systems
+#     blocks_movement: <bool>      # Whether entities can enter this tile
+#     blocks_vision: <bool>        # Whether this tile blocks line of sight
+#     movement_cost: <number>      # Optional movement cost multiplier
+#     spawn_weight: <number>       # Optional relative weight for random generation
+#     connects_to:                 # Optional adjacency hints for procgen and validation
+#       north: [<tile_id>...]      # Allowed neighbors to the north
+#       south: [<tile_id>...]
+#       east:  [<tile_id>...]
+#       west:  [<tile_id>...]
+#
+# Notes:
+# - Tile ids (`empty`, `wall`, and so on) are the stable identifiers used by engines.
+# - `char` is how designers refer to the tile in ASCII layouts.
+# - Engines may ignore advanced fields (tags, connects_to, spawn_weight) if they
+#   do not need procedural generation or validation.
+#
+# Grid data: 2D array of tile ids (for example `"empty"`, `"wall"`) or characters.
+# `player_position` is `{ row, col }` or equivalent.
+
+default_tileset: base_dungeon
+
+tilesets:
+  base_dungeon:
+    description: Base dungeon/overworld tileset for simple examples and demos.
+    tiles:
+      - empty
+      - wall
+      - door
+      - player
+      - water
+      - path
 
 tiles:
   empty:
     char: "."
     label: "empty"
+    title: "Empty space"
+    description: "Empty traversable floor with no special features."
+    tags: [walkable]
+    walkable: true
+    blocks_movement: false
+    blocks_vision: false
+    movement_cost: 1
+    spawn_weight: 3
+    connects_to:
+      north: [empty, wall, door, path]
+      south: [empty, wall, door, path]
+      east:  [empty, wall, door, path]
+      west:  [empty, wall, door, path]
+
   wall:
     char: "#"
     label: "wall"
+    title: "Solid wall"
+    description: "Solid boundary that blocks movement and vision."
+    tags: [solid, blocks_movement, blocks_vision, structure]
+    walkable: false
+    blocks_movement: true
+    blocks_vision: true
+    movement_cost: 0
+    spawn_weight: 2
+    connects_to:
+      north: [wall, door]
+      south: [wall, door]
+      east:  [wall, door]
+      west:  [wall, door]
+
   door:
     char: "D"
     label: "door"
+    title: "Doorway"
+    description: "Opening in a wall; typically walkable and may gate progression."
+    tags: [walkable, structure, doorway]
+    walkable: true
+    blocks_movement: false
+    blocks_vision: false
+    movement_cost: 1
+    spawn_weight: 1
+    connects_to:
+      north: [wall, empty, path]
+      south: [wall, empty, path]
+      east:  [wall, empty, path]
+      west:  [wall, empty, path]
+
   player:
     char: "P"
     label: "you"
+    title: "Player position"
+    description: "Marker for the player or focus position in maps and minimaps."
+    tags: [entity, player_marker]
+    walkable: true
+    blocks_movement: false
+    blocks_vision: false
+    movement_cost: 1
+    spawn_weight: 0
+    # Adjacency is unconstrained; the player can stand on any walkable tile.
+
   water:
     char: "~"
     label: "water"
+    title: "Water / river"
+    description: "Water tile such as a river or pool; usually not walkable."
+    tags: [liquid, blocks_movement]
+    walkable: false
+    blocks_movement: true
+    blocks_vision: false
+    movement_cost: 0
+    spawn_weight: 1
+    connects_to:
+      north: [water, empty]
+      south: [water, empty]
+      east:  [water, empty]
+      west:  [water, empty]
+
   path:
     char: ","
     label: "path"
+    title: "Path / road"
+    description: "Beaten path, road, or corridor floor that is easier to traverse."
+    tags: [walkable]
+    walkable: true
+    blocks_movement: false
+    blocks_vision: false
+    movement_cost: 0.5
+    spawn_weight: 2
+    connects_to:
+      north: [path, empty, door]
+      south: [path, empty, door]
+      east:  [path, empty, door]
+      west:  [path, empty, door]
 
-# Grid data: 2D array of role ids (e.g. "empty", "wall") or characters.
-# player_position: { row, col } or equivalent.

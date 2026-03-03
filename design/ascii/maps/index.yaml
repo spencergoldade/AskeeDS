@@ -1,0 +1,43 @@
+# AskeeDS — ASCII map index
+#
+# Maps are authored as plain-text grids in this folder (for example `dungeon_room.txt`).
+# This index adds metadata for each map so engines and tools can discover and consume
+# them without hardcoding filenames.
+#
+# SCHEMA
+# ------
+# maps:
+#   <map_id>:
+#     file: "<relative path to .txt file in this folder>"
+#     title: "<designer-facing title>"
+#     description: "<short description of the area or purpose>"
+#     tileset: "<tileset id from map-tiles.yaml, e.g. base_dungeon>"
+#     usage: "<engine_only | ui_minimap | world_map | encounter | region_overview>"
+#     width: <number>          # Optional, can be inferred by tools
+#     height: <number>         # Optional, can be inferred by tools
+#
+# Parsing notes:
+# - Engines should treat this as a hint layer: width/height may be omitted and
+#   recomputed from the .txt file at load time.
+# - Unknown fields should be ignored; projects can extend this schema with
+#   additional metadata such as difficulty, recommended level, or biome.
+
+maps:
+  dungeon_room_example:
+    file: "dungeon_room.txt"
+    title: "Example dungeon room"
+    description: "Small rectangular room with walls, a door, and a water feature."
+    tileset: "base_dungeon"
+    usage: "encounter"
+    width: 12
+    height: 6
+
+  world_overworld_example:
+    file: "world_overworld.txt"
+    title: "Example overworld map"
+    description: "Tiny overworld sketch showing paths, water, and empty ground."
+    tileset: "base_dungeon"
+    usage: "world_map"
+    width: 16
+    height: 8
+
