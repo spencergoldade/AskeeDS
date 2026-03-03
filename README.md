@@ -177,6 +177,15 @@ python tools/parse_components.py --json design/ascii/components.txt design/ascii
 
 In code, you can import `parse_components` from [tools/parse_components.py](tools/parse_components.py) and load/merge files however your runtime prefers.
 
+To keep the component manifest in sync with the library, you can regenerate `design/ascii/manifest.yaml` directly from `components.txt`:
+
+```bash
+# Regenerate manifest from components.txt
+python3 tools/update_manifest.py
+# or via npm
+npm run update:manifest
+```
+
 ---
 
 ## Versioning and updates

@@ -7,64 +7,66 @@
 source: components.txt
 
 components:
-  - layout.app.shell
-  - button.icon
-  - tooltip.default
-  - table.fourcolumn
-  - status-bar.default
-  - status-bar.risk
-  - room-card.default
-  - entity-list.room
-  - exit-list.inline
-  - minimap.default
-  - command-input.default
-  - hint-bar.contextual
-  - narrative-log.pane
-  - feedback.success
-  - feedback.error
-  - divider.horizontal
-  - input.text
-  - label.inline
-  - icon.placeholder
-  - button.text
   - breadcrumb.inline
-  - form.single-field
+  - button.icon
+  - button.text
   - card.simple
-  - header.banner
-  - nav.vertical
-  - layout.two-column
-  - layout.stack
-  - modal.overlay
-  - toast.inline
-  - progress-bar.horizontal
-  - spinner.loading
-  - typography.banner
-  - speech-bubble.left
-  - speech-bubble.right
-  - choice-wheel.inline
-  - menu.main
-  - menu.pause
-  - inventory.grid
-  - inventory.list
   - character-sheet.compact
-  - tree.compact
-  - meter.resource
-  - counter.ammo
-  - counter.score
-  - tracker.objective
-  - tracker.clock
-  - tracker.front
-  - status-icon.row
+  - choice-wheel.inline
+  - command-input.default
   - cooldown.badge
   - cooldown.row
+  - counter.ammo
+  - counter.score
+  - decoration.placeholder
+  - divider.horizontal
+  - entity-list.room
+  - exit-list.inline
+  - feedback.error
+  - feedback.mixed
+  - feedback.success
+  - form.single-field
+  - header.banner
+  - hint-bar.contextual
+  - hint-bar.interactions
+  - icon.placeholder
+  - input.text
+  - inventory.grid
+  - inventory.list
+  - label.inline
+  - layout.app.shell
+  - layout.stack
+  - layout.two-column
+  - menu.main
+  - menu.pause
+  - meter.resource
+  - minimap.default
+  - modal.overlay
+  - narrative-log.pane
+  - nav.vertical
   - notification.achievement
   - notification.loot
-  - feedback.mixed
-  - screen.loading
+  - panel.consequence
+  - panel.survival-status
+  - progress-bar.horizontal
+  - quick-select.radial
+  - room-card.default
   - screen.crafting
   - screen.death
+  - screen.loading
   - screen.tutorial
-  - decoration.placeholder
-  - panel.consequence
-  - quick-select.radial
-  - hint-bar.interactions
+  - speech-bubble.left
+  - speech-bubble.right
+  - spinner.loading
+  - status-bar.default
+  - status-bar.risk
+  - status-icon.row
+  - table.fourcolumn
+  - toast.inline
+  - tooltip.default
+  - tracker.clock
+  - tracker.front
+  - tracker.objective
+  - tree.compact
+  - tree.relationships
+  - typography.banner

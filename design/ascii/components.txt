@@ -52,8 +52,9 @@ HOW TO ADD A NEW COMPONENT
     - Update design/docs (e.g. ascii-design-system.md) only if the component
       changes higher-level flows or concepts.
   - Keep manifest in sync:
-    - Add the component name to design/ascii/manifest.yaml so tools and tests
-      can verify coverage.
+    - Run `python3 tools/update_manifest.py` (or `npm run update:manifest`) to
+      regenerate design/ascii/manifest.yaml from components.txt so tools and
+      tests can verify coverage.
 
 PROPS CONTRACT
   - Naming: Prop names use snake_case (e.g. hp_current, body_text). Refer to
@@ -304,11 +305,11 @@ You can: pet dog, talk to guard, inspect statue
 ␟ description: Scrollable narrative output; primary focus area. Bordered pane.
 ␟ usage: Use as the main scrolling history of events, descriptions, and dialog.
 ␟ props: lines[], max_visible
-+-- Narrative log --------------------------------+
++-- Narrative log ---------------------------------+
 | You enter the clearing.                          |
 | The guard eyes you but says nothing.             |
-|                                                 |
-+-------------------------------------------------+
+|                                                  |
++--------------------------------------------------+
 
 ␟␟␟ COMPONENT: feedback.success
 ␟ description: One-line parser success (e.g. take, drop). Green in code.
@@ -420,10 +421,10 @@ Home > The Clearing > Guard post
 +------------------------------------------------+
 | block 1 (e.g. status bar)                      |
 +------------------------------------------------+
-| block 2 (main content)                          |
-|                                                 |
+| block 2 (main content)                         |
+|                                                |
 +------------------------------------------------+
-| block 3 (input)                                 |
+| block 3 (input)                                |
 +------------------------------------------------+
 
 --- Patterns (structural) ---
@@ -730,7 +731,7 @@ Strike [0]  Block [2]  Dash [1]
 +-- Hint -------------------------+
 |  Type "go north" to move.       |
 |           [ OK ]                |
-+----------------------------------+
++---------------------------------+
 
 --- Game — decorative ---
 

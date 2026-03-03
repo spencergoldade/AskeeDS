@@ -77,10 +77,14 @@ class TestParseComponents(unittest.TestCase):
         content = COMPONENTS_PATH.read_text(encoding="utf-8")
         components = parse_components(content)
         parser_names = {c["name"] for c in components}
-        self.assertEqual(parser_names, manifest_names, (
-            f"Parser and manifest mismatch: parser has {parser_names - manifest_names!r} extra; "
-            f"manifest has {manifest_names - parser_names!r} extra"
-        ))
+        self.assertEqual(
+            parser_names,
+            manifest_names,
+            (
+                f"Parser and manifest mismatch: parser has {parser_names - manifest_names!r} extra; "
+                f"manifest has {manifest_names - parser_names!r} extra"
+            ),
+        )
 
 
 if __name__ == "__main__":
