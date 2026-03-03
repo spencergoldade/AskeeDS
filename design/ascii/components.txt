@@ -216,10 +216,12 @@ COMPONENT LIBRARY (examples)
 ␟ usage: Show contextual help or quick stats when the user focuses or hovers an element.
 ␟ props: text; optional variant stats: name, stats_dict
 ␟ variant: default | stats
+␟ shape: box.single
 
-+---------------------------+
-|  Additional information   |
-+---------------------------+
++-------------------------------+
+|  Additional information for   |
+|  your perusal                 |
++-------------------------------+
 
 ␟␟␟ COMPONENT: table.fourcolumn
 ␟ description: Four-column bordered table; header row and data rows.
@@ -397,18 +399,19 @@ Home > The Clearing > Guard post
 
 +----------------------------------+
 | Name: _____________________      |
-| (your character name)             |
+| (your character name)            |
 +----------------------------------+
 
 ␟␟␟ COMPONENT: card.simple
 ␟ description: Generic bordered title + body; room-card is game variant.
 ␟ usage: Use as a generic info card for help, lore snippets, or small summaries.
 ␟ props: title, body_text
+␟ shape: box.card
 
-+-- Card title --------------------+
-| Body text goes here.             |
-| Optional second line.           |
-+----------------------------------+
++-- Card title ------------------------+
+| Body text goes here and may wrap     |
+| across multiple lines when needed.   |
++--------------------------------------+
 
 ---------- Organisms ----------
 
@@ -464,6 +467,7 @@ Home > The Clearing > Guard post
 ␟ usage: Use for blocking confirmations, choices, or alerts over existing content.
 ␟ pattern: modal
 ␟ props: title, body_text
+␟ shape: box.card
 
 +------------------------------------------+
 | Confirm                                  |
@@ -477,6 +481,7 @@ Home > The Clearing > Guard post
 ␟ description: Transient one- or two-line feedback (e.g. bottom-right).
 ␟ usage: Briefly show save confirmations or non-blocking alerts near a screen edge.
 ␟ props: message, variant
+␟ shape: box.single
 
 +-----------------------------------+
 |  Saved.                           |
@@ -716,6 +721,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ description: Bordered one-liner for achievements.
 ␟ usage: Pop up when the player meets achievement conditions or milestone goals.
 ␟ props: message
+␟ shape: box.single
 
 +------------------------------------------+
 |  Achievement: First Steps                |
@@ -725,6 +731,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ description: Bordered one-liner for loot drops.
 ␟ usage: Use when the player gains items outside of the main log, such as auto-loot.
 ␟ props: message
+␟ shape: box.single
 
 +------------------------------------------+
 |  Loot: rusty sword                       |
@@ -747,6 +754,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ description: Centered loading message + optional tip.
 ␟ usage: Display while loading saves, generating worlds, or performing long operations.
 ␟ props: message, tip
+␟ shape: box.card
 
 +------------------------------------------+
 |                                          |
@@ -759,6 +767,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ description: Crafting workbench screen with input slots, output preview, and resource costs.
 ␟ usage: Use for dedicated crafting flows where players combine items into new outputs.
 ␟ props: inputs[], output_preview, success_chance_optional, resource_costs[]
+␟ shape: box.composite
 
 +------------------------------------------+
 |           Crafting bench                 |
@@ -776,6 +785,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ description: Death screen; title + message + actions.
 ␟ usage: Show when the player reaches a fail state, offering respawn or exit actions.
 ␟ props: message, actions[]
+␟ shape: box.card
 
 +------------------------------------------+
 |         You have died.                   |
@@ -789,6 +799,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ description: Small bordered hint; Tutorial or Hint label.
 ␟ usage: Use to surface onboarding hints or contextual guidance early in play.
 ␟ props: title, body, dismiss_label
+␟ shape: box.card
 
 +-- Hint -------------------------+
 |  Type "go north" to move.       |
@@ -814,6 +825,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ description: Panel listing lasting body and mental consequences with severities.
 ␟ usage: Use in games with long-term injuries or trauma to summarize ongoing effects.
 ␟ props: body_conditions[], mental_conditions[]
+␟ shape: box.composite
 
 +------------------------------------------+
 | Consequences                             |
