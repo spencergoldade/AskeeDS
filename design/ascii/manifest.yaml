@@ -12,6 +12,7 @@ components:
   - tooltip.default
   - table.fourcolumn
   - status-bar.default
+  - status-bar.risk
   - room-card.default
   - entity-list.room
   - exit-list.inline
@@ -51,12 +52,19 @@ components:
   - counter.ammo
   - counter.score
   - tracker.objective
+  - tracker.clock
+  - tracker.front
   - status-icon.row
   - cooldown.badge
+  - cooldown.row
   - notification.achievement
   - notification.loot
+  - feedback.mixed
   - screen.loading
+  - screen.crafting
   - screen.death
   - screen.tutorial
   - decoration.placeholder
+  - panel.consequence
   - quick-select.radial
+  - hint-bar.interactions

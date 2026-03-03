@@ -73,6 +73,13 @@ PROP SHAPES
   - screen.death: actions: { id, label }[] (e.g. Respawn, Main menu).
   - decoration.placeholder: width, height: character-cell dimensions of the slot;
     art is cropped or centered to fit. Content is a separate asset or catalog entry.
+  - panel.survival-status: needs: { label, current, max }[].
+  - tree.relationships: relations: { name, attitude, tags: string[] }[].
+  - screen.crafting: inputs: { label, item_name?, quantity? }[]; resource_costs:
+    { label, amount }[].
+  - cooldown.row: abilities: { label, turns_left }[].
+  - panel.consequence: body_conditions: { label, severity }[]; mental_conditions:
+    { label, severity }[].
 
 COLOR-HINT BEHAVIOR
   - HP / resource bands (status.good, status.warning, status.danger): Use good
@@ -165,6 +172,7 @@ COMPONENT LIBRARY (examples)
 
 ␟␟␟ COMPONENT: layout.app.shell
 ␟ description: Main app shell with header, sidebar, and content area
+␟ usage: Use as the top-level frame for the whole TUI, wrapping nav and main content.
 +------------------------------------------------+
 | App Title                 [user] [settings]    |
 +------------+-----------------------------------+
@@ -174,11 +182,13 @@ COMPONENT LIBRARY (examples)
 
 ␟␟␟ COMPONENT: button.icon
 ␟ description: Button with leading icon (one or two chars).
+␟ usage: Use for primary or secondary actions where a small symbol reinforces meaning.
 ␟ props: label, icon
 [☆] Star this
 
 ␟␟␟ COMPONENT: tooltip.default
 ␟ description: Bordered tooltip; optional stats variant.
+␟ usage: Show contextual help or quick stats when the user focuses or hovers an element.
 ␟ props: text; optional variant stats: name, stats_dict
 ␟ variant: default | stats
 +---------------------------+
@@ -187,6 +197,7 @@ COMPONENT LIBRARY (examples)
 
 ␟␟␟ COMPONENT: table.fourcolumn
 ␟ description: Four-column bordered table; header row and data rows.
+␟ usage: Use for structured tabular data such as stats, settings, or comparisons.
 ␟ props: label, content
 +----------------------------------+---------+------------------------+----------------+
 |               Col1               |  Col2   |          Col3          | Numeric Column |
@@ -198,12 +209,21 @@ COMPONENT LIBRARY (examples)
 
 ␟␟␟ COMPONENT: status-bar.default
 ␟ description: Single-line HUD; HP, location, turn. Top or bottom of screen.
+␟ usage: Pin to the top or bottom of the screen to show core moment-to-moment status.
 ␟ props: hp_current, hp_max, location_name, turn_count
 ␟ color-hint: status.good/warning/danger for HP band; ui.muted for labels
 HP: 85/100  |  The Clearing  |  Turn 12
 
+␟␟␟ COMPONENT: status-bar.risk
+␟ description: Single-line HUD with risk and luck bands in addition to core status.
+␟ usage: Swap in when the game tracks global danger level or player fortune alongside HP.
+␟ props: hp_current, hp_max, location_name, turn_count, risk_level, luck_band_optional
+␟ color-hint: status.good/warning/danger for HP; entity.alert for high risk; ui.accent for luck
+HP: 40/100  |  The Alley  |  Turn 27  |  Risk: Hunted  |  Luck: Fading
+
 ␟␟␟ COMPONENT: room-card.default
 ␟ description: Room pane: title, body, then engine-generated "You see" and Exits.
+␟ usage: Use as the main descriptive block when the player enters or examines a room.
 ␟ props: title, description_text, entity_list[], exits[]
 +-- The Clearing ---------------------------------+
 | A small clearing in the woods.                   |
@@ -216,6 +236,7 @@ HP: 85/100  |  The Clearing  |  Turn 12
 
 ␟␟␟ COMPONENT: entity-list.room
 ␟ description: Scannable list of items and NPCs in current room (from content).
+␟ usage: Render under a room description or in a sidebar to list interactable entities.
 ␟ props: items[], npcs[]
 ␟ color-hint: entity.item (items), entity.npc (NPCs)
 You see:
@@ -224,12 +245,14 @@ You see:
 
 ␟␟␟ COMPONENT: exit-list.inline
 ␟ description: Exits line derived from room frontmatter exits map.
+␟ usage: Place after a room description or entity list to advertise available directions.
 ␟ props: directions[]
 ␟ color-hint: entity.npc (exits as links/affordances)
 Exits: north  south  east
 
 ␟␟␟ COMPONENT: minimap.default
 ␟ description: Small ASCII grid (e.g. 10x10) with legend. Secondary pane.
+␟ usage: Show in a secondary pane to give spatial context without replacing text descriptions.
 ␟ props: grid[], legend_entries, player_position
 +----------+
 | ....#....|
@@ -240,17 +263,26 @@ Exits: north  south  east
 
 ␟␟␟ COMPONENT: command-input.default
 ␟ description: Command line with prompt; optional tab/history hint.
+␟ usage: Use at the bottom of the screen as the primary parser or command entry point.
 ␟ props: prompt, placeholder, hint_text
 > go north
 [Tab: complete] [Up/Down: history]
 
 ␟␟␟ COMPONENT: hint-bar.contextual
 ␟ description: Contextual shortcuts; progressive disclosure for new vs expert.
+␟ usage: Show above or below input to teach core commands without overwhelming experts.
 ␟ props: hints[]
 Commands: look, go <dir>, take <item>, i(nventory), ? for help
 
+␟␟␟ COMPONENT: hint-bar.interactions
+␟ description: Context-sensitive interaction hints emphasizing playful or emotional verbs.
+␟ usage: Surface fun, optional verbs like pet, talk, or inspect when relevant entities are present.
+␟ props: interactions[]
+You can: pet dog, talk to guard, inspect statue
+
 ␟␟␟ COMPONENT: narrative-log.pane
 ␟ description: Scrollable narrative output; primary focus area. Bordered pane.
+␟ usage: Use as the main scrolling history of events, descriptions, and dialog.
 ␟ props: lines[], max_visible
 +-- Narrative log --------------------------------+
 | You enter the clearing.                          |
@@ -260,18 +292,21 @@ Commands: look, go <dir>, take <item>, i(nventory), ? for help
 
 ␟␟␟ COMPONENT: feedback.success
 ␟ description: One-line parser success (e.g. take, drop). Green in code.
+␟ usage: Display directly under the input or log to confirm accepted commands.
 ␟ props: message
 ␟ color-hint: status.good
 Taken: rusty sword (+1 weapon)
 
 ␟␟␟ COMPONENT: feedback.error
 ␟ description: One-line parser error or suggestion. Yellow/red in code.
+␟ usage: Use when a command fails to parse or act, ideally with a suggested fix.
 ␟ props: message, suggestion
 ␟ color-hint: status.warning or status.danger
 You don't see "sword" here. Did you mean "rusty sword"?
 
 ␟␟␟ COMPONENT: divider.horizontal
 ␟ description: Section separator within a pane; no box.
+␟ usage: Separate logical sections inside a larger pane without drawing a full box.
 ␟ props: (none or style)
 ------------------------------------------
 
@@ -279,27 +314,32 @@ You don't see "sword" here. Did you mean "rusty sword"?
 
 ␟␟␟ COMPONENT: input.text
 ␟ description: Single-line prompt and field (bordered or prompt-only).
+␟ usage: Use for short, focused text entry such as character names or menu filters.
 ␟ props: prompt, placeholder, max_length
 > _______________
 
 ␟␟␟ COMPONENT: label.inline
 ␟ description: Short label before value (e.g. stat display).
+␟ usage: Pair with numbers or short values in HUDs, sheets, and summary rows.
 ␟ props: label, value
 HP: 85
 
 ␟␟␟ COMPONENT: icon.placeholder
 ␟ description: Single- or two-char icon slot for buttons/menus.
+␟ usage: Reserve space for an icon when you do not yet know the final symbol.
 ␟ props: symbol, alt_text
 [?]
 
 ␟␟␟ COMPONENT: button.text
 ␟ description: Text-only button; no icon.
+␟ usage: Use for simple confirm/cancel or secondary actions in modals and screens.
 ␟ props: label
 ␟ interactive: true
 [ Submit ]
 
 ␟␟␟ COMPONENT: breadcrumb.inline
 ␟ description: Inline path (e.g. location hierarchy).
+␟ usage: Show above a main pane to orient the player in nested locations or menus.
 ␟ props: segments[]
 Home > The Clearing > Guard post
 
@@ -307,6 +347,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: form.single-field
 ␟ description: Label + input + optional hint in one block.
+␟ usage: Use for simple forms like naming a character or entering a single setting.
 ␟ props: label, placeholder, hint
 +----------------------------------+
 | Name: _____________________      |
@@ -315,6 +356,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: card.simple
 ␟ description: Generic bordered title + body; room-card is game variant.
+␟ usage: Use as a generic info card for help, lore snippets, or small summaries.
 ␟ props: title, body_text
 +-- Card title --------------------+
 | Body text goes here.             |
@@ -325,6 +367,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: header.banner
 ␟ description: Single-line app/game title with optional trailing controls.
+␟ usage: Place at the very top of layouts to carry branding and global controls.
 ␟ props: title, controls[]
 +------------------------------------------------+
 | AskeeDS                   [user] [settings]     |
@@ -332,6 +375,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: nav.vertical
 ␟ description: Vertical list of nav items (e.g. sidebar).
+␟ usage: Use in sidebars or left panes for primary navigation between screens.
 ␟ props: items[], active_id
 | Inventory
 | Map
@@ -342,6 +386,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: layout.two-column
 ␟ description: Left/right panes; no header (use with header.banner if needed).
+␟ usage: Split the screen between navigation/secondary content and a main detail pane.
 ␟ props: left_content, right_content
 +------------------+-----------------------------+
 | left pane        | right pane                  |
@@ -350,6 +395,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: layout.stack
 ␟ description: Stacked full-width blocks (e.g. status + main + input).
+␟ usage: Compose vertical flows like status bar, log, and input stacked top to bottom.
 ␟ props: blocks[]
 +------------------------------------------------+
 | block 1 (e.g. status bar)                      |
@@ -364,6 +410,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: modal.overlay
 ␟ description: Centered bordered box; pattern for confirmation/dialog.
+␟ usage: Use for blocking confirmations, choices, or alerts over existing content.
 ␟ pattern: modal
 ␟ props: title, body_text
 +------------------------------------------+
@@ -376,6 +423,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: toast.inline
 ␟ description: Transient one- or two-line feedback (e.g. bottom-right).
+␟ usage: Briefly show save confirmations or non-blocking alerts near a screen edge.
 ␟ props: message, variant
 +-----------------------------------+
 |  Saved.                           |
@@ -383,11 +431,13 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: progress-bar.horizontal
 ␟ description: Horizontal bar with optional label/percent; used by meters.
+␟ usage: Embed wherever you need a generic progress indicator, e.g. loading tasks or quests.
 ␟ props: value, max, label_optional
 [=========>                    ] 50%
 
 ␟␟␟ COMPONENT: spinner.loading
 ␟ description: Animated loading indicator (cycle through frames in code).
+␟ usage: Show inline while waiting on short operations such as network or disk I/O.
 ␟ props: (none) or style_hint, frames[]
 ␟ note: Implementation cycles frames e.g. | / - \ or + x.
 |
@@ -396,6 +446,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: typography.banner
 ␟ description: Multi-line ASCII-art title; structural placeholder for Figlet/Art.
+␟ usage: Use on splash screens or major transitions to emphasize titles or chapter breaks.
 ␟ note: For production, consider generating via Figlet/Art or similar.
 ␟ props: text, style_hint
   ___  ____  _  __ ______
@@ -407,6 +458,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: speech-bubble.left
 ␟ description: NPC/system speech; tail on left.
+␟ usage: Use for NPC dialog, system narration, or radio-style chatter directed at the player.
 ␟ props: text, speaker_id
   +-----------------------------+
  / The guard nods. "Go north."   |
@@ -414,6 +466,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: speech-bubble.right
 ␟ description: Player speech; tail on right.
+␟ usage: Use for explicit player dialog choices or typed speech in conversations.
 ␟ props: text
 +-----------------------------+
 | I'll go north.           \   |
@@ -421,6 +474,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: choice-wheel.inline
 ␟ description: Vertical numbered options for dialog/choice flow.
+␟ usage: Present small sets of mutually exclusive options during dialog or scripted choices.
 ␟ props: options[]
 1. Go north
 2. Talk to guard
@@ -430,6 +484,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: menu.main
 ␟ description: Main menu; title + list (New game, Load, Options, Quit).
+␟ usage: Use on startup or return-to-menu flows for core game navigation.
 ␟ props: title, items[]
 ␟ interactive: true
 +-- AskeeDS ----------------------+
@@ -441,6 +496,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: menu.pause
 ␟ description: Pause/options overlay; same list shape.
+␟ usage: Overlay during gameplay pauses to access settings or exit options.
 ␟ use-case: pause | settings
 ␟ props: title, items[]
 +-- Paused -----------------------+
@@ -453,6 +509,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: inventory.grid
 ␟ description: Grid of slots (e.g. 2x4 or 4x3) with labels.
+␟ usage: Represent backpack or equipment layouts where position matters (e.g. limited slots).
 ␟ props: slots[], columns
 +--------+--------+--------+--------+
 | slot 1 | slot 2 | slot 3 | slot 4 |
@@ -462,6 +519,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: inventory.list
 ␟ description: List of items with optional quantity.
+␟ usage: Use when item order and grouping matter more than spatial arrangement.
 ␟ props: items[]
 - rusty sword (1)
 - brass lamp (1)
@@ -469,13 +527,25 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: character-sheet.compact
 ␟ description: Name plus 2–3 rows (HP, mana, status); reuses meter/label.
+␟ usage: Show as a sidebar or dedicated screen summarizing the current character state.
 ␟ props: name, stats[]
 Hero
 HP:  [=========>    ] 85/100
 Mana: [====          ] 20/50
 
+␟␟␟ COMPONENT: panel.survival-status
+␟ description: Compact survival panel grouping hunger, thirst, fatigue, and similar needs.
+␟ usage: Use in survival-focused games to track core needs alongside HP and resources.
+␟ props: needs[]
+␟ color-hint: status.good/warning/danger per need band; ui.muted for labels
+Survival
+Hunger:   [=====               ] 30/100
+Thirst:   [========            ] 55/100
+Fatigue:  [===========         ] 70/100
+
 ␟␟␟ COMPONENT: tree.compact
 ␟ description: Indented hierarchy for skills/abilities/loadouts.
+␟ usage: Show skill trees, perk lists, or nested loadouts in a text-friendly hierarchy.
 ␟ props: nodes[]
 Combat
   > Strike
@@ -485,10 +555,20 @@ Lore
   > Identify
   > Persuade
 
+␟␟␟ COMPONENT: tree.relationships
+␟ description: Indented list of NPC and faction relationships with attitudes and tags.
+␟ usage: Use on a relationships or factions screen to surface social ties and standings.
+␟ props: relations[]
+Allies
+  > Guard captain (friendly) [city, watch]
+Rivals
+  > Thieves' Guild (hostile) [underworld]
+
 --- Game — meters ---
 
 ␟␟␟ COMPONENT: meter.resource
 ␟ description: Horizontal bar + label; type = health | mana | stamina.
+␟ usage: Embed wherever you need a labeled resource bar, often inside sheets or HUDs.
 ␟ props: type, current, max
 ␟ color-hint: status.good/warning/danger for health band; entity for others
 HP:   [=========>                    ] 85/100
@@ -498,37 +578,67 @@ Mana: [====                           ] 20/50
 
 ␟␟␟ COMPONENT: counter.ammo
 ␟ description: Ammo or similar resource count (current/max or bar).
+␟ usage: Use in combat or ranged-weapon HUDs to show current and max ammo.
 ␟ props: current, max, label
 Ammo: 12/24
 
 ␟␟␟ COMPONENT: counter.score
 ␟ description: Score or kill count.
+␟ usage: Display cumulative scores, kills, or similar tallies in arcade-style modes.
 ␟ props: value, label
 Score: 1,250   Kills: 7
 
 ␟␟␟ COMPONENT: tracker.objective
 ␟ description: One line per objective; unchecked/checked.
+␟ usage: Show in a sidebar or overlay listing current quests or objectives with completion state.
 ␟ props: objectives[]
 [ ] Find the key
 [x] Talk to the guard
 [ ] Open the door
 
+␟␟␟ COMPONENT: tracker.clock
+␟ description: Segment-style progress clock for countdowns, projects, or looming threats.
+␟ usage: Pair with objectives to visualize time pressure or progress toward a key event.
+␟ props: label, segments, filled, risk_level_optional
+␟ color-hint: status.good/warning/danger based on proximity to completion
+Quest: Find the key
+[○○○○]   0 / 4
+
+␟␟␟ COMPONENT: tracker.front
+␟ description: Horizontal multi-stage track showing an advancing front or world threat.
+␟ usage: Use to track escalating world states such as invasions, storms, or rumors.
+␟ props: label, stages[], current_stage_index
+␟ shape: stages[]: see PROP SHAPES (tracker.front uses generic { label }[]).
+Invasion front:
+[ Safe ]-[ Skirmishes ]-[ Occupied ]-[ Overrun ]
+   ^
+
 --- Game — status ---
 
 ␟␟␟ COMPONENT: status-icon.row
 ␟ description: Row of symbols (buffs, debuffs, alerts) with optional labels.
+␟ usage: Place near HUD or sheets to summarize active buffs, debuffs, and alerts.
 ␟ props: icons[], labels[]
 [+] [*] [!]   buff  debuff  alert
 
 ␟␟␟ COMPONENT: cooldown.badge
 ␟ description: Turn-based cooldown (turns left); no realtime.
+␟ usage: Attach to single abilities or actions to show remaining turns before reuse.
 ␟ props: turns_left, label
 [3]
+
+␟␟␟ COMPONENT: cooldown.row
+␟ description: Row of labeled cooldown badges for multiple abilities.
+␟ usage: Show multiple abilities' cooldowns under character or combat HUD elements.
+␟ props: abilities[]
+␟ color-hint: ui.muted for labels; status.warning when turns_left > 0
+Strike [0]  Block [2]  Dash [1]
 
 --- Game — notifications ---
 
 ␟␟␟ COMPONENT: notification.achievement
 ␟ description: Bordered one-liner for achievements.
+␟ usage: Pop up when the player meets achievement conditions or milestone goals.
 ␟ props: message
 +------------------------------------------+
 |  Achievement: First Steps                |
@@ -536,15 +646,27 @@ Score: 1,250   Kills: 7
 
 ␟␟␟ COMPONENT: notification.loot
 ␟ description: Bordered one-liner for loot drops.
+␟ usage: Use when the player gains items outside of the main log, such as auto-loot.
 ␟ props: message
 +------------------------------------------+
 |  Loot: rusty sword                       |
 +------------------------------------------+
 
+␟␟␟ COMPONENT: feedback.mixed
+␟ description: Short block summarizing a mixed success (upside and downside).
+␟ usage: Show after rolls or checks that succeed with complications in PbtA-style systems.
+␟ props: headline, upside_text, downside_text
++------------------------------------------+
+| Mixed: You dodge the blow...             |
+|  Upside: You avoid the worst of it.      |
+|  Downside: Your sword slips from hand.   |
+-------------------------------------------+
+
 --- Game — screens ---
 
 ␟␟␟ COMPONENT: screen.loading
 ␟ description: Centered loading message + optional tip.
+␟ usage: Display while loading saves, generating worlds, or performing long operations.
 ␟ props: message, tip
 +------------------------------------------+
 |                                          |
@@ -553,8 +675,25 @@ Score: 1,250   Kills: 7
 |                                          |
 +------------------------------------------+
 
+␟␟␟ COMPONENT: screen.crafting
+␟ description: Crafting workbench screen with input slots, output preview, and resource costs.
+␟ usage: Use for dedicated crafting flows where players combine items into new outputs.
+␟ props: inputs[], output_preview, success_chance_optional, resource_costs[]
++------------------------------------------+
+|           Crafting bench                 |
++------------------------------------------+
+| Inputs:                                  |
+|  [ herb ]  [ bottle ]                    |
+|                                          |
+| Output: healing potion                   |
+| Chance: 75%                              |
+|                                          |
+| Costs: mana 5, time 1h                   |
++------------------------------------------+
+
 ␟␟␟ COMPONENT: screen.death
 ␟ description: Death screen; title + message + actions.
+␟ usage: Show when the player reaches a fail state, offering respawn or exit actions.
 ␟ props: message, actions[]
 +------------------------------------------+
 |         You have died.                   |
@@ -566,6 +705,7 @@ Score: 1,250   Kills: 7
 
 ␟␟␟ COMPONENT: screen.tutorial
 ␟ description: Small bordered hint; Tutorial or Hint label.
+␟ usage: Use to surface onboarding hints or contextual guidance early in play.
 ␟ props: title, body, dismiss_label
 +-- Hint -------------------------+
 |  Type "go north" to move.       |
@@ -576,17 +716,36 @@ Score: 1,250   Kills: 7
 
 ␟␟␟ COMPONENT: decoration.placeholder
 ␟ description: Slot for public-domain or project-owned ASCII art (fish, skull). width and height define slot size in character cells; art is supplied elsewhere and cropped or centered to fit. Use ASCII-only characters (no Unicode) per AskeeDS box-drawing/decoration policy.
-␟ note: Use public-domain or project-owned art; attach specific art as assets or list in design/ascii/art-catalog if we create one.
+␟ usage: Reserve a fixed-size area for decorative ASCII art such as logos, monsters, or scenes.
+␟ note: Use public-domain or project-owned art; choose pieces from design/ascii/decoration-catalog.txt or attach specific art assets.
 ␟ props: width, height
     .-~~~-.
    (  o   o  )
    (   ^   )
     \|_|_/
 
+--- Game — consequences ---
+
+␟␟␟ COMPONENT: panel.consequence
+␟ description: Panel listing lasting body and mental consequences with severities.
+␟ usage: Use in games with long-term injuries or trauma to summarize ongoing effects.
+␟ props: body_conditions[], mental_conditions[]
++------------------------------------------+
+| Consequences                             |
++------------------------------------------+
+| Body:                                    |
+|  - Scarred arm (mild)                    |
+|  - Broken rib (severe)                   |
+| Mental:                                  |
+|  - Nightmares (moderate)                 |
+|  - Shaken faith (mild)                  |
++------------------------------------------+
+
 --- Game — quick-select ---
 
 ␟␟␟ COMPONENT: quick-select.radial
 ␟ description: Compass-style or 8-slot radial (e.g. weapon wheel).
+␟ usage: Represent quick-select menus like weapon or item wheels in purely text form.
 ␟ props: options[], selected_id
       [1]
    [4]   [2]

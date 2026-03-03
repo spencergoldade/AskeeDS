@@ -1,0 +1,13 @@
+{
+  "maxExamples": 3,
+  "preferredGroups": [
+    "Templates",
+    "Organisms",
+    "Game — inventory/character",
+    "Game — menus",
+    "Game — meters",
+    "Game — screens"
+  ],
+  "pinnedExamples": [],
+  "allowInteractive": true
+}

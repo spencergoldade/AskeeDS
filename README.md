@@ -8,6 +8,51 @@ AskeeDS is an ASCII-based design system and component library for building termi
 
 ---
 
+## Component examples
+
+<!-- COMPONENT_EXAMPLES:START -->
+
+Here are a few example components from AskeeDS:
+
+```text
+␟␟␟ COMPONENT: layout.app.shell
+␟ description: Main app shell with header, sidebar, and content area
++------------------------------------------------+
+| App Title                 [user] [settings]    |
++------------+-----------------------------------+
+| nav item 1 | content area                      |
+| nav item 2 |                                   |
++------------+-----------------------------------+
+```
+
+```text
+␟␟␟ COMPONENT: room-card.default
+␟ description: Room pane: title, body, then engine-generated "You see" and Exits.
+␟ props: title, description_text, entity_list[], exits[]
++-- The Clearing ---------------------------------+
+| A small clearing in the woods.                   |
+|                                                 |
+| You see:                                        |
+|   * brass lamp                                  |
+|   * guard                                       |
+| Exits: north  south                             |
++-------------------------------------------------+
+```
+
+```text
+␟␟␟ COMPONENT: minimap.default
+␟ description: Small ASCII grid (e.g. 10x10) with legend. Secondary pane.
+␟ props: grid[], legend_entries, player_position
++----------+
+| ....#....|
+| .P.#.....|
+| ....D....|
++----------+
+  . empty  # wall  P you  D door
+```
+
+<!-- COMPONENT_EXAMPLES:END -->
+
 ## Table of contents
 
 - [What you get in this repo](#what-you-get-in-this-repo)
@@ -143,5 +188,6 @@ With this model, you can stay on a specific version (for example `0.1.x`) or mov
 - **Validate components:** `python tools/parse_components.py --validate`
 - **Render a demo:** `python tools/render_demo.py`
 - **Run parser tests:** `python tools/test_parse_components.py`
+- **Refresh README examples:** `python3 tools/update_readme_examples.py` (or `npm run update:readme-examples`)
 
 These are optional but recommended when you edit [design/ascii/components.txt](design/ascii/components.txt) or add new components/overrides.
