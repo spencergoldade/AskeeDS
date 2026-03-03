@@ -527,7 +527,7 @@ Home > The Clearing > Guard post
 ␟ props: text
 
 +-----------------------------+
-| I'll go north.           \   |
+| I'll go north.              \
 +-----------------------------+
 
 ␟␟␟ COMPONENT: choice-wheel.inline
@@ -823,7 +823,7 @@ Strike [0]  Block [2]  Dash [1]
 |  - Broken rib (severe)                   |
 | Mental:                                  |
 |  - Nightmares (moderate)                 |
-|  - Shaken faith (mild)                  |
+|  - Shaken faith (mild)                   |
 +------------------------------------------+
 
 ---------- Game — quick-select ----------

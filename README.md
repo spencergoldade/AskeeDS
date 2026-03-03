@@ -56,7 +56,7 @@ Here are a few example components from AskeeDS:
 |  - Broken rib (severe)                   |
 | Mental:                                  |
 |  - Nightmares (moderate)                 |
-|  - Shaken faith (mild)                  |
+|  - Shaken faith (mild)                   |
 +------------------------------------------+
 
 ---------- Game — quick-select ----------
