@@ -8,6 +8,36 @@ AskeeDS is an ASCII-based design system and component library for building termi
 
 ---
 
+## Who is this for?
+
+- **Game designers (authoring):** You sketch screens, menus, and worlds in plain text and want a consistent visual language that engines can consume.
+- **New developers (engine integration):** You wire AskeeDS assets into a game, tool, or TUI framework and need clear contracts and examples.
+- **Tooling maintainers:** You build validation, export, or preview tools on top of the AskeeDS files and CLIs.
+
+You can use the repo as **copyable design assets**, an **experimental Python package/CLI**, or both.
+
+---
+
+## What do I do first?
+
+- **If you just want to see what this looks like (anyone):**
+  - Open `design/ascii/components.txt` side by side with [docs/ascii-design-system.md](docs/ascii-design-system.md).
+  - From the repo root run:
+    - `python tools/parse_components.py --validate` (quick health check).
+    - `python tools/render_demo.py` (prints a few canonical components).
+- **If you are a game designer authoring UI or maps:**
+  - Browse components in `design/ascii/components.txt` and maps in `design/ascii/maps/`.
+  - Make a small edit (for example a new `room-card` variant or a tiny map).
+  - Run:
+    - `python tools/parse_components.py --validate` to catch common authoring mistakes.
+    - `python tools/update_manifest.py` to refresh `design/ascii/manifest.yaml` when you add components.
+- **If you are a new developer integrating AskeeDS:**
+  - Decide whether you want to **copy the design assets** into your project or use the **experimental Python package/CLI** (see “How to add AskeeDS to an existing project” below).
+  - Use `askee-ds-export --kind components` (or `python tools/parse_components.py --json ...`) to generate JSON.
+  - Follow the patterns in [docs/implementation-notes.md](docs/implementation-notes.md) to map component props to your runtime’s UI widgets.
+
+---
+
 ## Component examples
 
 <!-- COMPONENT_EXAMPLES:START -->

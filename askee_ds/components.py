@@ -1,8 +1,12 @@
 """
 Library access to the AskeeDS component library parser and validator.
 
-These functions mirror the behavior of tools/parse_components.py but are
-packaged for reuse.
+These helpers are a small, dependency-light layer around the canonical
+design/ascii/components.txt file. Use them when you want to:
+
+- Parse one or more component files into Python dicts.
+- Run the same validation rules as the CLI.
+- Load the default AskeeDS library from a checkout of this repository.
 """
 
 from __future__ import annotations
@@ -58,7 +62,13 @@ def _parse_props_meta(raw: str) -> list[dict]:
 
 
 def parse_components(content: str) -> list[dict]:
-    """Parse component library text into a list of component dicts."""
+    """
+    Parse component library text into a list of component dicts.
+
+    This is the lower-level primitive used by both the CLI and higher-level
+    helpers. Most callers will want to read files first and then pass the
+    combined text into this function.
+    """
     components: list[dict] = []
     lines = content.splitlines()
     i = 0
@@ -89,10 +99,11 @@ def parse_components(content: str) -> list[dict]:
 
 def validate(components: list[dict]) -> tuple[list[str], list[str]]:
     """
-    Run validation rules. Returns (errors, warnings).
+    Run validation rules on already-parsed components. Returns (errors, warnings).
 
-    Errors are critical (e.g. ␟ in art). Warnings flag issues that should be
-    fixed for high‑quality implementations but do not necessarily break parsers.
+    Errors are critical (for example, ␟ in art). Warnings flag issues that
+    should be fixed for high‑quality implementations but do not necessarily
+    break parsers.
     """
     errors: list[str] = []
     warnings: list[str] = []
@@ -161,6 +172,46 @@ def load_default_components() -> list[dict]:
 
 
 def validate_default_components() -> tuple[list[str], list[str]]:
+    """
+    Load and validate the default component library from this repository.
+
+    This mirrors the behavior of the askee-ds-validate CLI for components only
+    and is a convenient entry point for tests and tools.
+    """
     comps = load_default_components()
     return validate(comps)
+
+
+def components_by_name(components: Iterable[dict]) -> dict[str, dict]:
+    """
+    Build a dict mapping component name to component definition.
+
+    This is a tiny convenience to avoid repeating the same comprehension in
+    every consumer; it assumes that each component dict has a 'name' key.
+    """
+    return {c["name"]: c for c in components}
+
+
+def load_and_merge_components(files: Iterable[Path]) -> list[dict]:
+    """
+    Load and merge components from one or more files.
+
+    Files are processed in order; later files override earlier ones by
+    component name. This mirrors the behavior of tools/parse_components.py
+    and is the recommended pattern when layering project-specific overrides
+    on top of the upstream AskeeDS library.
+    """
+    merged: dict[str, dict] = {}
+    order: list[str] = []
+
+    for path in files:
+        content = path.read_text(encoding="utf-8")
+        comps = parse_components(content)
+        for c in comps:
+            name = c["name"]
+            if name not in merged:
+                order.append(name)
+            merged[name] = c
+
+    return [merged[name] for name in order]
 

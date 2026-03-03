@@ -28,6 +28,27 @@ Formal grammar: component boundary = line starting with `␟␟␟ COMPONENT: <n
 3. Add the component name to **manifest.yaml**.
 4. If you introduce new list/object shapes, add them to the PROP SHAPES section in components.txt (and any `␟ shape:` on the component).
 
+### Authoring checklist (for designers)
+
+When you add or change a component:
+
+1. **Name and section**
+   - Pick a clear name in dot notation (for example `room-card.debug`, `screen.tutorial`).
+   - Place it in the appropriate section of `components.txt` (atoms, game — menus, etc.).
+2. **Meta**
+   - Add `␟ description:` with a short, plain-language summary.
+   - Add `␟ props:` listing required props (and `_optional` suffixes or `[]` for lists).
+   - Optionally add `␟ shape:`, `␟ variant:`, `␟ color-hint:`, or `␟ pattern:` if needed.
+3. **ASCII art**
+   - Draw the structure using only characters from `box-drawing.yaml` for borders.
+   - Keep lines ≤ 80 characters; aim for 60–70 for readability.
+   - Do **not** use the `␟` delimiter character anywhere in the art.
+4. **Sync and validate**
+   - Add the component name to `manifest.yaml`.
+   - Run `python tools/parse_components.py --validate` (or `askee-ds-validate --kind components`) to catch formatting and prop issues.
+5. **Preview**
+   - Optionally run `python tools/render_demo.py` or `askee-ds-demo` to see a few key components rendered in your terminal.
+
 ## Maps: tilesets, layouts, and systems
 
 ASCII maps in AskeeDS are split into three concepts:

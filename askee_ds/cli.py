@@ -25,16 +25,24 @@ def validate_main(argv: list[str] | None = None) -> int:
     """
     askee-ds-validate
 
-    Validate components, decorations, and maps. By default, runs against the
-    repo layout (design/ascii, etc.). For non-repo layouts, pass explicit
-    paths.
+    Validate components, decorations, and maps.
+
+    This is the quickest way for authors to check that edits to
+    design/ascii/ files are structurally sound before wiring them into
+    a game or tool.
     """
-    parser = argparse.ArgumentParser(description="Validate AskeeDS design assets.")
+    parser = argparse.ArgumentParser(
+        description="Validate AskeeDS design assets (components, maps, decorations)."
+    )
     parser.add_argument(
         "--kind",
         choices=["components", "decorations", "maps", "all"],
         default="all",
-        help="Which assets to validate (default: all)",
+        help=(
+            "Which assets to validate (default: all). "
+            "Use 'components' after editing components.txt, 'maps' after editing maps/, "
+            "or 'decorations' after editing decoration-catalog.txt."
+        ),
     )
     args = parser.parse_args(argv)
 
@@ -81,19 +89,39 @@ def export_main(argv: list[str] | None = None) -> int:
     """
     askee-ds-export
 
-    Export components, decorations, and maps as JSON to stdout.
+    Export components, decorations, and maps as JSON to stdout, or list component
+    names for quick discovery.
     """
-    parser = argparse.ArgumentParser(description="Export AskeeDS assets as JSON.")
+    parser = argparse.ArgumentParser(
+        description="Export AskeeDS assets as JSON or list component names."
+    )
     parser.add_argument(
         "--kind",
         choices=["components", "decorations", "maps"],
         default="components",
         help="Which assets to export (default: components)",
     )
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help=(
+            "When used with --kind components, print component names (and optional "
+            "descriptions) as plain text instead of JSON."
+        ),
+    )
     args = parser.parse_args(argv)
 
     if args.kind == "components":
         comps = comp_mod.load_default_components()
+        if args.list:
+            for c in comps:
+                meta = c.get("meta") or {}
+                desc = meta.get("description", "").strip()
+                if desc:
+                    print(f"{c['name']}: {desc}")
+                else:
+                    print(c["name"])
+            return 0
         out = {"components": comps}
     elif args.kind == "decorations":
         decos = deco_mod.load_default_decorations()
@@ -106,23 +134,72 @@ def export_main(argv: list[str] | None = None) -> int:
     return 0
 
 
-def demo_main(argv: list[str] | None = None) -> int:  # noqa: ARG001
+def demo_main(argv: list[str] | None = None) -> int:
     """
     askee-ds-demo
 
     Render a small selection of canonical components as a structural reference.
+
+    By default this prints a curated sample; you can also choose specific
+    components or filter by name prefix.
     """
+    parser = argparse.ArgumentParser(
+        description=(
+            "Render example AskeeDS components as ASCII for quick visual inspection."
+        )
+    )
+    parser.add_argument(
+        "--component",
+        "-c",
+        action="append",
+        dest="components",
+        help=(
+            "Component name to render (for example room-card.default). "
+            "May be provided multiple times."
+        ),
+    )
+    parser.add_argument(
+        "--prefix",
+        "-p",
+        action="append",
+        dest="prefixes",
+        help=(
+            "Render all components whose names start with this prefix "
+            "(for example game --prefix inventory. --prefix screen.)."
+        ),
+    )
+    args = parser.parse_args(argv)
+
     root = _default_root()
     path = root / "design" / "ascii" / "components.txt"
     content = path.read_text(encoding="utf-8")
     comps = comp_mod.parse_components(content)
     index = {c["name"]: c for c in comps}
 
-    demo_names = [
-        "layout.app.shell",
-        "room-card.default",
-        "status-bar.default",
-    ]
+    demo_names: list[str]
+    if args.components or args.prefixes:
+        demo_names = []
+        if args.components:
+            demo_names.extend(args.components)
+        if args.prefixes:
+            for name in sorted(index.keys()):
+                if any(name.startswith(prefix) for prefix in args.prefixes):
+                    demo_names.append(name)
+        # Deduplicate while preserving order.
+        seen: set[str] = set()
+        unique: list[str] = []
+        for name in demo_names:
+            if name in seen:
+                continue
+            seen.add(name)
+            unique.append(name)
+        demo_names = unique
+    else:
+        demo_names = [
+            "layout.app.shell",
+            "room-card.default",
+            "status-bar.default",
+        ]
 
     for name in demo_names:
         comp = index.get(name)
