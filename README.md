@@ -44,24 +44,6 @@ You can use the repo as **copyable design assets**, an **experimental Python pac
 
 Here are a few example components from AskeeDS:
 
-- **`panel.consequence`** · Templates — Panel listing lasting body and mental consequences with severities.
-
-```text
-
-+------------------------------------------+
-| Consequences                             |
-+------------------------------------------+
-| Body:                                    |
-|  - Scarred arm (mild)                    |
-|  - Broken rib (severe)                   |
-| Mental:                                  |
-|  - Nightmares (moderate)                 |
-|  - Shaken faith (mild)                   |
-+------------------------------------------+
-
----------- Game — quick-select ----------
-```
-
 - **`screen.crafting`** · Templates — Crafting workbench screen with input slots, output preview, and resource costs.
 
 ```text
@@ -79,6 +61,22 @@ Here are a few example components from AskeeDS:
 +------------------------------------------+
 ```
 
+- **`panel.consequence`** · Templates — Panel listing lasting body and mental consequences with severities.
+
+```text
+
++------------------------------------------+
+| Consequences                             |
++------------------------------------------+
+| Body:                                    |
+|  - Scarred arm (mild)                    |
+|  - Broken rib (severe)                   |
+| Mental:                                  |
+|  - Nightmares (moderate)                 |
+|  - Shaken faith (mild)                   |
++------------------------------------------+
+```
+
 - **`layout.stack`** · Templates — Stacked full-width blocks (e.g. status + main + input).
 
 ```text
@@ -91,8 +89,6 @@ Here are a few example components from AskeeDS:
 +------------------------------------------------+
 | block 3 (input)                                |
 +------------------------------------------------+
-
----------- Patterns (structural) ----------
 ```
 
 <!-- COMPONENT_EXAMPLES:END -->
