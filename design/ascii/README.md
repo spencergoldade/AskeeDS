@@ -81,9 +81,7 @@ In the future, `manifest.yaml` and tooling can list multiple sources (for exampl
 
 ## Related docs
 
-- [docs/ascii-design-system.md](../../docs/ascii-design-system.md) — AskeeDS overview, features, component groups.
-- [docs/ascii-reference.txt](../../docs/ascii-reference.txt) — ASCII code point reference (U+0000–U+007F) and design-system delimiter note.
-- [design/tokens/colors.md](../tokens/colors.md) — Semantic color tokens for the TUI.
+- [format-spec.md](format-spec.md) — Full component format spec.
 - [tools/parse_components.py](../../tools/parse_components.py) — Parser/validator and JSON export (`python tools/parse_components.py --validate` or `--json`).
 - [tools/render_demo.py](../../tools/render_demo.py) — Minimal reference renderer (prints a few components to stdout).
 - [tools/test_parse_components.py](../../tools/test_parse_components.py) — Parser tests (`python tools/test_parse_components.py`).

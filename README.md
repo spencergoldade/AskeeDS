@@ -1,8 +1,10 @@
 # AskeeDS
 
+[![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?style=flat&logo=ko-fi)](https://ko-fi.com/spencerg1350)
+
 AskeeDS is an ASCII-based design system and component library for building terminal UIs (TUIs). It defines how screens, menus, and game elements should look and what data they expect—all in plain text and ASCII art so both humans and tools can use it.
 
-- **Design system overview:** see [docs/ascii-design-system.md](docs/ascii-design-system.md).
+- **Design system overview:** see [design/ascii/README.md](design/ascii/README.md) and [design/ascii/format-spec.md](design/ascii/format-spec.md).
 - **Component library (canonical):** [design/ascii/components.txt](design/ascii/components.txt) (plus [design/ascii/README.md](design/ascii/README.md) and [design/ascii/format-spec.md](design/ascii/format-spec.md)).
 - **Current version:** `0.1.0` (see [VERSION](VERSION) and [CHANGELOG.md](CHANGELOG.md)).
 
@@ -23,7 +25,7 @@ You can use the repo as **copyable design assets**, an **experimental Python pac
 > **Note:** The examples below use `python`. On macOS and some Linux setups you may get `zsh: command not found: python`; use `python3` instead (e.g. `python3 tools/render_demo.py`).
 
 - **If you just want to see what this looks like (anyone):**
-  - Open `design/ascii/components.txt` side by side with [docs/ascii-design-system.md](docs/ascii-design-system.md).
+  - Open `design/ascii/components.txt` side by side with [design/ascii/README.md](design/ascii/README.md).
   - From the repo root run:
     - `python tools/parse_components.py --validate` (quick health check).
     - `python tools/render_demo.py` (prints a few canonical components).
@@ -37,7 +39,7 @@ You can use the repo as **copyable design assets**, an **experimental Python pac
 - **If you are a new developer integrating AskeeDS:**
   - Decide whether you want to **copy the design assets** into your project or use the **experimental Python package/CLI** (see “How to add AskeeDS to an existing project” below).
   - Use `askee-ds-export --kind components` (or `python tools/parse_components.py --json ...`) to generate JSON.
-  - Follow the patterns in [docs/implementation-notes.md](docs/implementation-notes.md) to map component props to your runtime’s UI widgets.
+  - Use the parser (see [Scripts and commands (reference)](#scripts-and-commands-reference)) to export JSON and map component props to your runtime’s UI widgets.
 
 ---
 
@@ -108,12 +110,15 @@ Here are a few examples of the 63+ components from AskeeDS:
 - [Using the parser and overrides](#using-the-parser-and-overrides)
 - [Versioning and updates](#versioning-and-updates)
 - [Local dev utilities](#local-dev-utilities)
+- [Acknowledgments](#acknowledgments)
 
 ---
 
 ## Scripts and commands (reference)
 
 All commands below are run from the **repo root**. Use this table to find the right script for the job.
+
+> **Reminder:** The examples below use `python`. On macOS and some Linux setups you may get `zsh: command not found: python`; use `python3` instead (e.g. `python3 tools/render_demo.py`).
 
 | Command | What it does | When to use it |
 |--------|----------------|--------------------------------|
@@ -152,15 +157,12 @@ All commands below are run from the **repo root**. Use this table to find the ri
   - `map-tiles.yaml` — minimap / grid tile roles.
   - `manifest.yaml` — list of component names.
   - `README.md`, `format-spec.md` — how to parse and extend the system.
-- `design/tokens/colors.md` — TUI semantic color tokens (status bands, UI, entity, feedback).
-- `docs/ascii-design-system.md` — narrative overview, features, groups, and constraints.
-- `docs/ascii-reference.txt` — ASCII code points and the AskeeDS delimiter (U+241F, ␟).
-- `docs/adoption-and-updates-plan.md` — detailed plan for adoption, versioning, and updates.
 - `tools/parse_components.py` — parser/validator and JSON export CLI.
 - `tools/render_demo.py` — minimal reference renderer (prints a few components to stdout).
 - `tools/component_visual_test.py` — interactive TUI to visually test components by status, edit prop values, and see a live preview (requires Textual: `pip install textual` or `pip install -e ".[visual-test]"`).
 - `tools/test_parse_components.py` and additional tests/parsers under `tools/` — tests for the parser and related utilities.
-> **Note:** The Python tooling and package metadata in this repo are **experimental helpers**. The primary deliverable is the design-system bundle itself (`design/` + key docs). You should treat the Python code as a convenience layer, not a required integration path.
+
+
 
 ---
 
@@ -172,7 +174,7 @@ All commands below are run from the **repo root**. Use this table to find the ri
    - `python tools/parse_components.py --validate`
 2. Render a small demo of a few components:
    - `python tools/render_demo.py`
-3. Open [design/ascii/components.txt](design/ascii/components.txt) and [docs/ascii-design-system.md](docs/ascii-design-system.md) to see the components and their docs.
+3. Open [design/ascii/components.txt](design/ascii/components.txt) and [design/ascii/README.md](design/ascii/README.md) to see the components and their docs.
 
 > **Make something weird and wonderful.** AskeeDS is meant to be copied, bent, and remixed—build strange worlds, kind TUIs, tiny tools, or full games. If you ship something you’re proud of, consider sharing a short write-up or screenshot and crediting AskeeDS so others can discover it too.
 
@@ -182,15 +184,12 @@ All commands below are run from the **repo root**. Use this table to find the ri
    - `git clone <this-repo-url>`
 2. In your target project, copy the **design assets**:
    - `design/ascii/` (all files)
-   - `design/tokens/colors.md`
-   - `docs/ascii-design-system.md`
-   - `docs/ascii-reference.txt`
 3. Optionally also copy **tooling**:
    - `tools/parse_components.py`, `tools/render_demo.py`, `tools/test_parse_components.py`
 4. In your project, treat [design/ascii/components.txt](design/ascii/components.txt) as the **core upstream file**, and put any project-specific components or overrides in a separate file (for example `design/ascii/overrides.txt`).
 5. Use the parser in your project to validate or export the merged components (see [Using the parser and overrides](#using-the-parser-and-overrides)).
 
-For more detailed guidance and trade-offs (package vs copy vs submodule), see [docs/adoption-and-updates-plan.md](docs/adoption-and-updates-plan.md).
+For versioning and update strategy, see the [Versioning and updates](#versioning-and-updates) section below and [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -204,9 +203,6 @@ Copy the design-system bundle from this repo into your project.
 
 - Copy **design assets**:
   - `design/ascii/` (all files)
-  - `design/tokens/colors.md`
-  - `docs/ascii-design-system.md`
-  - `docs/ascii-reference.txt`
 - Optionally also copy **tooling**:
   - `tools/parse_components.py`, `tools/render_demo.py`, `tools/test_parse_components.py`
 
@@ -220,7 +216,7 @@ Then, in your project:
 
 This repo now includes a minimal `pyproject.toml` and an **experimental** `askee_ds` package with simple CLIs (`askee-ds-validate`, `askee-ds-export`, `askee-ds-demo`). These are provided **as a convenience only**:
 
-- The **source of truth** for the design system remains the copyable bundle under `design/` plus the key docs in `docs/`.
+- The **source of truth** for the design system remains the copyable bundle under `design/ascii/`.
 - The package/CLI layer is intended for teams already using Python who want quick validation or JSON export without wiring the scripts themselves.
 - Public packaging, distribution, and version guarantees for the Python layer may change; do not treat it as a stable, hard dependency the way you treat the ASCII assets.
 
@@ -234,7 +230,7 @@ If you prefer vendoring via Git:
 - Point your tools or build scripts at the design assets in that folder.
 - When a new version is published, update the submodule to the new tag and follow the changelog in [CHANGELOG.md](CHANGELOG.md).
 
-For more detail on all options and trade-offs, see [docs/adoption-and-updates-plan.md](docs/adoption-and-updates-plan.md).
+For versioning and update strategy, see the [Versioning and updates](#versioning-and-updates) section above and [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
@@ -284,3 +280,10 @@ With this model, you can stay on a specific version (for example `0.1.x`) or mov
 For a **full list of scripts and when to use each**, see [Scripts and commands (reference)](#scripts-and-commands-reference) above.
 
 When you edit [design/ascii/components.txt](design/ascii/components.txt) or add components/overrides, run at least: `python tools/parse_components.py --validate` and, after adding names, `python tools/update_manifest.py`. Use the visual test and parser tests as needed for QA.
+
+---
+
+## Acknowledgments
+
+This README’s structure was inspired by [Best README Template](https://github.com/othneildrew/Best-README-Template).
+

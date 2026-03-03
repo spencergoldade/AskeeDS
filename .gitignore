@@ -7,3 +7,6 @@ design/tokens/
 design/research/
 design/ia/
 design/content/
+
+# Cursor-only docs (not shipped in repo)
+docs/
