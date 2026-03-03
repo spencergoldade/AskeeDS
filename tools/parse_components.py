@@ -88,9 +88,17 @@ def parse_components(content: str) -> list[dict]:
                     key, _, value = meta_line.partition(": ")
                     meta[key.strip()] = value.strip()
                 i += 1
-            art_lines = []
-            while i < len(lines) and not lines[i].startswith(COMPONENT_PREFIX):
-                art_lines.append(lines[i])
+            art_lines: list[str] = []
+            while i < len(lines):
+                candidate = lines[i]
+                # Stop art block at the next component boundary.
+                if candidate.startswith(COMPONENT_PREFIX):
+                    break
+                # Stop art block at section headers like "---------- Templates ----------"
+                # so they are not treated as part of the previous component's example.
+                if candidate.startswith("---------- ") and candidate.rstrip().endswith("----------"):
+                    break
+                art_lines.append(candidate)
                 i += 1
             art = "\n".join(art_lines) if art_lines else ""
             components.append({"name": name, "meta": meta, "art": art})
