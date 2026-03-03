@@ -1,0 +1,49 @@
+# AskeeDS — Box-drawing character set
+# Single approved set for borders and structure. Load from here in code; do not
+# hardcode in component art. Component library shows intended shape only.
+# See design/ascii/README.md and docs/ascii-design-system.md.
+
+default: light
+
+sets:
+  light:
+    description: Standard ASCII box (7-bit safe, 80×24 terminals)
+    horizontal: "-"
+    vertical: "|"
+    top_left: "+"
+    top_right: "+"
+    bottom_left: "+"
+    bottom_right: "+"
+    tee_right: "+"
+    tee_left: "+"
+    tee_down: "+"
+    tee_up: "+"
+    cross: "+"
+
+  heavy:
+    description: Optional heavier borders (Unicode U+2500 block)
+    horizontal: "\u2501"
+    vertical: "\u2503"
+    top_left: "\u250F"
+    top_right: "\u2513"
+    bottom_left: "\u2517"
+    bottom_right: "\u251B"
+    tee_right: "\u2523"
+    tee_left: "\u252B"
+    tee_down: "\u2533"
+    tee_up: "\u253B"
+    cross: "\u254B"
+
+  double:
+    description: Optional double-line borders (Unicode U+2550 block)
+    horizontal: "\u2550"
+    vertical: "\u2551"
+    top_left: "\u2554"
+    top_right: "\u2557"
+    bottom_left: "\u255A"
+    bottom_right: "\u255D"
+    tee_right: "\u2560"
+    tee_left: "\u2563"
+    tee_down: "\u2566"
+    tee_up: "\u2569"
+    cross: "\u256C"

@@ -1,0 +1,54 @@
+# AskeeDS component library — format spec
+
+Machine-readable grammar for the component library file (e.g. `design/ascii/components.txt`). Delimiter: **U+241F** (SYMBOL FOR UNIT SEPARATOR), shown as ␟.
+
+## Grammar
+
+- **Component boundary:** A line that starts with exactly three U+241F characters, then the literal `COMPONENT: ` (with trailing space), then the component name. The component name is the rest of the line (trimmed). No leading/trailing spaces in the name.
+- **Meta line:** A line that starts with exactly one U+241F character, then a key (identifier or word), then the literal `: ` (colon + space), then the value. The value is the rest of the line (trimmed). Keys are case-sensitive (e.g. `description`, `props`).
+- **ASCII art block:** Consecutive lines that are not a component boundary and not a meta line. This is the component's structural sketch. May be empty. Ends at the next component boundary or end of file.
+
+## Parsing algorithm
+
+1. Split the file into lines (preserve line endings for art if needed; for structure, line-by-line is enough).
+2. Scan for the delimiter character (U+241F). Count leading delimiters on each line.
+3. If a line starts with `␟␟␟` and then `COMPONENT: `, begin a new component. Record the name (rest of line after `COMPONENT: `, trimmed).
+4. Subsequent lines starting with exactly one `␟` are meta: parse key and value (after the first `␟`, take up to first `: ` as key, rest as value).
+5. After the meta block (first line that is not component-boundary and not meta), treat all following lines until the next `␟␟␟ COMPONENT: ` as the ASCII art block. Store it as a string (lines joined by newline) or list of lines.
+6. Repeat until EOF.
+
+## Constraints (validation)
+
+- **No ␟ in art:** The ASCII art block must not contain the character U+241F. Parsers may reject or warn if found.
+- **Max line length:** Recommended max 80 characters per line (warning only; not enforced by format).
+- **Required meta:** Each component should have at least `description` and `props` (or explicit "none") for authoring; validators may warn if missing.
+- **Component names:** Use dot notation `category.variant`; no spaces. Must match manifest if present.
+
+## Example (minimal)
+
+```
+␟␟␟ COMPONENT: button.text
+␟ description: Text-only button
+␟ props: label
+[ Submit ]
+```
+
+Parsed as: name `button.text`, meta `{ "description": "Text-only button", "props": "label" }`, art (one line) `"[ Submit ]"`.
+
+## Export (JSON)
+
+A parser may output a structure like:
+
+```json
+{
+  "components": [
+    {
+      "name": "button.text",
+      "meta": { "description": "...", "props": "label", "interactive": "true" },
+      "art": "[ Submit ]\n"
+    }
+  ]
+}
+```
+
+Keys in `meta` are strings; values are strings. Duplicate keys (e.g. multiple `color-hint`) may be combined as array or last-wins per implementation.

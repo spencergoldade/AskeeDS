@@ -1,0 +1,593 @@
+-------------------------------------------------------------------------------
+DIRECTIONS FOR AGENTS CONSUMING THIS FILE
+-------------------------------------------------------------------------------
+This file is the AskeeDS ASCII design system and component library (canonical
+location: design/ascii/components.txt). By Spencer Goldade. Read it when
+implementing or modifying terminal UI, layouts, panes, or text-based components
+for any TUI using AskeeDS.
+
+HOW TO PARSE
+  - Component start: line beginning with three U+241F (␟) then "COMPONENT: "
+    followed by the component name (e.g. layout.app.shell, room-card.default).
+  - Meta: lines beginning with one ␟ then a key and value (e.g. ␟ props: ...,
+    ␟ description: ...). Meta applies to the component that follows the
+    previous component boundary.
+  - Everything after the meta block, until the next ␟␟␟ line, is the
+    component's ASCII art (structure and example content).
+  - Do not use the character ␟ (U+241F) inside ASCII art. Parsers split on ␟
+    to find component boundaries and meta lines; a ␟ in the art would break
+    parsing. Use only box-drawing and content characters in the art block.
+
+HOW TO USE
+  - Look up a component by name when building or styling a TUI element. Use
+    the ASCII art as the structural reference (borders, spacing, layout).
+  - Border characters (| - + etc.) are defined in design/ascii/box-drawing.yaml;
+    load from there in code rather than hardcoding. This file shows the
+    intended shape only.
+  - Semantic colors are in design/tokens/colors.md. Apply them in code
+    (Rich/Textual) per ␟ color-hint: on each component when present.
+  - Respect props listed in meta (e.g. title, description_text, directions[])
+    when implementing; they define the data the component expects.
+  - Max width 80 chars; prefer 60–70 for body text. Test at 80×24; 256-color.
+  - Layout components (e.g. layout.two-column, layout.stack): Props like
+    left_content, right_content, and blocks[] are content slots. Your runtime
+    may pass pre-rendered strings or the output of other components; this file
+    does not define a composition API. Ensure what you pass respects max width
+    (80 chars) and box-drawing.
+
+PROPS CONTRACT
+  - Naming: Prop names use snake_case (e.g. hp_current, body_text). Refer to
+    props by name (e.g. props["title"], keyword arguments, or your runtime's
+    equivalent).
+  - Optionality: If a prop is optional, the component's ␟ props line may suffix
+    it with _optional or list optional props on a separate ␟ optional: line.
+    Props without that marking are required unless the description says otherwise.
+  - Arrays: A prop named with trailing [] (e.g. items[]) denotes a list. The
+    shape of each element is defined in PROP SHAPES below or in the component's
+    ␟ shape: line.
+  - Single source of truth: When implementing, treat the component's ␟ props:
+    and any ␟ shape: (or PROP SHAPES entry) as the contract for what to pass in.
+
+PROP SHAPES
+  - room-card.default: entity_list: { id, label }[] (items/NPCs in room).
+    exits: string[] (e.g. ["north","south"]).
+  - entity-list.room: items: { id, label }[], npcs: { id, label }[].
+  - minimap.default: grid: 2D array of role ids or characters (per map-tiles.yaml).
+    legend_entries: { char, label }[]. player_position: { row, col } or equivalent.
+  - layout.two-column: left_content, right_content: pre-rendered string or
+    runtime's child content (see composition note in HOW TO USE).
+  - layout.stack: blocks[]: list of pre-rendered strings or child content.
+  - tracker.objective: objectives: { id?, label, checked: bool }[].
+  - inventory.grid: slots: { id, label?, item_ref? }[]. columns: number.
+  - inventory.list: items: { id, label, quantity? }[].
+  - character-sheet.compact: stats: { label, value }[] or { label, current, max }[]
+    for bar-style rows.
+  - tree.compact: nodes: { id, label, children?: nodes }[] (nested) or
+    { id, label, depth }[] (flat with indent).
+  - choice-wheel.inline: options: { id, label }[].
+  - quick-select.radial: options: { id, label }[]. selected_id: id of selected.
+    Positions 1-4 (or 1-8) map clockwise from top: 1=top, 2=right, 3=bottom, 4=left.
+  - nav.vertical: items: { id, label }[]. active_id: id of the active item.
+  - menu.main / menu.pause: items: { id, label }[].
+  - status-icon.row: icons: { symbol, label? }[] or { id, symbol, label? }[].
+  - screen.death: actions: { id, label }[] (e.g. Respawn, Main menu).
+  - decoration.placeholder: width, height: character-cell dimensions of the slot;
+    art is cropped or centered to fit. Content is a separate asset or catalog entry.
+
+COLOR-HINT BEHAVIOR
+  - HP / resource bands (status.good, status.warning, status.danger): Use good
+    when value is above ~70% of max, warning between ~30% and ~70%, danger below
+    ~30%. Exact thresholds are implementation-defined; document the intent.
+  - "Entity for others" (e.g. mana, stamina): Use tokens from design/tokens/
+    colors.md for non-HP resources (e.g. entity.item, ui.accent) as appropriate;
+    do not rely on color alone for meaning.
+
+RELATED SOURCES
+  - design/ascii/README.md, box-drawing.yaml, map-tiles.yaml, manifest.yaml
+  - design/tokens/colors.md (semantic color tokens)
+  - docs/ascii-design-system.md (overview)
+
+-------------------------------------------------------------------------------
+GUIDELINES FOR ASCII DESIGN SYSTEM COMPONENTS (authors / editors)
+-------------------------------------------------------------------------------
+Source of truth: design/ascii/ (this file, box-drawing.yaml, map-tiles.yaml,
+
+PATTERNS AND USAGE
+  - Prefer composing components (e.g. modal = overlay + card + buttons). Use
+    ␟ pattern: / ␟ use-case: to link components to flows.
+  - Variants: When a component lists ␟ variant: (e.g. tooltip.default with
+    default | stats) or when two components share the same structure (e.g.
+    menu.main and menu.pause), implement as one parameterized component when
+    the layout is identical; use the variant or use-case to change props or
+    copy only. Document which props apply to which variant in the component's
+    ␟ props: / ␟ optional: lines.
+
+ACCESSIBILITY AND CONTENT
+  - Structure (headings, lists) supports screen readers; keep order and labels
+    consistent. Color is applied in code per design/tokens/colors.md; do not
+    rely on shape alone for meaning.
+  - Content style: Short, present tense; noun-based labels. Match
+    design/content/voice-and-tone.md when adding copy examples.
+  - Brand: One consistent box-drawing set (box-drawing.yaml); avoid mixing
+    decorative Unicode in structure. Decorative ASCII art in a dedicated slot
+    (decoration.placeholder) uses ASCII-only characters.
+  - Empty and error states: When a component has no data (e.g. empty inventory,
+    no objectives, failed load), show a single-line placeholder message or the
+    component structure with one line such as "(none)" or "No items." Avoid
+    leaving the component area blank. For errors, use feedback.error or a
+    dedicated line with status.danger.
+
+DELIMITERS
+  - ␟␟␟ COMPONENT: <name>   Start of a new component (U+241F SYMBOL FOR UNIT SEPARATOR).
+  - ␟ <key>: <value>         Meta line: description, props, variants, etc.
+  One ␟ = meta; three ␟ = component boundary. No other uses of ␟ in art.
+
+NAMING
+  - Use dot notation: category.variant (e.g. layout.app.shell, button.icon).
+  - Noun-based, present tense; avoid jargon. Matches design tokens (e.g.
+    status.good, entity.item).
+
+BOX-DRAWING AND WIDTH
+  - Use characters from design/ascii/box-drawing.yaml for borders. Do not
+    hardcode alternate box glyphs here; change the YAML and keep this file
+    consistent with the active set (e.g. light: | - +).
+  - Max line length 80 chars; aim 60–70 for readable blocks (per ui-ux §5.1).
+  - Test at 80×24 min; 256-color safe. No truecolor-only or wrapping.
+
+SPACING AND HIERARCHY
+  - One space between border and inner text (padding). Keep vertical
+    rhythm consistent (blank line between sections when the component has
+    distinct regions). Keep primary vs secondary visually distinct.
+
+PROPS AND META
+  - List props on ␟ lines: ␟ props: name, label, icon. Optional: ␟ variant:,
+    ␟ description:, ␟ shape:. Code will use these when implementing components.
+  - Interactivity: Optional meta ␟ interactive: true indicates that the
+    component is focusable or emits events (e.g. button, menu item, choice
+    option). Use for accessibility and focus order; this file does not define
+    event names or key bindings.
+
+COLOR
+  - This file defines structure only. Semantic color lives in
+    design/tokens/colors.md and is applied in code (Rich/Textual). You may
+    add ␟ color-hint: <token> for documentation (e.g. ␟ color-hint: ui.accent
+    for border).
+
+ADDING COMPONENTS
+  - Check existing components to avoid duplicates. Use the same ␟/␟␟␟
+    convention. Add at least ␟ description: and ␟ props: (if any). Keep
+    examples minimal and representative. Add the component name to
+    design/ascii/manifest.yaml.
+
+-------------------------------------------------------------------------------
+COMPONENT LIBRARY (examples)
+-------------------------------------------------------------------------------
+
+␟␟␟ COMPONENT: layout.app.shell
+␟ description: Main app shell with header, sidebar, and content area
++------------------------------------------------+
+| App Title                 [user] [settings]    |
++------------+-----------------------------------+
+| nav item 1 | content area                      |
+| nav item 2 |                                   |
++------------+-----------------------------------+
+
+␟␟␟ COMPONENT: button.icon
+␟ description: Button with leading icon (one or two chars).
+␟ props: label, icon
+[☆] Star this
+
+␟␟␟ COMPONENT: tooltip.default
+␟ description: Bordered tooltip; optional stats variant.
+␟ props: text; optional variant stats: name, stats_dict
+␟ variant: default | stats
++---------------------------+
+|  Additional information   |
++---------------------------+
+
+␟␟␟ COMPONENT: table.fourcolumn
+␟ description: Four-column bordered table; header row and data rows.
+␟ props: label, content
++----------------------------------+---------+------------------------+----------------+
+|               Col1               |  Col2   |          Col3          | Numeric Column |
++----------------------------------+---------+------------------------+----------------+
+| Value 1                          | Value 2 | 123                    |           10.0 |
+| Separate                         | cols    | with a tab or 4 spaces |       -2,027.1 |
+| This is a row with only one cell |         |                        |                |
++----------------------------------+---------+------------------------+----------------+
+
+␟␟␟ COMPONENT: status-bar.default
+␟ description: Single-line HUD; HP, location, turn. Top or bottom of screen.
+␟ props: hp_current, hp_max, location_name, turn_count
+␟ color-hint: status.good/warning/danger for HP band; ui.muted for labels
+HP: 85/100  |  The Clearing  |  Turn 12
+
+␟␟␟ COMPONENT: room-card.default
+␟ description: Room pane: title, body, then engine-generated "You see" and Exits.
+␟ props: title, description_text, entity_list[], exits[]
++-- The Clearing ---------------------------------+
+| A small clearing in the woods.                   |
+|                                                 |
+| You see:                                        |
+|   * brass lamp                                  |
+|   * guard                                       |
+| Exits: north  south                             |
++-------------------------------------------------+
+
+␟␟␟ COMPONENT: entity-list.room
+␟ description: Scannable list of items and NPCs in current room (from content).
+␟ props: items[], npcs[]
+␟ color-hint: entity.item (items), entity.npc (NPCs)
+You see:
+  * brass lamp
+  * guard
+
+␟␟␟ COMPONENT: exit-list.inline
+␟ description: Exits line derived from room frontmatter exits map.
+␟ props: directions[]
+␟ color-hint: entity.npc (exits as links/affordances)
+Exits: north  south  east
+
+␟␟␟ COMPONENT: minimap.default
+␟ description: Small ASCII grid (e.g. 10x10) with legend. Secondary pane.
+␟ props: grid[], legend_entries, player_position
++----------+
+| ....#....|
+| .P.#.....|
+| ....D....|
++----------+
+  . empty  # wall  P you  D door
+
+␟␟␟ COMPONENT: command-input.default
+␟ description: Command line with prompt; optional tab/history hint.
+␟ props: prompt, placeholder, hint_text
+> go north
+[Tab: complete] [Up/Down: history]
+
+␟␟␟ COMPONENT: hint-bar.contextual
+␟ description: Contextual shortcuts; progressive disclosure for new vs expert.
+␟ props: hints[]
+Commands: look, go <dir>, take <item>, i(nventory), ? for help
+
+␟␟␟ COMPONENT: narrative-log.pane
+␟ description: Scrollable narrative output; primary focus area. Bordered pane.
+␟ props: lines[], max_visible
++-- Narrative log --------------------------------+
+| You enter the clearing.                          |
+| The guard eyes you but says nothing.             |
+|                                                 |
++-------------------------------------------------+
+
+␟␟␟ COMPONENT: feedback.success
+␟ description: One-line parser success (e.g. take, drop). Green in code.
+␟ props: message
+␟ color-hint: status.good
+Taken: rusty sword (+1 weapon)
+
+␟␟␟ COMPONENT: feedback.error
+␟ description: One-line parser error or suggestion. Yellow/red in code.
+␟ props: message, suggestion
+␟ color-hint: status.warning or status.danger
+You don't see "sword" here. Did you mean "rusty sword"?
+
+␟␟␟ COMPONENT: divider.horizontal
+␟ description: Section separator within a pane; no box.
+␟ props: (none or style)
+------------------------------------------
+
+--- Atoms ---
+
+␟␟␟ COMPONENT: input.text
+␟ description: Single-line prompt and field (bordered or prompt-only).
+␟ props: prompt, placeholder, max_length
+> _______________
+
+␟␟␟ COMPONENT: label.inline
+␟ description: Short label before value (e.g. stat display).
+␟ props: label, value
+HP: 85
+
+␟␟␟ COMPONENT: icon.placeholder
+␟ description: Single- or two-char icon slot for buttons/menus.
+␟ props: symbol, alt_text
+[?]
+
+␟␟␟ COMPONENT: button.text
+␟ description: Text-only button; no icon.
+␟ props: label
+␟ interactive: true
+[ Submit ]
+
+␟␟␟ COMPONENT: breadcrumb.inline
+␟ description: Inline path (e.g. location hierarchy).
+␟ props: segments[]
+Home > The Clearing > Guard post
+
+--- Molecules ---
+
+␟␟␟ COMPONENT: form.single-field
+␟ description: Label + input + optional hint in one block.
+␟ props: label, placeholder, hint
++----------------------------------+
+| Name: _____________________      |
+| (your character name)             |
++----------------------------------+
+
+␟␟␟ COMPONENT: card.simple
+␟ description: Generic bordered title + body; room-card is game variant.
+␟ props: title, body_text
++-- Card title --------------------+
+| Body text goes here.             |
+| Optional second line.           |
++----------------------------------+
+
+--- Organisms ---
+
+␟␟␟ COMPONENT: header.banner
+␟ description: Single-line app/game title with optional trailing controls.
+␟ props: title, controls[]
++------------------------------------------------+
+| AskeeDS                   [user] [settings]     |
++------------------------------------------------+
+
+␟␟␟ COMPONENT: nav.vertical
+␟ description: Vertical list of nav items (e.g. sidebar).
+␟ props: items[], active_id
+| Inventory
+| Map
+| Journal
+> Settings
+
+--- Templates ---
+
+␟␟␟ COMPONENT: layout.two-column
+␟ description: Left/right panes; no header (use with header.banner if needed).
+␟ props: left_content, right_content
++------------------+-----------------------------+
+| left pane        | right pane                  |
+|                  |                             |
++------------------+-----------------------------+
+
+␟␟␟ COMPONENT: layout.stack
+␟ description: Stacked full-width blocks (e.g. status + main + input).
+␟ props: blocks[]
++------------------------------------------------+
+| block 1 (e.g. status bar)                      |
++------------------------------------------------+
+| block 2 (main content)                          |
+|                                                 |
++------------------------------------------------+
+| block 3 (input)                                 |
++------------------------------------------------+
+
+--- Patterns (structural) ---
+
+␟␟␟ COMPONENT: modal.overlay
+␟ description: Centered bordered box; pattern for confirmation/dialog.
+␟ pattern: modal
+␟ props: title, body_text
++------------------------------------------+
+| Confirm                                  |
++------------------------------------------+
+| Are you sure you want to quit?           |
+|                                          |
+|        [ Cancel ]  [ Quit ]              |
++------------------------------------------+
+
+␟␟␟ COMPONENT: toast.inline
+␟ description: Transient one- or two-line feedback (e.g. bottom-right).
+␟ props: message, variant
++-----------------------------------+
+|  Saved.                           |
++-----------------------------------+
+
+␟␟␟ COMPONENT: progress-bar.horizontal
+␟ description: Horizontal bar with optional label/percent; used by meters.
+␟ props: value, max, label_optional
+[=========>                    ] 50%
+
+␟␟␟ COMPONENT: spinner.loading
+␟ description: Animated loading indicator (cycle through frames in code).
+␟ props: (none) or style_hint, frames[]
+␟ note: Implementation cycles frames e.g. | / - \ or + x.
+|
+
+--- Typography ---
+
+␟␟␟ COMPONENT: typography.banner
+␟ description: Multi-line ASCII-art title; structural placeholder for Figlet/Art.
+␟ note: For production, consider generating via Figlet/Art or similar.
+␟ props: text, style_hint
+  ___  ____  _  __ ______
+ / _ )/ __ \/ |/ // __/ /
+/ _  / /_/ /    /_/ /_/ 
+/____/\____/_/|_/___/___ 
+
+--- Game — conversation ---
+
+␟␟␟ COMPONENT: speech-bubble.left
+␟ description: NPC/system speech; tail on left.
+␟ props: text, speaker_id
+  +-----------------------------+
+ / The guard nods. "Go north."   |
++-------------------------------+
+
+␟␟␟ COMPONENT: speech-bubble.right
+␟ description: Player speech; tail on right.
+␟ props: text
++-----------------------------+
+| I'll go north.           \   |
++-----------------------------+
+
+␟␟␟ COMPONENT: choice-wheel.inline
+␟ description: Vertical numbered options for dialog/choice flow.
+␟ props: options[]
+1. Go north
+2. Talk to guard
+3. Take lamp
+
+--- Game — menus ---
+
+␟␟␟ COMPONENT: menu.main
+␟ description: Main menu; title + list (New game, Load, Options, Quit).
+␟ props: title, items[]
+␟ interactive: true
++-- AskeeDS ----------------------+
+|  New game                       |
+|  Load game                      |
+|  Options                        |
+|  Quit                           |
++---------------------------------+
+
+␟␟␟ COMPONENT: menu.pause
+␟ description: Pause/options overlay; same list shape.
+␟ use-case: pause | settings
+␟ props: title, items[]
++-- Paused -----------------------+
+|  Resume                         |
+|  Settings                       |
+|  Quit to menu                   |
++---------------------------------+
+
+--- Game — inventory/character ---
+
+␟␟␟ COMPONENT: inventory.grid
+␟ description: Grid of slots (e.g. 2x4 or 4x3) with labels.
+␟ props: slots[], columns
++--------+--------+--------+--------+
+| slot 1 | slot 2 | slot 3 | slot 4 |
++--------+--------+--------+--------+
+| slot 5 | slot 6 | slot 7 | slot 8 |
++--------+--------+--------+--------+
+
+␟␟␟ COMPONENT: inventory.list
+␟ description: List of items with optional quantity.
+␟ props: items[]
+- rusty sword (1)
+- brass lamp (1)
+- key (2)
+
+␟␟␟ COMPONENT: character-sheet.compact
+␟ description: Name plus 2–3 rows (HP, mana, status); reuses meter/label.
+␟ props: name, stats[]
+Hero
+HP:  [=========>    ] 85/100
+Mana: [====          ] 20/50
+
+␟␟␟ COMPONENT: tree.compact
+␟ description: Indented hierarchy for skills/abilities/loadouts.
+␟ props: nodes[]
+Combat
+  > Strike
+  > Block
+  > Parry
+Lore
+  > Identify
+  > Persuade
+
+--- Game — meters ---
+
+␟␟␟ COMPONENT: meter.resource
+␟ description: Horizontal bar + label; type = health | mana | stamina.
+␟ props: type, current, max
+␟ color-hint: status.good/warning/danger for health band; entity for others
+HP:   [=========>                    ] 85/100
+Mana: [====                           ] 20/50
+
+--- Game — counters ---
+
+␟␟␟ COMPONENT: counter.ammo
+␟ description: Ammo or similar resource count (current/max or bar).
+␟ props: current, max, label
+Ammo: 12/24
+
+␟␟␟ COMPONENT: counter.score
+␟ description: Score or kill count.
+␟ props: value, label
+Score: 1,250   Kills: 7
+
+␟␟␟ COMPONENT: tracker.objective
+␟ description: One line per objective; unchecked/checked.
+␟ props: objectives[]
+[ ] Find the key
+[x] Talk to the guard
+[ ] Open the door
+
+--- Game — status ---
+
+␟␟␟ COMPONENT: status-icon.row
+␟ description: Row of symbols (buffs, debuffs, alerts) with optional labels.
+␟ props: icons[], labels[]
+[+] [*] [!]   buff  debuff  alert
+
+␟␟␟ COMPONENT: cooldown.badge
+␟ description: Turn-based cooldown (turns left); no realtime.
+␟ props: turns_left, label
+[3]
+
+--- Game — notifications ---
+
+␟␟␟ COMPONENT: notification.achievement
+␟ description: Bordered one-liner for achievements.
+␟ props: message
++------------------------------------------+
+|  Achievement: First Steps                |
++------------------------------------------+
+
+␟␟␟ COMPONENT: notification.loot
+␟ description: Bordered one-liner for loot drops.
+␟ props: message
++------------------------------------------+
+|  Loot: rusty sword                       |
++------------------------------------------+
+
+--- Game — screens ---
+
+␟␟␟ COMPONENT: screen.loading
+␟ description: Centered loading message + optional tip.
+␟ props: message, tip
++------------------------------------------+
+|                                          |
+|            Loading...                    |
+|     Tip: Type "look" to examine.         |
+|                                          |
++------------------------------------------+
+
+␟␟␟ COMPONENT: screen.death
+␟ description: Death screen; title + message + actions.
+␟ props: message, actions[]
++------------------------------------------+
+|         You have died.                   |
+|                                          |
+|  The guard's blade finds you.            |
+|                                          |
+|    [ Respawn ]  [ Main menu ]            |
++------------------------------------------+
+
+␟␟␟ COMPONENT: screen.tutorial
+␟ description: Small bordered hint; Tutorial or Hint label.
+␟ props: title, body, dismiss_label
++-- Hint -------------------------+
+|  Type "go north" to move.       |
+|           [ OK ]                |
++----------------------------------+
+
+--- Game — decorative ---
+
+␟␟␟ COMPONENT: decoration.placeholder
+␟ description: Slot for public-domain or project-owned ASCII art (fish, skull). width and height define slot size in character cells; art is supplied elsewhere and cropped or centered to fit. Use ASCII-only characters (no Unicode) per AskeeDS box-drawing/decoration policy.
+␟ note: Use public-domain or project-owned art; attach specific art as assets or list in design/ascii/art-catalog if we create one.
+␟ props: width, height
+    .-~~~-.
+   (  o   o  )
+   (   ^   )
+    \|_|_/
+
+--- Game — quick-select ---
+
+␟␟␟ COMPONENT: quick-select.radial
+␟ description: Compass-style or 8-slot radial (e.g. weapon wheel).
+␟ props: options[], selected_id
+      [1]
+   [4]   [2]
+      [3]

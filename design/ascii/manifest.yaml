@@ -1,0 +1,62 @@
+# AskeeDS — Component library manifest
+# List of component names for tooling and discovery. Source file is the
+# component library (components.txt). If the library is split later, list
+# file and section per component here. In the future, `sources: [...]` can be
+# used to list multiple component files (for example core + overrides).
+
+source: components.txt
+
+components:
+  - layout.app.shell
+  - button.icon
+  - tooltip.default
+  - table.fourcolumn
+  - status-bar.default
+  - room-card.default
+  - entity-list.room
+  - exit-list.inline
+  - minimap.default
+  - command-input.default
+  - hint-bar.contextual
+  - narrative-log.pane
+  - feedback.success
+  - feedback.error
+  - divider.horizontal
+  - input.text
+  - label.inline
+  - icon.placeholder
+  - button.text
+  - breadcrumb.inline
+  - form.single-field
+  - card.simple
+  - header.banner
+  - nav.vertical
+  - layout.two-column
+  - layout.stack
+  - modal.overlay
+  - toast.inline
+  - progress-bar.horizontal
+  - spinner.loading
+  - typography.banner
+  - speech-bubble.left
+  - speech-bubble.right
+  - choice-wheel.inline
+  - menu.main
+  - menu.pause
+  - inventory.grid
+  - inventory.list
+  - character-sheet.compact
+  - tree.compact
+  - meter.resource
+  - counter.ammo
+  - counter.score
+  - tracker.objective
+  - status-icon.row
+  - cooldown.badge
+  - notification.achievement
+  - notification.loot
+  - screen.loading
+  - screen.death
+  - screen.tutorial
+  - decoration.placeholder
+  - quick-select.radial

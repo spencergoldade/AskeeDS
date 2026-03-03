@@ -1,0 +1,27 @@
+# AskeeDS — Map tile roles for minimap and grid components
+# Referenced by minimap.default and any grid-based components.
+# Use role id or character in grid data; legend_entries map char to label.
+# See design/ascii/README.md and components (minimap.default).
+
+tiles:
+  empty:
+    char: "."
+    label: "empty"
+  wall:
+    char: "#"
+    label: "wall"
+  door:
+    char: "D"
+    label: "door"
+  player:
+    char: "P"
+    label: "you"
+  water:
+    char: "~"
+    label: "water"
+  path:
+    char: ","
+    label: "path"
+
+# Grid data: 2D array of role ids (e.g. "empty", "wall") or characters.
+# player_position: { row, col } or equivalent.
