@@ -44,41 +44,55 @@ You can use the repo as **copyable design assets**, an **experimental Python pac
 
 Here are a few example components from AskeeDS:
 
+- **`panel.consequence`** · Templates — Panel listing lasting body and mental consequences with severities.
+
 ```text
-␟␟␟ COMPONENT: layout.app.shell
-␟ description: Main app shell with header, sidebar, and content area
+
++------------------------------------------+
+| Consequences                             |
++------------------------------------------+
+| Body:                                    |
+|  - Scarred arm (mild)                    |
+|  - Broken rib (severe)                   |
+| Mental:                                  |
+|  - Nightmares (moderate)                 |
+|  - Shaken faith (mild)                  |
++------------------------------------------+
+
+---------- Game — quick-select ----------
+```
+
+- **`screen.crafting`** · Templates — Crafting workbench screen with input slots, output preview, and resource costs.
+
+```text
+
++------------------------------------------+
+|           Crafting bench                 |
++------------------------------------------+
+| Inputs:                                  |
+|  [ herb ]  [ bottle ]                    |
+|                                          |
+| Output: healing potion                   |
+| Chance: 75%                              |
+|                                          |
+| Costs: mana 5, time 1h                   |
++------------------------------------------+
+```
+
+- **`layout.stack`** · Templates — Stacked full-width blocks (e.g. status + main + input).
+
+```text
+
 +------------------------------------------------+
-| App Title                 [user] [settings]    |
-+------------+-----------------------------------+
-| nav item 1 | content area                      |
-| nav item 2 |                                   |
-+------------+-----------------------------------+
-```
+| block 1 (e.g. status bar)                      |
++------------------------------------------------+
+| block 2 (main content)                         |
+|                                                |
++------------------------------------------------+
+| block 3 (input)                                |
++------------------------------------------------+
 
-```text
-␟␟␟ COMPONENT: room-card.default
-␟ description: Room pane: title, body, then engine-generated "You see" and Exits.
-␟ props: title, description_text, entity_list[], exits[]
-+-- The Clearing ---------------------------------+
-| A small clearing in the woods.                   |
-|                                                 |
-| You see:                                        |
-|   * brass lamp                                  |
-|   * guard                                       |
-| Exits: north  south                             |
-+-------------------------------------------------+
-```
-
-```text
-␟␟␟ COMPONENT: minimap.default
-␟ description: Small ASCII grid (e.g. 10x10) with legend. Secondary pane.
-␟ props: grid[], legend_entries, player_position
-+----------+
-| ....#....|
-| .P.#.....|
-| ....D....|
-+----------+
-  . empty  # wall  P you  D door
+---------- Patterns (structural) ----------
 ```
 
 <!-- COMPONENT_EXAMPLES:END -->

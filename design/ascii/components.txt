@@ -256,7 +256,7 @@ HP: 40/100  |  The Alley  |  Turn 27  |  Risk: Hunted  |  Luck: Fading
 ␟ props: title, description_text, entity_list[], exits[]
 
 +-- The Clearing ---------------------------------+
-| A small clearing in the woods.                   |
+| A small clearing in the woods.                  |
 |                                                 |
 | You see:                                        |
 |   * brass lamp                                  |
