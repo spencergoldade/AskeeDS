@@ -37,6 +37,7 @@ Machine-readable grammar for the component library file (e.g. `design/ascii/comp
 - **No ␟ in art:** The ASCII art block must not contain the character U+241F. Parsers may reject or warn if found.
 - **Max line length:** Recommended max 80 characters per line (warning only; not enforced by format).
 - **Required meta:** Each component should have at least `description` and `props` (or explicit "none") for authoring; validators may warn if missing.
+- **Component status:** Each component should have `component-status` with one of: `Ideated`, `To Do`, `In Progress`, `In Review`, `Approved`, `Cancelled`, `Deprecated`. Validators may warn if missing. When `component-status` is `Deprecated`, `replaced-by` must be present and non-empty (validators should error if not).
 - **Component names:** Use dot notation `category.variant`; no spaces. Must match manifest if present.
 
 ## Example (minimal)
@@ -44,11 +45,12 @@ Machine-readable grammar for the component library file (e.g. `design/ascii/comp
 ```
 ␟␟␟ COMPONENT: button.text
 ␟ description: Text-only button
+␟ component-status: In Review
 ␟ props: label
 [ Submit ]
 ```
 
-Parsed as: name `button.text`, meta `{ "description": "Text-only button", "props": "label" }`, art (one line) `"[ Submit ]"`.
+Parsed as: name `button.text`, meta `{ "description": "Text-only button", "component-status": "In Review", "props": "label" }`, art (one line) `"[ Submit ]"`.
 
 ## Export (JSON)
 
@@ -59,7 +61,7 @@ A parser may output a structure like:
   "components": [
     {
       "name": "button.text",
-      "meta": { "description": "...", "props": "label", "interactive": "true" },
+      "meta": { "description": "...", "component-status": "In Review", "props": "label", "interactive": "true" },
       "art": "[ Submit ]\n"
     }
   ]

@@ -21,6 +21,16 @@ COMPONENT_PREFIX = DELIMITER * 3 + " COMPONENT: "
 META_PREFIX = DELIMITER + " "
 MAX_LINE_LENGTH = 80
 
+COMPONENT_STATUSES = {
+    "Ideated",
+    "To Do",
+    "In Progress",
+    "In Review",
+    "Approved",
+    "Cancelled",
+    "Deprecated",
+}
+
 _NAME_RE = re.compile(r"^[a-z0-9]+(\.[a-z0-9_]+)+$")
 
 
@@ -127,6 +137,19 @@ def validate(components: list[dict]) -> tuple[list[str], list[str]]:
             warnings.append(f"{name}: missing ␟ description:")
         if not props_raw:
             warnings.append(f"{name}: missing ␟ props: (or explicit 'none')")
+
+        status = str(meta.get("component-status", "")).strip()
+        if status and status not in COMPONENT_STATUSES:
+            errors.append(
+                f"{name}: invalid component-status {status!r}; must be one of: "
+                + ", ".join(sorted(COMPONENT_STATUSES))
+            )
+        if status == "Deprecated" and not str(meta.get("replaced-by", "")).strip():
+            errors.append(
+                f"{name}: component-status Deprecated requires ␟ replaced-by: <component name>"
+            )
+        if not status:
+            warnings.append(f"{name}: missing ␟ component-status:")
 
         parsed_props = _parse_props_meta(props_raw)
         if props_raw and not parsed_props:

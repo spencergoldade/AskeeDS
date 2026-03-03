@@ -86,6 +86,42 @@ class TestParseComponents(unittest.TestCase):
             ),
         )
 
+    def test_component_status_present_after_migration(self):
+        from parse_components import parse_components, COMPONENT_STATUSES
+        content = COMPONENTS_PATH.read_text(encoding="utf-8")
+        components = parse_components(content)
+        for c in components:
+            status = c.get("meta", {}).get("component-status", "").strip()
+            self.assertIn(status, COMPONENT_STATUSES, f"{c['name']}: component-status {status!r} not in allowed set")
+
+    def test_validate_invalid_component_status(self):
+        from parse_components import validate
+        components = [{"name": "test.fake", "meta": {"component-status": "Unknown", "description": "x", "props": "y"}, "art": ""}]
+        errors, _ = validate(components)
+        self.assertTrue(any("invalid component-status" in e for e in errors), f"Expected invalid status error, got: {errors}")
+
+    def test_validate_deprecated_without_replaced_by(self):
+        from parse_components import validate
+        components = [{"name": "test.deprecated", "meta": {"component-status": "Deprecated", "description": "x", "props": "y"}, "art": ""}]
+        errors, _ = validate(components)
+        self.assertTrue(any("replaced-by" in e for e in errors), f"Expected replaced-by error, got: {errors}")
+
+    def test_validate_deprecated_with_replaced_by(self):
+        from parse_components import validate
+        components = [{"name": "test.deprecated", "meta": {"component-status": "Deprecated", "replaced-by": "some.component", "description": "x", "props": "y"}, "art": ""}]
+        errors, _ = validate(components)
+        status_errors = [e for e in errors if "component-status" in e or "replaced-by" in e]
+        self.assertEqual(len(status_errors), 0, f"Unexpected status/replaced-by errors: {status_errors}")
+
+    def test_json_export_includes_component_status(self):
+        from parse_components import parse_components
+        content = COMPONENTS_PATH.read_text(encoding="utf-8")
+        components = parse_components(content)
+        self.assertGreater(len(components), 0)
+        with_status = [c for c in components if c.get("meta", {}).get("component-status")]
+        self.assertGreater(len(with_status), 0, "At least one component should have component-status in meta")
+        self.assertEqual(with_status[0]["meta"].get("component-status"), "In Review")
+
 
 if __name__ == "__main__":
     unittest.main()
