@@ -80,6 +80,11 @@ def _parse_props_meta(raw: str) -> list[dict]:
     return props
 
 
+def parse_props_meta(raw: str) -> list[dict]:
+    """Public alias for _parse_props_meta; used by tools such as component_visual_test."""
+    return _parse_props_meta(raw)
+
+
 def parse_components(content: str) -> list[dict]:
     """Parse component library text into a list of component dicts."""
     components = []

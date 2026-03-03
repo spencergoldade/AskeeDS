@@ -25,6 +25,7 @@ You can use the repo as **copyable design assets**, an **experimental Python pac
   - From the repo root run:
     - `python tools/parse_components.py --validate` (quick health check).
     - `python tools/render_demo.py` (prints a few canonical components).
+    - **Visual test (optional):** `python tools/component_visual_test.py` — interactive TUI to browse components by status, edit props, and see a live preview. Requires: `pip install textual` or `pip install -e ".[visual-test]"`.
 - **If you are a game designer authoring UI or maps:**
   - Browse components in `design/ascii/components.txt` and maps in `design/ascii/maps/`.
   - Make a small edit (for example a new `room-card` variant or a tiny map).
@@ -95,6 +96,7 @@ Here are a few examples of the 63+ components from AskeeDS:
 
 ## Table of contents
 
+- [Scripts and commands (reference)](#scripts-and-commands-reference)
 - [What you get in this repo](#what-you-get-in-this-repo)
 - [Getting started (quick start)](#getting-started-quick-start)
 - [How to add AskeeDS to an existing project](#how-to-add-askeeds-to-an-existing-project)
@@ -104,6 +106,39 @@ Here are a few examples of the 63+ components from AskeeDS:
 - [Using the parser and overrides](#using-the-parser-and-overrides)
 - [Versioning and updates](#versioning-and-updates)
 - [Local dev utilities](#local-dev-utilities)
+
+---
+
+## Scripts and commands (reference)
+
+All commands below are run from the **repo root**. Use this table to find the right script for the job.
+
+| Command | What it does | When to use it |
+|--------|----------------|--------------------------------|
+| `python tools/parse_components.py --validate` [paths...] | Validates the component library (and optional overrides). Exits with errors if meta is invalid, ␟ in art, or Deprecated without replaced-by. | After editing `components.txt` or overrides; before committing; in CI. |
+| `python tools/parse_components.py --json` [paths...] | Outputs merged components as JSON to stdout (name, meta, art). | When you need machine-readable component data for an engine or tool. |
+| `python tools/render_demo.py` | Prints a few canonical components (status-bar, room-card, layout.stack) as ASCII to the terminal. | Quick visual check that the library loads and looks right. |
+| `python tools/component_visual_test.py` | **Interactive TUI:** browse components by status, open one, edit and randomize props, see live preview. No persistence. | Manual QA: review components by status, test how props affect layout. **Requires:** `pip install textual` or `pip install -e ".[visual-test]"`. |
+| `python tools/update_manifest.py` | Regenerates `design/ascii/manifest.yaml` from `components.txt` (sorted list of component names). | After adding or renaming components so tooling and tests stay in sync. |
+| `python tools/update_readme_examples.py` | Refreshes the “Component examples” block in this README from a curated list. | After adding or changing components you want highlighted in the README. |
+| `python tools/parse_decorations.py --validate` [paths...] | Validates the decoration catalog (e.g. `decoration-catalog.txt`). | After editing decorative ASCII art entries. |
+| `python tools/parse_decorations.py --json` [paths...] | Outputs decorations as JSON. | When you need the decoration catalog in machine form. |
+| `python tools/parse_maps.py --validate` | Validates ASCII maps in `design/ascii/maps/` (known tiles, rectangular, line length). | After editing maps or map index. |
+| `python tools/parse_maps.py --json` | Outputs map definitions and grid data as JSON. | When you need map data for an engine or preview tool. |
+| `python tools/test_parse_components.py` | Runs unit tests for the component parser and validator. | After changing `parse_components.py` or component format. |
+| `python tools/test_parse_decorations.py` | Runs unit tests for the decoration parser. | After changing decoration parsing. |
+| `python tools/test_parse_maps.py` | Runs unit tests for the map parser. | After changing map parsing. |
+| `askee-ds-validate` [--kind components\|decorations\|maps\|all] | Package CLI: validates components, decorations, and/or maps (same rules as the tools above). | When the package is installed and you prefer a single command. |
+| `askee-ds-export` [--kind components\|decorations\|maps] [--list] | Package CLI: exports assets as JSON; with `--kind components --list`, prints component names (and descriptions). | When the package is installed and you want JSON or a name list. |
+| `askee-ds-demo` [-c name] [--prefix p] | Package CLI: prints sample components as ASCII (default or by name/prefix). | When the package is installed; like `render_demo.py` with more options. |
+| `npm run update:manifest` | Same as `python tools/update_manifest.py`. | If you prefer npm for repo tasks. |
+| `npm run update:readme-examples` | Same as `python tools/update_readme_examples.py`. | If you prefer npm for repo tasks. |
+| `npm run test` | Runs `python3 -m unittest discover -s tools`. | Run all tests under `tools/`. |
+
+**Notes:**
+
+- **Paths:** For `parse_components.py` and `parse_decorations.py`, if you omit paths, the default is the canonical file in `design/ascii/` (e.g. `components.txt`). Pass multiple files to merge core + overrides.
+- **Package CLIs:** `askee-ds-validate`, `askee-ds-export`, and `askee-ds-demo` are available after `pip install -e .`; they use the same logic as the scripts under `tools/`.
 
 ---
 
@@ -121,6 +156,7 @@ Here are a few examples of the 63+ components from AskeeDS:
 - `docs/adoption-and-updates-plan.md` — detailed plan for adoption, versioning, and updates.
 - `tools/parse_components.py` — parser/validator and JSON export CLI.
 - `tools/render_demo.py` — minimal reference renderer (prints a few components to stdout).
+- `tools/component_visual_test.py` — interactive TUI to visually test components by status, edit prop values, and see a live preview (requires Textual: `pip install textual` or `pip install -e ".[visual-test]"`).
 - `tools/test_parse_components.py` and additional tests/parsers under `tools/` — tests for the parser and related utilities.
 > **Note:** The Python tooling and package metadata in this repo are **experimental helpers**. The primary deliverable is the design-system bundle itself (`design/` + key docs). You should treat the Python code as a convenience layer, not a required integration path.
 
@@ -243,9 +279,6 @@ With this model, you can stay on a specific version (for example `0.1.x`) or mov
 
 ## Local dev utilities
 
-- **Validate components:** `python tools/parse_components.py --validate`
-- **Render a demo:** `python tools/render_demo.py`
-- **Run parser tests:** `python tools/test_parse_components.py`
-- **Refresh README examples:** `python3 tools/update_readme_examples.py` (or `npm run update:readme-examples`)
+For a **full list of scripts and when to use each**, see [Scripts and commands (reference)](#scripts-and-commands-reference) above.
 
-These are optional but recommended when you edit [design/ascii/components.txt](design/ascii/components.txt) or add new components/overrides.
+When you edit [design/ascii/components.txt](design/ascii/components.txt) or add components/overrides, run at least: `python tools/parse_components.py --validate` and, after adding names, `python tools/update_manifest.py`. Use the visual test and parser tests as needed for QA.

@@ -12,6 +12,9 @@ dependencies = [
   "pyyaml>=6.0.0",
 ]
 
+[project.optional-dependencies]
+visual-test = ["textual>=0.47.0"]
+
 [project.scripts]
 askee-ds-validate = "askee_ds.cli:validate_main"
 askee-ds-export = "askee_ds.cli:export_main"
