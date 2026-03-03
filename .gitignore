@@ -1,3 +1,9 @@
 # Ignore Cursor configuration and state
 .cursor/
 profiles/
+
+# Cursor-only design templates and folders (examples, IA, research, content)
+design/tokens/
+design/research/
+design/ia/
+design/content/
