@@ -20,6 +20,8 @@ You can use the repo as **copyable design assets**, an **experimental Python pac
 
 ## What do I do first?
 
+> **Note:** The examples below use `python`. On macOS and some Linux setups you may get `zsh: command not found: python`; use `python3` instead (e.g. `python3 tools/render_demo.py`).
+
 - **If you just want to see what this looks like (anyone):**
   - Open `design/ascii/components.txt` side by side with [docs/ascii-design-system.md](docs/ascii-design-system.md).
   - From the repo root run:
