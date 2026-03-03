@@ -17,6 +17,21 @@ Machine-readable grammar for the component library file (e.g. `design/ascii/comp
 5. After the meta block (first line that is not component-boundary and not meta), treat all following lines until the next `␟␟␟ COMPONENT: ` as the ASCII art block. Store it as a string (lines joined by newline) or list of lines.
 6. Repeat until EOF.
 
+## Multiple files and overrides
+
+- Canonical location: the shared library lives at `design/ascii/components.txt`.
+- Overrides: projects may add one or more additional files (for example
+  `components.overrides.txt`) and pass both paths to the parser/CLI; later
+  files **override earlier ones by component name**.
+- Future modularization: if the library is ever split, recommended names are:
+  - `components.core.txt` — core layout and structural components
+  - `components.game.txt` — game- and RPG-focused components
+  - `components.maps.txt` — map/minimap-related components
+- Tooling:
+  - The Python CLI (`tools/parse_components.py`) already accepts multiple paths
+    and merges them in order.
+  - JSON exports should reflect the merged view, not individual source files.
+
 ## Constraints (validation)
 
 - **No ␟ in art:** The ASCII art block must not contain the character U+241F. Parsers may reject or warn if found.

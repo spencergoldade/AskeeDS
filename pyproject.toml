@@ -1,0 +1,22 @@
+[project]
+name = "askee-ds"
+version = "0.1.0"
+description = "AskeeDS ASCII design system tools and parsers."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [
+  { name = "Spencer Goldade" }
+]
+dependencies = [
+  "pyyaml>=6.0.0",
+]
+
+[project.scripts]
+askee-ds-validate = "askee_ds.cli:validate_main"
+askee-ds-export = "askee_ds.cli:export_main"
+askee-ds-demo = "askee_ds.cli:demo_main"
+
+[tool.setuptools]
+packages = ["askee_ds"]
+

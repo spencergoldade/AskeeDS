@@ -35,6 +35,26 @@ HOW TO USE
     does not define a composition API. Ensure what you pass respects max width
     (80 chars) and box-drawing.
 
+HOW TO ADD A NEW COMPONENT
+  - Pick a name:
+    - Use dot notation (category.variant), e.g. layout.app.shell, menu.main.
+    - Keep it stable; avoid reusing the same name for different layouts.
+  - Add a component block:
+    - Start with a boundary line: ␟␟␟ COMPONENT: <name>
+    - Add meta lines: at minimum ␟ description: and ␟ props:
+    - Optionally add ␟ shape:, ␟ variant:, ␟ interactive:, ␟ color-hint:
+  - Sketch the ASCII art:
+    - Use only box characters from box-drawing.yaml for borders.
+    - Stay within 80 characters per line; prefer 60–70 for readability.
+    - Do not use the ␟ character anywhere in the art block.
+  - Update contracts:
+    - If you introduce new shape patterns, reflect them in PROP SHAPES below.
+    - Update design/docs (e.g. ascii-design-system.md) only if the component
+      changes higher-level flows or concepts.
+  - Keep manifest in sync:
+    - Add the component name to design/ascii/manifest.yaml so tools and tests
+      can verify coverage.
+
 PROPS CONTRACT
   - Naming: Prop names use snake_case (e.g. hp_current, body_text). Refer to
     props by name (e.g. props["title"], keyword arguments, or your runtime's

@@ -59,7 +59,7 @@ Here are a few example components from AskeeDS:
 - [Getting started (quick start)](#getting-started-quick-start)
 - [How to add AskeeDS to an existing project](#how-to-add-askeeds-to-an-existing-project)
   - [Option A — Copy (recommended first)](#option-a--copy-recommended-first)
-  - [Option B — Python package (future)](#option-b--python-package-future)
+  - [Option B — Python package / CLI (experimental)](#option-b--python-package--cli-experimental)
   - [Option C — Git submodule / subtree (optional)](#option-c--git-submodule--subtree-optional)
 - [Using the parser and overrides](#using-the-parser-and-overrides)
 - [Versioning and updates](#versioning-and-updates)
@@ -81,7 +81,8 @@ Here are a few example components from AskeeDS:
 - `docs/adoption-and-updates-plan.md` — detailed plan for adoption, versioning, and updates.
 - `tools/parse_components.py` — parser/validator and JSON export CLI.
 - `tools/render_demo.py` — minimal reference renderer (prints a few components to stdout).
-- `tools/test_parse_components.py` — tests for the parser.
+- `tools/test_parse_components.py` and additional tests/parsers under `tools/` — tests for the parser and related utilities.
+> **Note:** The Python tooling and package metadata in this repo are **experimental helpers**. The primary deliverable is the design-system bundle itself (`design/` + key docs). You should treat the Python code as a convenience layer, not a required integration path.
 
 ---
 
@@ -94,6 +95,8 @@ Here are a few example components from AskeeDS:
 2. Render a small demo of a few components:
    - `python tools/render_demo.py`
 3. Open [design/ascii/components.txt](design/ascii/components.txt) and [docs/ascii-design-system.md](docs/ascii-design-system.md) to see the components and their docs.
+
+> **Make something weird and wonderful.** AskeeDS is meant to be copied, bent, and remixed—build strange worlds, kind TUIs, tiny tools, or full games. If you ship something you’re proud of, consider sharing a short write-up or screenshot and crediting AskeeDS so others can discover it too.
 
 **If you want to use AskeeDS in *another* project (copy-based install):**
 
@@ -135,9 +138,15 @@ Then, in your project:
 - Put any project-specific components or overrides in a separate file (for example `design/ascii/overrides.txt`).
 - When using the parser, pass both files (core first, overrides second) so overrides win for duplicate names (see [Using the parser and overrides](#using-the-parser-and-overrides)).
 
-### Option B — Python package (future)
+### Option B — Python package / CLI (experimental)
 
-A future `askee-ds` Python package can ship the same bundle as **package data**, expose the parser as a CLI/API, and optionally provide an `askee-ds init` command to unpack the assets into your project. Until that exists, use **Option A (copy)**.
+This repo now includes a minimal `pyproject.toml` and an **experimental** `askee_ds` package with simple CLIs (`askee-ds-validate`, `askee-ds-export`, `askee-ds-demo`). These are provided **as a convenience only**:
+
+- The **source of truth** for the design system remains the copyable bundle under `design/` plus the key docs in `docs/`.
+- The package/CLI layer is intended for teams already using Python who want quick validation or JSON export without wiring the scripts themselves.
+- Public packaging, distribution, and version guarantees for the Python layer may change; do not treat it as a stable, hard dependency the way you treat the ASCII assets.
+
+If you’re unsure which option to choose, start with **Option A (copy)** and consider the Python tools as an optional helper.
 
 ### Option C — Git submodule / subtree (optional)
 
