@@ -3,6 +3,8 @@
 One-off migration: add ␟ component-status: In Review to every component in
 design/ascii/components.txt that does not already have component-status.
 
+HISTORICAL: This script was used once during migration. It is kept for reference
+only. Do not run for general use; prefer askee_ds.components or tools/parse_components.py.
 Idempotent: skips components that already have component-status. Run from repo root.
 """
 
