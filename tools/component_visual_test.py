@@ -929,7 +929,7 @@ def _startup_banner_text() -> str:
 
 
 class StartupScreen(Screen):
-    """Choose how to start: browse all, filter by status, quick jump to In Review, or browse Figlet fonts."""
+    """Choose how to start: browse all, filter by status, or browse Figlet fonts."""
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
@@ -944,6 +944,7 @@ class StartupScreen(Screen):
         yield Header(show_clock=False)
         yield Static("", id="startup_banner")
         yield Static("How do you want to start?", classes="section_title")
+        yield Static("Browse the library, filter by status, or jump to In Review.", classes="section_subtitle")
         yield Static(SECTION_DIVIDER, classes="section_divider")
         yield OptionList(id="startup_options")
         yield Footer()
@@ -953,8 +954,7 @@ class StartupScreen(Screen):
         banner_el.update(_startup_banner_text() or "AskeeDS — Component visual test")
         opt_list = self.query_one("#startup_options", OptionList)
         opt_list.add_option("Browse all components")
-        opt_list.add_option("Filter by status only")
-        opt_list.add_option("Quick jump to In Review")
+        opt_list.add_option("Filter by status (default: In Review)")
         opt_list.add_option("Browse Figlet fonts")
 
     @on(OptionList.OptionSelected)
@@ -965,8 +965,6 @@ class StartupScreen(Screen):
         elif idx == 1:
             self.app.switch_screen(BrowserScreen(self.components, initial_status=None))
         elif idx == 2:
-            self.app.switch_screen(BrowserScreen(self.components, initial_status="In Review", quick_jump_in_review=True))
-        elif idx == 3:
             self.app.push_screen(FigletFontBrowserScreen())
         else:
             self.app.switch_screen(BrowserScreen(self.components, initial_status=None))
@@ -997,7 +995,8 @@ class FigletFontBrowserScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=False)
-        yield Static("Figlet fonts — select to preview. A = approve, U = unapprove. Green = approved.", classes="section_title")
+        yield Static("Figlet fonts", classes="section_title")
+        yield Static("Select to preview. A = approve, U = unapprove. Green = approved.", classes="section_subtitle")
         yield Static(SECTION_DIVIDER, classes="section_divider")
         yield Horizontal(
             Container(OptionList(id="figlet_font_list"), classes="figlet_list_container"),
@@ -1163,11 +1162,10 @@ class BrowserScreen(Screen):
         Binding("escape", "quit", "Quit"),
     ]
 
-    def __init__(self, components: list[dict], initial_status: str | None = None, quick_jump_in_review: bool = False) -> None:
+    def __init__(self, components: list[dict], initial_status: str | None = None) -> None:
         super().__init__()
         self.components = components
         self.initial_status = initial_status
-        self.quick_jump_in_review = quick_jump_in_review
         self.filtered: list[dict] = []
         self.status_filter = "All"
         self.search_query = ""
@@ -1184,7 +1182,7 @@ class BrowserScreen(Screen):
             id="filter_bar",
             classes="section_filter_bar",
         )
-        yield Static("Component list", classes="section_title")
+        yield Static("Component list", id="component_list_title", classes="section_title")
         yield Static(SECTION_DIVIDER, classes="section_divider")
         yield Container(OptionList(id="component_list"), classes="section_list")
         yield Footer()
@@ -1207,13 +1205,18 @@ class BrowserScreen(Screen):
         self.filtered.sort(key=lambda c: (c.get("meta", {}).get("component-status", ""), c["name"]))
 
     def _refresh_list(self) -> None:
+        title_el = self.query_one("#component_list_title", Static)
+        n = len(self.filtered)
+        title_el.update(f"Component list ({n})" if n != 1 else "Component list (1)")
         opt_list = self.query_one("#component_list", OptionList)
         opt_list.clear_options()
+        if not self.filtered:
+            opt_list.add_option("No components match. Try a different status or search.")
+            return
         for c in self.filtered:
             status = c.get("meta", {}).get("component-status", "—")
             opt_list.add_option(f"{c['name']}  —  {status}")
-        if self.filtered:
-            opt_list.add_option("(Start over: change filter above and select first)")
+        opt_list.add_option("(Start over: change filter above and select first)")
 
     @on(Select.Changed, "#status_select")
     @on(Input.Changed, "#search_input")
@@ -1260,7 +1263,8 @@ class DetailScreen(Screen):
         yield ScrollableContainer(
             Vertical(
                 Static(id="detail_header"),
-                Static("Reference art", classes="section_title"),
+                Static("R = reset props · Z = randomize · N = note · P/N = prev/next", id="detail_hint", classes="section_muted"),
+                Static("Reference (canonical art)", classes="section_title"),
                 Static(SECTION_DIVIDER, classes="section_divider"),
                 Container(Static(id="reference_art"), classes="art_block section_reference"),
                 Static("Props (edit below)", classes="section_title"),
@@ -1269,7 +1273,7 @@ class DetailScreen(Screen):
                     *self._props_widgets(),
                     classes="section_props",
                 ),
-                Static("Preview (with current props)", classes="section_title"),
+                Static("Preview (live)", classes="section_title"),
                 Static(SECTION_DIVIDER, classes="section_divider"),
                 Container(Static(id="preview_art"), classes="art_block section_preview"),
                 id="detail_content",
@@ -1390,7 +1394,10 @@ class ComponentVisualTestApp(App):
 
     def on_mount(self) -> None:
         if not self.components:
-            self.notify("No components found. Is design/ascii/components.txt present?", severity="error")
+            self.notify(
+                "No components found. Check that design/ascii/components.txt exists and run from repo root.",
+                severity="error",
+            )
             return
         self.push_screen(StartupScreen(self.components))
 

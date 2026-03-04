@@ -1,9 +1,15 @@
 /* AskeeDS component visual test — section styling
    Maps to design tokens: color-bg-surface (default), color-bg-subtle (grouped content). */
 
-/* Section headers: make titles and dividers stand out */
+/* Section headers: make titles and dividers stand out; add separation between sections */
 .section_title {
   text-style: bold;
+  margin-top: 1;
+}
+
+.section_subtitle {
+  color: $foreground-muted;
+  margin-bottom: 0;
 }
 
 .section_divider {
@@ -21,20 +27,22 @@
   background: $surface;
 }
 
-/* Detail screen: reference art block */
+/* Detail screen: reference art block — distinct card with inner spacing */
 .section_reference {
   background: $surface-darken-1;
+  padding: 1 1 1 1;
 }
 
 /* Props editing area */
 .section_props {
   background: $surface;
-  padding: 0 0 0 1;
+  padding: 1 0 1 1;
 }
 
-/* Preview block */
+/* Preview block — consistent with reference for visual grouping */
 .section_preview {
   background: $surface-darken-1;
+  padding: 1 1 1 1;
 }
 
 /* Left margin for component art so it is not flush against the terminal edge */
