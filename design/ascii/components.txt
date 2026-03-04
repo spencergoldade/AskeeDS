@@ -27,7 +27,8 @@ HOW TO USE
   - Border characters (| - + etc.) are defined in design/ascii/box-drawing.yaml;
     load from there in code rather than hardcoding. This file shows the
     intended shape only.
-  - Semantic colors are in design/tokens/colors.md. Apply them in code
+  - Semantic colors are applied in code (e.g. Rich/Textual) using your
+    project's color tokens; keep surfaces, text, and accents consistent.
     (Rich/Textual) per ␟ color-hint: on each component when present.
   - Respect props listed in meta (e.g. title, description_text, directions[])
     when implementing; they define the data the component expects.
@@ -111,19 +112,18 @@ COLOR-HINT BEHAVIOR
   - HP / resource bands (status.good, status.warning, status.danger): Use good
     when value is above ~70% of max, warning between ~30% and ~70%, danger below
     ~30%. Exact thresholds are implementation-defined; document the intent.
-  - "Entity for others" (e.g. mana, stamina): Use tokens from design/tokens/
-    colors.md for non-HP resources (e.g. entity.item, ui.accent) as appropriate;
+  - "Entity for others" (e.g. mana, stamina): Use your project's color
+    tokens for non-HP resources (e.g. entity.item, ui.accent) as appropriate;
     do not rely on color alone for meaning.
 
 RELATED SOURCES
   - design/ascii/README.md, box-drawing.yaml, map-tiles.yaml, manifest.yaml
-  - design/tokens/colors.md (semantic color tokens)
-  - docs/ascii-design-system.md (overview)
 
 -------------------------------------------------------------------------------
 GUIDELINES FOR ASCII DESIGN SYSTEM COMPONENTS (authors / editors)
 -------------------------------------------------------------------------------
 Source of truth: design/ascii/ (this file, box-drawing.yaml, map-tiles.yaml,
+manifest.yaml). See design/ascii/README.md.
 
 PATTERNS AND USAGE
   - Prefer composing components (e.g. modal = overlay + card + buttons). Use
@@ -137,7 +137,7 @@ PATTERNS AND USAGE
 
 ACCESSIBILITY AND CONTENT
   - Structure (headings, lists) supports screen readers; keep order and labels
-    consistent. Color is applied in code per design/tokens/colors.md; do not
+    consistent. Color is applied in code per your project's tokens; do not
     rely on shape alone for meaning.
   - Content style: Short, present tense; noun-based labels. Match
     design/content/voice-and-tone.md when adding copy examples.
@@ -196,7 +196,7 @@ PROPS AND META
 
 COLOR
   - This file defines structure only. Semantic color lives in
-    design/tokens/colors.md and is applied in code (Rich/Textual). You may
+    semantic color tokens and is applied in code (Rich/Textual). You may
     add ␟ color-hint: <token> for documentation (e.g. ␟ color-hint: ui.accent
     for border).
 
