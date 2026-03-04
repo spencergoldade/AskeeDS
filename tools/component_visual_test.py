@@ -8,12 +8,14 @@ Requires: pip install textual  OR  pip install -e ".[visual-test]"
 
 Use the keyboard to filter by status, search by name, open a component, edit prop
 values, and see a live preview. Press Z on the detail screen to randomize prop
-values (useful for QA). No data is persisted.
+values (useful for QA). Session notes are saved under tools/visual_test_notes/
+in date-separated files (YYYY-MM-DD.md). No other data is persisted.
 """
 
 import json
 import random
 import sys
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -24,6 +26,7 @@ try:
     from textual.binding import Binding
     from textual.containers import Container, Horizontal, Vertical, ScrollableContainer
     from textual.widgets import (
+        Button,
         Footer,
         Header,
         Input,
@@ -32,7 +35,7 @@ try:
         Select,
         Static,
     )
-    from textual.screen import Screen
+    from textual.screen import Screen, ModalScreen
     from textual import on
 except ImportError as e:
     print("Textual is required for the component visual test.", file=sys.stderr)
@@ -45,6 +48,31 @@ from parse_components import parse_components, parse_props_meta, COMPONENT_STATU
 COMPONENTS_PATH = ROOT / "design" / "ascii" / "components.txt"
 STATUS_OPTIONS = [("All", "All")] + [(s, s) for s in sorted(COMPONENT_STATUSES)]
 
+# Section divider for TUI (horizontal line from box-drawing convention; 60 chars)
+SECTION_DIVIDER = "-" * 60
+
+# Session notes: one file per day under tools/visual_test_notes/
+NOTES_DIR = ROOT / "tools" / "visual_test_notes"
+
+
+def append_session_note(component_name: str | None, text: str) -> None:
+    """Append a timestamped line to today's notes file. Creates NOTES_DIR if needed."""
+    if not text.strip():
+        return
+    NOTES_DIR.mkdir(parents=True, exist_ok=True)
+    today = datetime.now().strftime("%Y-%m-%d")
+    path = NOTES_DIR / f"{today}.md"
+    ts = datetime.now().strftime("%H:%M")
+    prefix = f"- {ts}"
+    if component_name:
+        prefix += f" [{component_name}]"
+    prefix += " "
+    line = prefix + text.strip() + "\n"
+    if path.exists():
+        path.write_text(path.read_text(encoding="utf-8") + line, encoding="utf-8")
+    else:
+        path.write_text(line, encoding="utf-8")
+
 
 def load_components() -> list[dict]:
     """Load component library from design/ascii/components.txt."""
@@ -52,6 +80,14 @@ def load_components() -> list[dict]:
         return []
     content = COMPONENTS_PATH.read_text(encoding="utf-8")
     return parse_components(content)
+
+
+def approved_component_names(components: list[dict] | None = None) -> list[str]:
+    """Return component names whose status is Approved. Use when adding explicit
+    apply_props_to_art / default_props / randomize support so the tool stays aligned
+    with the canonical set."""
+    lib = components if components is not None else load_components()
+    return [c["name"] for c in lib if c.get("meta", {}).get("component-status") == "Approved"]
 
 
 def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
@@ -89,6 +125,12 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 result[prop_name] = [{"id": "1", "label": "look"}, {"id": "2", "label": "go <dir>"}]
             elif "block" in prop_name:
                 result[prop_name] = ["Block 1", "Block 2"]
+            elif "segment" in prop_name:
+                result[prop_name] = [
+                    {"id": "home", "label": "Home"},
+                    {"id": "clearing", "label": "The Clearing"},
+                    {"id": "guard", "label": "Guard post"},
+                ]
             else:
                 result[prop_name] = [{"id": "1", "label": "Option 1"}]
         else:
@@ -126,6 +168,12 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 ]
             elif "block" in prop_name:
                 result[prop_name] = [f"Block {random.choice(_RANDOM_WORDS)}" for _ in range(n)]
+            elif "segment" in prop_name:
+                n = random.randint(2, 4)
+                result[prop_name] = [
+                    {"id": f"s{i}", "label": "Home" if i == 0 else random.choice(_RANDOM_PLACES)}
+                    for i in range(n)
+                ]
             else:
                 result[prop_name] = [
                     {"id": str(i), "label": random.choice(_RANDOM_LABELS) if i == 1 else f"Option {i}"}
@@ -173,7 +221,8 @@ def _parse_prop_value(raw: str, is_array: bool) -> tuple[object, str | None]:
 
 
 def apply_props_to_art(component_name: str, art: str, props: dict) -> str:
-    """Substitute current prop values into the reference art for preview."""
+    """Substitute current prop values into the reference art for preview.
+    Prefer adding explicit branches for components in approved_component_names()."""
     out = art
     # status-bar.default: HP: 85/100  |  The Clearing  |  Turn 12
     if component_name == "status-bar.default":
@@ -204,6 +253,18 @@ def apply_props_to_art(component_name: str, art: str, props: dict) -> str:
             else:
                 exit_labels = "  ".join(str(e) for e in exits)
             out = out.replace("north  south", exit_labels[:20])
+    # breadcrumb.inline: single line built from segments (ordered path from root)
+    elif component_name == "breadcrumb.inline":
+        segments = props.get("segments", [])
+        if isinstance(segments, list) and segments:
+            if isinstance(segments[0], dict):
+                parts = [str(s.get("label", s.get("id", ""))) for s in segments]
+            else:
+                parts = [str(s) for s in segments]
+            out = " > ".join(parts)
+        else:
+            out = art.strip() or "Home > The Clearing > Guard post"
+        return out
     # Generic: replace any prop value that appears verbatim in art
     else:
         for key, val in props.items():
@@ -219,8 +280,46 @@ def apply_props_to_art(component_name: str, art: str, props: dict) -> str:
     return out
 
 
-class BrowserScreen(Screen):
-    """Library browser: filter by status, search by name, list components."""
+class NoteModal(ModalScreen):
+    """Modal to enter a session note; appends to tools/visual_test_notes/YYYY-MM-DD.md."""
+
+    BINDINGS = [Binding("escape", "cancel", "Cancel")]
+
+    def __init__(self, component_name: str | None = None) -> None:
+        super().__init__()
+        self._component_name = component_name
+
+    def compose(self) -> ComposeResult:
+        with Vertical():
+            yield Static("Add session note (saved to tools/visual_test_notes/ by date)", classes="section_title")
+            yield Input(placeholder="Note text...", id="note_input")
+            yield Horizontal(
+                Button("Save", variant="primary", id="note_save"),
+                Button("Cancel", id="note_cancel"),
+            )
+
+    def on_mount(self) -> None:
+        self.query_one("#note_input", Input).focus()
+
+    @on(Button.Pressed, "#note_save")
+    @on(Input.Submitted, "#note_input")
+    def _save(self) -> None:
+        inp = self.query_one("#note_input", Input)
+        text = inp.value or ""
+        append_session_note(self._component_name, text)
+        self.dismiss()
+        self.app.notify("Note saved", severity="information", timeout=1)
+
+    @on(Button.Pressed, "#note_cancel")
+    def _cancel(self) -> None:
+        self.dismiss()
+
+    def action_cancel(self) -> None:
+        self.dismiss()
+
+
+class StartupScreen(Screen):
+    """Choose how to start: browse all, filter by status, or quick jump to In Review."""
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
@@ -230,20 +329,68 @@ class BrowserScreen(Screen):
     def __init__(self, components: list[dict]) -> None:
         super().__init__()
         self.components = components
+
+    def compose(self) -> ComposeResult:
+        yield Header(show_clock=False)
+        yield Static("How do you want to start?", classes="section_title")
+        yield Static(SECTION_DIVIDER, classes="section_divider")
+        yield OptionList(id="startup_options")
+        yield Footer()
+
+    def on_mount(self) -> None:
+        opt_list = self.query_one("#startup_options", OptionList)
+        opt_list.add_option("Browse all components")
+        opt_list.add_option("Filter by status only")
+        opt_list.add_option("Quick jump to In Review")
+
+    @on(OptionList.OptionSelected)
+    def _on_option_selected(self, event: OptionList.OptionSelected) -> None:
+        idx = event.option_index
+        if idx == 0:
+            self.app.switch_screen(BrowserScreen(self.components, initial_status="All"))
+        elif idx == 1:
+            self.app.switch_screen(BrowserScreen(self.components, initial_status=None))
+        elif idx == 2:
+            self.app.switch_screen(BrowserScreen(self.components, initial_status="In Review", quick_jump_in_review=True))
+        else:
+            self.app.switch_screen(BrowserScreen(self.components, initial_status=None))
+
+    def action_quit(self) -> None:
+        self.app.exit()
+
+
+class BrowserScreen(Screen):
+    """Library browser: filter by status, search by name, list components."""
+
+    BINDINGS = [
+        Binding("q", "quit", "Quit"),
+        Binding("escape", "quit", "Quit"),
+    ]
+
+    def __init__(self, components: list[dict], initial_status: str | None = None, quick_jump_in_review: bool = False) -> None:
+        super().__init__()
+        self.components = components
+        self.initial_status = initial_status
+        self.quick_jump_in_review = quick_jump_in_review
         self.filtered: list[dict] = []
         self.status_filter = "All"
         self.search_query = ""
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=False)
+        yield Static("Filter", classes="section_title")
+        yield Static(SECTION_DIVIDER, classes="section_divider")
         yield Horizontal(
             Static("Status: ", classes="filter_label"),
-            Select(STATUS_OPTIONS, value="In Review", id="status_select"),
+            Select(STATUS_OPTIONS, value=self.initial_status if self.initial_status is not None else "In Review", id="status_select"),
             Static("  Search: ", classes="filter_label"),
             Input(placeholder="Filter by name...", id="search_input"),
             id="filter_bar",
+            classes="section_filter_bar",
         )
-        yield OptionList(id="component_list")
+        yield Static("Component list", classes="section_title")
+        yield Static(SECTION_DIVIDER, classes="section_divider")
+        yield Container(OptionList(id="component_list"), classes="section_list")
         yield Footer()
 
     def on_mount(self) -> None:
@@ -301,6 +448,7 @@ class DetailScreen(Screen):
         Binding("p", "prev_component", "Previous"),
         Binding("r", "reset_props", "Reset props"),
         Binding("z", "randomize_props", "Randomize props"),
+        Binding("N", "add_note", "Note"),
     ]
 
     def __init__(self, component: dict, index: int, filtered_list: list[dict]) -> None:
@@ -316,12 +464,18 @@ class DetailScreen(Screen):
         yield ScrollableContainer(
             Vertical(
                 Static(id="detail_header"),
-                Static("--- Reference art ---", classes="section_label"),
-                Static(id="reference_art"),
-                Static("--- Props (edit below) ---", classes="section_label"),
-                *self._props_widgets(),
-                Static("--- Preview (with current props) ---", classes="section_label"),
-                Static(id="preview_art"),
+                Static("Reference art", classes="section_title"),
+                Static(SECTION_DIVIDER, classes="section_divider"),
+                Container(Static(id="reference_art"), classes="art_block section_reference"),
+                Static("Props (edit below)", classes="section_title"),
+                Static(SECTION_DIVIDER, classes="section_divider"),
+                Container(
+                    *self._props_widgets(),
+                    classes="section_props",
+                ),
+                Static("Preview (with current props)", classes="section_title"),
+                Static(SECTION_DIVIDER, classes="section_divider"),
+                Container(Static(id="preview_art"), classes="art_block section_preview"),
                 id="detail_content",
             ),
             id="detail_scroll",
@@ -419,6 +573,9 @@ class DetailScreen(Screen):
         self._update_preview()
         self.notify("Props randomized (QA)", severity="information", timeout=1)
 
+    def action_add_note(self) -> None:
+        self.app.push_screen(NoteModal(component_name=self.component["name"]))
+
     def action_quit(self) -> None:
         self.app.exit()
 
@@ -427,6 +584,7 @@ class ComponentVisualTestApp(App):
     """AskeeDS component visual test application."""
 
     TITLE = "AskeeDS component visual test"
+    CSS_PATH = ROOT / "tools" / "component_visual_test.tcss"
     BINDINGS = [Binding("q", "quit", "Quit")]
 
     def __init__(self) -> None:
@@ -437,7 +595,7 @@ class ComponentVisualTestApp(App):
         if not self.components:
             self.notify("No components found. Is design/ascii/components.txt present?", severity="error")
             return
-        self.push_screen(BrowserScreen(self.components))
+        self.push_screen(StartupScreen(self.components))
 
 
 def main() -> int:

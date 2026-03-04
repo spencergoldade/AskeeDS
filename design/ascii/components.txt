@@ -89,6 +89,7 @@ PROP SHAPES
     for bar-style rows.
   - tree.compact: nodes: { id, label, children?: nodes }[] (nested) or
     { id, label, depth }[] (flat with indent).
+  - breadcrumb.inline: segments: { id, label }[] (ordered path from root to current).
   - choice-wheel.inline: options: { id, label }[].
   - quick-select.radial: options: { id, label }[]. selected_id: id of selected.
     Positions 1-4 (or 1-8) map clockwise from top: 1=top, 2=right, 3=bottom, 4=left.

@@ -162,8 +162,6 @@ All commands below are run from the **repo root**. Use this table to find the ri
 - `tools/component_visual_test.py` — interactive TUI to visually test components by status, edit prop values, and see a live preview (requires Textual: `pip install textual` or `pip install -e ".[visual-test]"`).
 - `tools/test_parse_components.py` and additional tests/parsers under `tools/` — tests for the parser and related utilities.
 
-
-
 ---
 
 ## Getting started (quick start)

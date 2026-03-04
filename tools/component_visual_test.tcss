@@ -1,0 +1,43 @@
+/* AskeeDS component visual test — section styling
+   Maps to design tokens: color-bg-surface (default), color-bg-subtle (grouped content). */
+
+/* Section headers: make titles and dividers stand out */
+.section_title {
+  text-style: bold;
+}
+
+.section_divider {
+  color: $foreground-muted;
+}
+
+/* Filter bar: subtle background to separate from list */
+.section_filter_bar {
+  background: $surface-darken-1;
+  padding: 0 1 1 1;
+}
+
+/* Component list area */
+.section_list {
+  background: $surface;
+}
+
+/* Detail screen: reference art block */
+.section_reference {
+  background: $surface-darken-1;
+}
+
+/* Props editing area */
+.section_props {
+  background: $surface;
+  padding: 0 0 0 1;
+}
+
+/* Preview block */
+.section_preview {
+  background: $surface-darken-1;
+}
+
+/* Left margin for component art so it is not flush against the terminal edge */
+.art_block {
+  padding-left: 2;
+}
