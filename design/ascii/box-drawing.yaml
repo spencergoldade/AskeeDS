@@ -1,7 +1,7 @@
 # AskeeDS — Box-drawing character set
 # Single approved set for borders and structure. Load from here in code; do not
 # hardcode in component art. Component library shows intended shape only.
-# See design/ascii/README.md and docs/ascii-design-system.md.
+# See design/ascii/README.md.
 
 default: light
 

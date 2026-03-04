@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 AskeeDS minimal reference renderer — renders a few components to stdout.
-Loads design/ascii/components.txt and design/ascii/box-drawing.yaml,
-substitutes props into component art, and prints. No Rich/Textual required.
+Loads design/ascii/components.txt only; box-drawing is for implementations
+that substitute border glyphs. No Rich/Textual required.
 
 Usage:
   python tools/render_demo.py

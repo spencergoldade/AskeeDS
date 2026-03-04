@@ -5,14 +5,12 @@ on:
     paths:
       - "tools/**"
       - "design/**"
-      - "docs/**"
       - "package.json"
       - ".github/workflows/tests.yml"
   pull_request:
     paths:
       - "tools/**"
       - "design/**"
-      - "docs/**"
       - "package.json"
       - ".github/workflows/tests.yml"
 
@@ -34,6 +32,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install pyyaml
           pip install -e ".[visual-test]"
+
+      - name: Validate design (components)
+        run: python tools/parse_components.py --validate design/ascii/components.txt
+
+      - name: Validate design (maps)
+        run: python tools/parse_maps.py --validate
 
       - name: Run Python tests
         run: |

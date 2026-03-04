@@ -41,7 +41,7 @@ When you add or change a component:
    - Optionally add `␟ shape:`, `␟ variant:`, `␟ color-hint:`, or `␟ pattern:` if needed.
 3. **ASCII art**
    - Draw the structure using only characters from `box-drawing.yaml` for borders.
-   - Keep lines ≤ 80 characters; aim for 60–70 for readability. Line width and text roles: see design/tokens/typography.md.
+   - Keep lines ≤ 80 characters; aim for 60–70 for readability.
    - Do **not** use the `␟` delimiter character anywhere in the art.
 4. **Sync and validate**
    - Add the component name to `manifest.yaml`.

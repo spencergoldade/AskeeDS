@@ -39,6 +39,7 @@ Machine-readable grammar for the component library file (e.g. `design/ascii/comp
 - **Required meta:** Each component should have at least `description` and `props` (or explicit "none") for authoring; validators may warn if missing.
 - **Component status:** Each component should have `component-status` with one of: `Ideated`, `To Do`, `In Progress`, `In Review`, `Approved`, `Cancelled`, `Deprecated`. Validators may warn if missing. When `component-status` is `Deprecated`, `replaced-by` must be present and non-empty (validators should error if not).
 - **Component names:** Use dot notation `category.variant`; no spaces. Must match manifest if present.
+- **Standard optional prop — color:** Every component may list an optional prop `color_role_optional` (or equivalent). When present, it is a semantic role id (e.g. `status.good`, `ui.accent`) that the implementation maps to its own color tokens. When absent, the implementation uses the component's `color-hint` default(s) or theme. Semantics are implementation-defined but should map to project tokens.
 
 ## Example (minimal)
 

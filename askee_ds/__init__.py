@@ -6,7 +6,7 @@ decorations catalog, and map assets. Optional banner rendering (Figlet) for
 typography.banner is in askee_ds.banner (requires pip install -e ".[banner]").
 """
 
-from . import components, decorations, maps  # noqa: F401
+from . import box_drawing, components, decorations, maps  # noqa: F401
 
-__all__ = ["components", "decorations", "maps"]
+__all__ = ["box_drawing", "components", "decorations", "maps"]
 

@@ -1003,7 +1003,7 @@ class FigletFontBrowserScreen(Screen):
             Container(OptionList(id="figlet_font_list"), classes="figlet_list_container"),
             Container(Static("Select a font to see preview.", id="figlet_preview"), classes="figlet_preview_container"),
         )
-        yield Static("Approved fonts saved to tools/figlet_approved_fonts.txt; document in design/tokens/typography.md.", id="figlet_footer_note", classes="section_muted")
+        yield Static("Approved fonts saved to tools/figlet_approved_fonts.txt.", id="figlet_footer_note", classes="section_muted")
         yield Footer()
 
     def on_mount(self) -> None:
