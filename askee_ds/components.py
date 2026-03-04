@@ -16,6 +16,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable
 
+from askee_ds._paths import repo_root
+
 DELIMITER = "\u241f"  # U+241F SYMBOL FOR UNIT SEPARATOR
 COMPONENT_PREFIX = DELIMITER * 3 + " COMPONENT: "
 META_PREFIX = DELIMITER + " "
@@ -32,16 +34,6 @@ COMPONENT_STATUSES = {
 }
 
 _NAME_RE = re.compile(r"^[a-z0-9]+(\.[a-z0-9_]+)+$")
-
-
-def repo_root() -> Path:
-    """
-    Best-effort guess of the repository root when running from a package.
-
-    For installed packages, callers should pass explicit paths instead of
-    relying on this helper.
-    """
-    return Path(__file__).resolve().parent.parent
 
 
 def _parse_props_meta(raw: str) -> list[dict]:

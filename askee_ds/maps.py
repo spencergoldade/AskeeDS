@@ -8,16 +8,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple
 
+from askee_ds._paths import repo_root
+
 try:
     import yaml  # type: ignore[import-not-found]
 except Exception:  # pragma: no cover - environment dependent
     yaml = None  # type: ignore[assignment]
 
 MAX_LINE_LENGTH = 80
-
-
-def repo_root() -> Path:
-    return Path(__file__).resolve().parent.parent
 
 
 @dataclass
@@ -39,27 +37,56 @@ class MapDefinition:
 
 
 def load_tilesets(tiles_path: Path) -> Dict[str, Tileset]:
-    """Load tilesets from design/ascii/map-tiles.yaml."""
+    """Load tilesets from design/ascii/map-tiles.yaml. Raises RuntimeError on invalid schema."""
     if yaml is None:
         raise RuntimeError(
             "PyYAML is required to parse map tilesets. Install with `pip install pyyaml`."
         )
     data = yaml.safe_load(tiles_path.read_text(encoding="utf-8"))  # type: ignore[arg-type]
-    tilesets: Dict[str, Tileset] = {}
+    if not isinstance(data, dict):
+        raise RuntimeError("map-tiles.yaml must contain a top-level mapping")
 
     all_tiles: Dict[str, dict] = data.get("tiles", {}) or {}
-    tilesets_data = data.get("tilesets", {}) or {}
+    if not isinstance(all_tiles, dict):
+        raise RuntimeError("map-tiles.yaml: 'tiles' must be a mapping of tile ids to definitions")
 
+    tilesets_data = data.get("tilesets", {}) or {}
+    if not isinstance(tilesets_data, dict):
+        raise RuntimeError("map-tiles.yaml: 'tilesets' must be a mapping of tileset ids to configs")
+
+    default_tileset = data.get("default_tileset")
+    if default_tileset is not None and default_tileset not in tilesets_data:
+        raise RuntimeError(
+            f"map-tiles.yaml: default_tileset {default_tileset!r} is not defined in tilesets"
+        )
+
+    for tile_id, tile in all_tiles.items():
+        if not isinstance(tile, dict):
+            raise RuntimeError(f"map-tiles.yaml: tile {tile_id!r} must be a mapping")
+        ch = tile.get("char")
+        if not isinstance(ch, str) or len(ch) != 1:
+            raise RuntimeError(
+                f"map-tiles.yaml: tile {tile_id!r} must define a single-character 'char' field"
+            )
+
+    tilesets: Dict[str, Tileset] = {}
     for tileset_id, ts in tilesets_data.items():
+        if not isinstance(ts, dict):
+            raise RuntimeError(f"map-tiles.yaml: tileset {tileset_id!r} must be a mapping")
         tile_ids: List[str] = ts.get("tiles", []) or []
+        if not isinstance(tile_ids, list):
+            raise RuntimeError(
+                f"map-tiles.yaml: tileset {tileset_id!r} 'tiles' must be a list of tile ids"
+            )
         mapping: Dict[str, str] = {}
         for tile_id in tile_ids:
-            tile = all_tiles.get(tile_id)
-            if not tile:
-                continue
+            if tile_id not in all_tiles:
+                raise RuntimeError(
+                    f"map-tiles.yaml: tileset {tileset_id!r} references unknown tile id {tile_id!r}"
+                )
+            tile = all_tiles[tile_id]
             ch = tile.get("char")
-            if not ch or not isinstance(ch, str):
-                continue
+            assert isinstance(ch, str) and len(ch) == 1
             mapping.setdefault(ch, tile_id)
         tilesets[tileset_id] = Tileset(id=tileset_id, chars_to_tiles=mapping)
 
@@ -67,13 +94,17 @@ def load_tilesets(tiles_path: Path) -> Dict[str, Tileset]:
 
 
 def load_map_index(index_path: Path, maps_dir: Path) -> List[MapDefinition]:
-    """Load map definitions from design/ascii/maps/index.yaml."""
+    """Load map definitions from design/ascii/maps/index.yaml. Raises RuntimeError on invalid schema."""
     if yaml is None:
         raise RuntimeError(
             "PyYAML is required to parse map index. Install with `pip install pyyaml`."
         )
     data = yaml.safe_load(index_path.read_text(encoding="utf-8"))  # type: ignore[arg-type]
+    if not isinstance(data, dict):
+        raise RuntimeError("maps/index.yaml must contain a top-level mapping")
     maps_section = data.get("maps", {}) or {}
+    if not isinstance(maps_section, dict):
+        raise RuntimeError("maps/index.yaml: 'maps' must be a mapping of map ids to configs")
     results: List[MapDefinition] = []
 
     for map_id, cfg in maps_section.items():

@@ -10,15 +10,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from askee_ds._paths import repo_root
+
 try:
     import yaml  # type: ignore[import-not-found]
 except Exception:  # pragma: no cover - environment dependent
     yaml = None  # type: ignore[assignment]
-
-
-def repo_root() -> Path:
-    """Best-effort repository root when running from a package."""
-    return Path(__file__).resolve().parent.parent
 
 
 def load_box_drawing(root: Path | None = None) -> dict[str, Any]:

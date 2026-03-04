@@ -9,6 +9,8 @@ from collections import Counter
 from pathlib import Path
 from typing import Iterable
 
+from askee_ds._paths import repo_root
+
 DELIMITER = "\u241f"  # U+241F SYMBOL FOR UNIT SEPARATOR
 ART_PREFIX = DELIMITER * 3 + " ART: "
 META_PREFIX = DELIMITER + " "
@@ -16,9 +18,7 @@ MAX_LINE_LENGTH = 80
 
 _ID_RE = re.compile(r"^decoration\.[a-z0-9_.]+$")
 
-
-def repo_root() -> Path:
-    return Path(__file__).resolve().parent.parent
+ALLOWED_LICENSES = {"public-domain", "CC0", "original"}
 
 
 def parse_decorations(content: str) -> list[dict]:
@@ -90,6 +90,22 @@ def validate_decorations(decorations: list[dict]) -> tuple[list[str], list[str]]
                         warnings.append(
                             f"{art_id}: tag {tag!r} should not contain spaces; use hyphens or separate tags"
                         )
+
+        license_value = str(meta.get("license", "")).strip()
+        if license_value and license_value not in ALLOWED_LICENSES:
+            warnings.append(
+                f"{art_id}: license {license_value!r} is not one of {sorted(ALLOWED_LICENSES)}"
+            )
+
+        source_value = str(meta.get("source", "")).strip()
+        if source_value and not (
+            source_value == "original"
+            or source_value.startswith("http://")
+            or source_value.startswith("https://")
+        ):
+            warnings.append(
+                f"{art_id}: source {source_value!r} should be a URL or 'original'"
+            )
 
         if DELIMITER in art:
             errors.append(f"{art_id}: ASCII art must not contain ␟ (U+241F)")
