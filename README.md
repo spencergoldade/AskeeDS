@@ -265,7 +265,7 @@ npm run update:manifest
 - **Versioning:** AskeeDS follows semantic versioning (`MAJOR.MINOR.PATCH`) recorded in [VERSION](VERSION) and [CHANGELOG.md](CHANGELOG.md).
   - **MAJOR:** Breaking changes (rename/remove component, rename/remove required prop, format changes).
   - **MINOR:** Additive (new components, new optional props, new tokens).
-  - **PATCH:** Non-breaking fixes, clarifications, docs/tooling only.
+  - **PATCH:** Non-breaking fixes, clarifications, documentation and tooling only.
 - **Changelog:** See [CHANGELOG.md](CHANGELOG.md) for what changed in each release and migration notes when a breaking change occurs.
 - **Layering:** To keep updates safe, treat core files (especially [design/ascii/components.txt](design/ascii/components.txt)) as upstream, and put your changes in overrides. When you update AskeeDS (via copy, package, or submodule), keep your overrides file and follow the changelog for any renames.
 
