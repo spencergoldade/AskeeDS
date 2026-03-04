@@ -110,6 +110,7 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
         "hint_text": "[Tab: complete] [Up/Down: history]",
         "content": "Value 1",
         "icon": "☆",
+        "variant": "default",
     }
     result = {}
     for p in parsed_props:
@@ -117,6 +118,13 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
         if p["is_array"]:
             if "exit" in prop_name or "direction" in prop_name:
                 result[prop_name] = [{"id": "n", "label": "north"}, {"id": "s", "label": "south"}]
+            elif prop_name == "stats":
+                # Character sheet-style stats: mix of value-only and current/max rows.
+                result[prop_name] = [
+                    {"label": "HP", "current": 50, "max": 100},
+                    {"label": "Mana", "current": 30, "max": 60},
+                    {"label": "Status", "value": "Cautious"},
+                ]
             elif "item" in prop_name or "option" in prop_name or "entity" in prop_name or "npcs" in prop_name:
                 result[prop_name] = [
                     {"id": "1", "label": "Item 1"},
@@ -124,6 +132,12 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 ]
             elif "hint" in prop_name or "hints" in prop_name:
                 result[prop_name] = [{"id": "1", "label": "look"}, {"id": "2", "label": "go <dir>"}]
+            elif prop_name == "needs":
+                result[prop_name] = [
+                    {"label": "Hunger", "current": 30, "max": 100},
+                    {"label": "Thirst", "current": 55, "max": 100},
+                    {"label": "Fatigue", "current": 70, "max": 100},
+                ]
             elif "block" in prop_name:
                 result[prop_name] = ["Block 1", "Block 2"]
             elif "segment" in prop_name:
@@ -132,10 +146,39 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                     {"id": "clearing", "label": "The Clearing"},
                     {"id": "guard", "label": "Guard post"},
                 ]
+            elif "objective" in prop_name:
+                result[prop_name] = [
+                    {"id": "1", "label": "Find the key", "checked": False},
+                    {"id": "2", "label": "Talk to the guard", "checked": True},
+                    {"id": "3", "label": "Open the door", "checked": False},
+                ]
+            elif prop_name == "lines":
+                result[prop_name] = ["You enter the clearing.", "The guard eyes you but says nothing."]
+            elif "interaction" in prop_name:
+                result[prop_name] = [{"id": "1", "label": "pet dog"}, {"id": "2", "label": "talk to guard"}]
+            elif "node" in prop_name:
+                result[prop_name] = [
+                    {"id": "combat", "label": "Combat", "children": [{"id": "1", "label": "Strike"}, {"id": "2", "label": "Block"}]},
+                    {"id": "lore", "label": "Lore", "children": [{"id": "3", "label": "Identify"}]},
+                ]
+            elif "relation" in prop_name:
+                result[prop_name] = [
+                    {"id": "allies", "label": "Allies", "items": [{"label": "Guard captain", "attitude": "friendly", "tags": ["city", "watch"]}]},
+                    {"id": "rivals", "label": "Rivals", "items": [{"label": "Thieves' Guild", "attitude": "hostile", "tags": ["underworld"]}]},
+                ]
+            elif "abilit" in prop_name:
+                result[prop_name] = [
+                    {"label": "Strike", "turns_left": 0},
+                    {"label": "Block", "turns_left": 2},
+                    {"label": "Dash", "turns_left": 1},
+                ]
             else:
                 result[prop_name] = [{"id": "1", "label": "Option 1"}]
         else:
-            result[prop_name] = scalar_defaults.get(
+            if prop_name == "stats_dict":
+                result[prop_name] = {"HP": 85, "Mana": 30, "Stamina": 60}
+            else:
+                result[prop_name] = scalar_defaults.get(
                 prop_name, scalar_defaults.get("label", "<value>")
             )
     return result
@@ -176,6 +219,35 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                     {"id": f"s{i}", "label": "Home" if i == 0 else random.choice(_RANDOM_PLACES)}
                     for i in range(n)
                 ]
+            elif "objective" in prop_name:
+                n = random.randint(2, 5)
+                result[prop_name] = [
+                    {"id": str(i), "label": random.choice(_RANDOM_WORDS).capitalize() + " objective", "checked": random.choice((True, False))}
+                    for i in range(1, n + 1)
+                ]
+            elif prop_name == "lines":
+                n = random.randint(1, 4)
+                result[prop_name] = [" ".join(random.choices(_RANDOM_WORDS, k=random.randint(3, 6))).capitalize() + "." for _ in range(n)]
+            elif "interaction" in prop_name:
+                result[prop_name] = [
+                    {"id": str(i), "label": f"{random.choice(('pet', 'talk to', 'inspect'))} {random.choice(_RANDOM_WORDS)}"}
+                    for i in range(1, n + 1)
+                ]
+            elif "node" in prop_name:
+                result[prop_name] = [
+                    {"id": f"n{i}", "label": random.choice(_RANDOM_WORDS).capitalize(), "children": [{"id": f"c{j}", "label": random.choice(_RANDOM_WORDS).capitalize()} for j in range(1, 3)]}
+                    for i in range(1, n + 1)
+                ]
+            elif "relation" in prop_name:
+                result[prop_name] = [
+                    {"id": f"r{i}", "label": random.choice(_RANDOM_WORDS).capitalize(), "items": [{"label": random.choice(_RANDOM_WORDS).capitalize(), "attitude": random.choice(("friendly", "hostile", "neutral")), "tags": []}]}
+                    for i in range(1, n + 1)
+                ]
+            elif "abilit" in prop_name:
+                result[prop_name] = [
+                    {"label": random.choice(("Strike", "Block", "Dash", "Shoot", "Heal")), "turns_left": random.randint(0, 5)}
+                    for i in range(1, n + 1)
+                ]
             else:
                 result[prop_name] = [
                     {"id": str(i), "label": random.choice(_RANDOM_LABELS) if i == 1 else f"Option {i}"}
@@ -198,6 +270,10 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 result[prop_name] = random.choice(_RANDOM_LABELS)
             elif "prompt" in prop_name:
                 result[prop_name] = random.choice(("> ", "$ ", "? "))
+            elif prop_name == "variant":
+                result[prop_name] = random.choice(("default", "stats"))
+            elif prop_name == "stats_dict":
+                result[prop_name] = {random.choice(_RANDOM_WORDS).capitalize(): random.randint(1, 100) for _ in range(3)}
             else:
                 result[prop_name] = random.choice(_RANDOM_WORDS).capitalize()
     return result
@@ -293,19 +369,447 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
         icon = str(props.get("icon", "☆"))[:2]
         label = str(props.get("label", "Star this"))
         return f"[{icon}] {label}"
-    # button.text: [ label ]
+    # button.text: [ label ] — ensure something always appears
     elif component_name == "button.text":
-        label = str(props.get("label", "Submit")).strip()
+        label = (str(props.get("label", "Submit")).strip()) or "Submit"
         return f"[ {label} ]"
-    # card.simple: title in header, body_text in first body line (fixed-width box)
+    # card.simple: title in header, body_text as one wrapable string (fixed-width box, inner 36)
     elif component_name == "card.simple":
-        title_part = str(props.get("title", "Card title"))[:36]
-        filler_len = max(0, 37 - len(title_part))
+        inner = 36
+        title_part = str(props.get("title", "Card title"))[: (inner - 2)]
+        filler_len = max(0, (inner - 2) - len(title_part))
         header = "+-- " + title_part + " " + "-" * filler_len + "+"
-        body_content = str(props.get("body_text", "Body text goes here and may wrap"))[:37].ljust(37)
-        body_line1 = "| " + body_content + " |"
-        out = header + "\n" + body_line1 + "\n| across multiple lines when needed.   |\n+--------------------------------------+"
-        return out
+        body_str = str(
+            props.get(
+                "body_text",
+                "Body text goes here and may wrap across multiple lines when needed. ",
+            )
+        )
+        words = body_str.split()
+        lines = []
+        current = []
+        current_len = 0
+        for w in words:
+            need = len(w) + (len(current) if current else 0)
+            if current:
+                need += 1
+            if current_len + need <= inner and current:
+                current.append(w)
+                current_len += need
+            elif current_len + need <= inner:
+                current = [w]
+                current_len = len(w)
+            else:
+                if current:
+                    line = " ".join(current).ljust(inner)[:inner]
+                    lines.append(line)
+                current = [w]
+                current_len = len(w)
+        if current:
+            lines.append(" ".join(current).ljust(inner)[:inner])
+        while len(lines) < 2:
+            lines.append(" ".ljust(inner))
+        body_part = "\n".join("| " + line + " |" for line in lines[:2])
+        footer = "+" + "-" * (inner + 2) + "+"
+        return header + "\n" + body_part + "\n" + footer
+    # character-sheet.compact: name + 2–3 stat rows with bars when current/max present
+    elif component_name == "character-sheet.compact":
+        name = str(props.get("name", "Hero"))
+
+        def _stat_bar(current: int | float, max_value: int | float, width: int) -> str:
+            try:
+                cur = float(current)
+                mx = float(max_value)
+                if mx <= 0:
+                    filled = 0
+                else:
+                    ratio = max(0.0, min(1.0, cur / mx))
+                    filled = int(round(width * ratio))
+            except Exception:
+                filled = 0
+            filled = max(0, min(width, filled))
+            return "=" * filled + " " * (width - filled)
+
+        stats = props.get("stats", []) or []
+        # Fallback to default-like stats if none provided.
+        if not stats:
+            stats = [
+                {"label": "HP", "current": 85, "max": 100},
+                {"label": "Mana", "current": 20, "max": 50},
+            ]
+
+        lines: list[str] = [name]
+        bar_width = 18
+        for stat in stats[:3]:
+            label = str(stat.get("label", "Stat"))
+            label_part = (label + ":").ljust(6)
+            if "current" in stat and "max" in stat:
+                cur = stat.get("current", 0)
+                mx = stat.get("max", 0)
+                bar = _stat_bar(cur, mx, bar_width)
+                line = f"{label_part} [{bar}] {cur}/{mx}"
+            else:
+                value = stat.get("value", "")
+                line = f"{label_part} {value}"
+            lines.append(line)
+
+        return "\n".join(lines)
+    # panel.survival-status: title + one row per need { label, current, max } with bar
+    elif component_name == "panel.survival-status":
+        needs = props.get("needs", []) or []
+        if not needs:
+            needs = [
+                {"label": "Hunger", "current": 30, "max": 100},
+                {"label": "Thirst", "current": 55, "max": 100},
+                {"label": "Fatigue", "current": 70, "max": 100},
+            ]
+        bar_width = 20
+        lines_list = ["Survival"]
+        for need in needs[:6]:
+            label = str(need.get("label", "Need"))
+            cur = need.get("current", 0)
+            mx = need.get("max", 100) or 100
+            try:
+                ratio = max(0.0, min(1.0, float(cur) / float(mx)))
+                filled = int(round(bar_width * ratio))
+            except Exception:
+                filled = 0
+            filled = max(0, min(bar_width, filled))
+            bar = "=" * filled + " " * (bar_width - filled)
+            label_part = (label + ":").ljust(9)
+            lines_list.append(f"{label_part} [{bar}] {cur}/{mx}")
+        return "\n".join(lines_list)
+    # cooldown.row: each ability { label, turns_left } → "Label [n]" in one row
+    elif component_name == "cooldown.row":
+        abilities = props.get("abilities", []) or []
+        if not abilities:
+            abilities = [
+                {"label": "Strike", "turns_left": 0},
+                {"label": "Block", "turns_left": 2},
+                {"label": "Dash", "turns_left": 1},
+            ]
+        parts = []
+        for ab in abilities[:8]:
+            label = str(ab.get("label", "Ability"))
+            turns = ab.get("turns_left", 0)
+            try:
+                turns = int(turns)
+            except (TypeError, ValueError):
+                turns = 0
+            parts.append(f"{label} [{turns}]")
+        return "  ".join(parts)
+    # tooltip.default: text (default) or variant stats → name + stats_dict
+    elif component_name == "tooltip.default":
+        variant = str(props.get("variant", "default")).strip().lower()
+        if variant == "stats" or (props.get("name") is not None and props.get("stats_dict") is not None):
+            name = str(props.get("name", "Stats"))
+            stats_dict = props.get("stats_dict")
+            if isinstance(stats_dict, dict):
+                inner_lines = [name]
+                for k, v in list(stats_dict.items())[:6]:
+                    inner_lines.append(f"  {k}: {v}")
+                inner = "\n".join(inner_lines)
+            elif isinstance(stats_dict, list):
+                inner_lines = [name]
+                for item in stats_dict[:6]:
+                    if isinstance(item, dict):
+                        inner_lines.append("  " + str(item.get("label", item.get("key", ""))) + ": " + str(item.get("value", item.get("amount", ""))))
+                    else:
+                        inner_lines.append("  " + str(item))
+                inner = "\n".join(inner_lines)
+            else:
+                inner = name
+            inner_w = 30
+            top = "+" + "-" * inner_w + "+"
+            out_lines = [top]
+            for line in inner.splitlines():
+                out_lines.append("|  " + line[: inner_w - 4].ljust(inner_w - 4) + " |")
+            out_lines.append(top)
+            return "\n".join(out_lines)
+        text = str(props.get("text", "Additional information for your perusal"))
+        # Wrap text to fit box width (e.g. 30 chars)
+        width = 30
+        words = text.split()
+        line_lines = []
+        current = []
+        current_len = 0
+        for w in words:
+            need = len(w) + (1 if current else 0)
+            if current_len + need <= width and current:
+                current.append(w)
+                current_len += need
+            elif current_len + need <= width:
+                current = [w]
+                current_len = len(w)
+            else:
+                if current:
+                    line_lines.append(" ".join(current))
+                current = [w]
+                current_len = len(w)
+        if current:
+            line_lines.append(" ".join(current))
+        if not line_lines:
+            line_lines = ["Additional information for your perusal", "your perusal"]
+        inner_w = 29
+        top = "+" + "-" * inner_w + "+"
+        mid = "\n".join("|  " + ln[:inner_w].ljust(inner_w) + " |" for ln in line_lines[:3])
+        return top + "\n" + mid + "\n" + top
+    # feedback.success: one line from message
+    elif component_name == "feedback.success":
+        return str(props.get("message", "Taken: rusty sword (+1 weapon)"))
+    # feedback.error: one line message and optional suggestion
+    elif component_name == "feedback.error":
+        msg = str(props.get("message", "You don't see \"sword\" here."))
+        sug = props.get("suggestion")
+        if sug:
+            return msg + " " + str(sug)
+        return msg
+    # label.inline: label: value
+    elif component_name == "label.inline":
+        label = str(props.get("label", "HP"))
+        value = props.get("value", 85)
+        return f"{label}: {value}"
+    # input.text: prompt + placeholder text padded with underscores
+    elif component_name == "input.text":
+        prompt = str(props.get("prompt", "> "))
+        placeholder = str(props.get("placeholder", "command"))
+        try:
+            width = min(int(props.get("max_length", 15)), 40)
+        except (TypeError, ValueError):
+            width = 15
+        field = (placeholder[:width]).ljust(width, "_")
+        return prompt + field
+    # toast.inline: single-line box with message
+    elif component_name == "toast.inline":
+        msg = str(props.get("message", "Saved."))[:33]
+        line = "|  " + msg.ljust(33) + " |"
+        return "+-----------------------------------+\n" + line + "\n+-----------------------------------+"
+    # progress-bar.horizontal: bar with = and spaces, optional percent
+    elif component_name == "progress-bar.horizontal":
+        value = int(props.get("value", 50))
+        max_val = int(props.get("max", 100)) or 1
+        width = 24
+        filled = int(round(width * value / max_val))
+        filled = max(0, min(width, filled))
+        bar = "=" * filled + " " * (width - filled)
+        pct = int(round(100 * value / max_val))
+        label = str(props.get("label_optional", ""))
+        if label:
+            return f"{label} [{bar}] {pct}%"
+        return f"[{bar}] {pct}%"
+    # meter.resource: one row type + bar + current/max
+    elif component_name == "meter.resource":
+        typ = str(props.get("type", "HP"))[:6].ljust(6)
+        cur = int(props.get("current", 85))
+        mx = int(props.get("max", 100)) or 1
+        width = 24
+        filled = max(0, min(width, int(round(width * cur / mx))))
+        bar = "=" * filled + " " * (width - filled)
+        return f"{typ} [{bar}] {cur}/{mx}"
+    # counter.ammo: label: current/max
+    elif component_name == "counter.ammo":
+        label = str(props.get("label", "Ammo"))
+        cur = props.get("current", 12)
+        mx = props.get("max", 24)
+        return f"{label}: {cur}/{mx}"
+    # counter.score: label: value
+    elif component_name == "counter.score":
+        label = str(props.get("label", "Score"))
+        value = props.get("value", "1,250")
+        return f"{label}: {value}"
+    # modal.overlay: box.card with title and body_text (same inner width pattern as card.simple)
+    elif component_name == "modal.overlay":
+        inner = 36
+        title_part = str(props.get("title", "Confirm"))[: (inner - 2)]
+        filler_len = max(0, (inner - 2) - len(title_part))
+        header = "+-- " + title_part + " " + "-" * filler_len + "+"
+        body_str = str(props.get("body_text", "Are you sure you want to quit?"))[:inner * 2]
+        words = body_str.split()
+        lines = []
+        current = []
+        current_len = 0
+        for w in words:
+            need = len(w) + (len(current) if current else 0)
+            if current:
+                need += 1
+            if current_len + need <= inner and current:
+                current.append(w)
+                current_len += need
+            elif current_len + need <= inner:
+                current = [w]
+                current_len = len(w)
+            else:
+                if current:
+                    line = " ".join(current).ljust(inner)[:inner]
+                    lines.append(line)
+                current = [w]
+                current_len = len(w)
+        if current:
+            lines.append(" ".join(current).ljust(inner)[:inner])
+        if not lines:
+            lines.append("".ljust(inner))
+        body_part = "\n".join("| " + line + " |" for line in lines[:3])
+        footer = "+" + "-" * (inner + 2) + "+"
+        return header + "\n" + body_part + "\n" + footer
+    # form.single-field: bordered box with label, field line, hint
+    elif component_name == "form.single-field":
+        label = str(props.get("label", "Name"))[:20]
+        placeholder = str(props.get("placeholder", "your character name"))[:25]
+        hint = str(props.get("hint", "(your character name)"))[:30]
+        top = "+----------------------------------+"
+        line1 = "| " + (label + ": ").ljust(22) + placeholder.ljust(15) + "      |"
+        line2 = "| " + hint.ljust(34) + "            |"
+        return top + "\n" + line1 + "\n" + line2 + "\n" + top
+    # exit-list.inline: Exits: dir1 dir2 ...
+    elif component_name == "exit-list.inline":
+        directions = props.get("directions", [])
+        if isinstance(directions, list) and directions:
+            if isinstance(directions[0], dict):
+                labels = [str(d.get("label", d.get("id", ""))) for d in directions]
+            else:
+                labels = [str(d) for d in directions]
+            return "Exits: " + "  ".join(labels[:8])
+        return "Exits: north  south  east"
+    # entity-list.room: You see: then * item per line (items + npcs)
+    elif component_name == "entity-list.room":
+        items = props.get("items", [])
+        npcs = props.get("npcs", [])
+        if isinstance(items, list):
+            item_labels = [str(x.get("label", x.get("id", "")) if isinstance(x, dict) else x) for x in items]
+        else:
+            item_labels = []
+        if isinstance(npcs, list):
+            npc_labels = [str(x.get("label", x.get("id", "")) if isinstance(x, dict) else x) for x in npcs]
+        else:
+            npc_labels = []
+        lines = ["You see:"]
+        for l in item_labels[:6]:
+            lines.append("  * " + str(l))
+        for l in npc_labels[:6]:
+            lines.append("  * " + str(l))
+        if len(lines) == 1:
+            lines.append("  * brass lamp")
+            lines.append("  * guard")
+        return "\n".join(lines)
+    # choice-wheel.inline: numbered options
+    elif component_name == "choice-wheel.inline":
+        options = props.get("options", [])
+        if isinstance(options, list) and options:
+            parts = []
+            for i, o in enumerate(options[:8], 1):
+                label = o.get("label", o.get("id", "")) if isinstance(o, dict) else str(o)
+                parts.append(f"{i}. {label}")
+            return "\n".join(parts)
+        return "1. Go north\n2. Talk to guard\n3. Take lamp"
+    # inventory.list: - label (qty) per line
+    elif component_name == "inventory.list":
+        items = props.get("items", [])
+        if isinstance(items, list) and items:
+            lines = []
+            for it in items[:10]:
+                if isinstance(it, dict):
+                    lab = str(it.get("label", it.get("id", "")))
+                    qty = it.get("quantity", 1)
+                    lines.append(f"- {lab} ({qty})")
+                else:
+                    lines.append(f"- {it}")
+            return "\n".join(lines)
+        return "- rusty sword (1)\n- brass lamp (1)\n- key (2)"
+    # menu.main: box with title and item lines
+    elif component_name == "menu.main":
+        title = str(props.get("title", "AskeeDS"))[:28]
+        items = props.get("items", [])
+        if isinstance(items, list) and items:
+            item_lines = ["|  " + (it.get("label", it.get("id", "")) if isinstance(it, dict) else str(it))[:32].ljust(32) + " |" for it in items[:8]]
+        else:
+            item_lines = ["|  New game                       |", "|  Load game                      |", "|  Options                        |", "|  Quit                           |"]
+        header = "+-- " + title + " " + "-" * max(0, 29 - len(title)) + "+"
+        footer = "+---------------------------------+"
+        return header + "\n" + "\n".join(item_lines) + "\n" + footer
+    # menu.pause: same shape as menu.main
+    elif component_name == "menu.pause":
+        title = str(props.get("title", "Paused"))[:28]
+        items = props.get("items", [])
+        if isinstance(items, list) and items:
+            item_lines = ["|  " + (it.get("label", it.get("id", "")) if isinstance(it, dict) else str(it))[:32].ljust(32) + " |" for it in items[:8]]
+        else:
+            item_lines = ["|  Resume                         |", "|  Options                        |", "|  Quit                           |"]
+        header = "+-- " + title + " " + "-" * max(0, 29 - len(title)) + "+"
+        return header + "\n" + "\n".join(item_lines) + "\n+---------------------------------+"
+    # tracker.objective: [ ] or [x] + label per line
+    elif component_name == "tracker.objective":
+        objectives = props.get("objectives", [])
+        if isinstance(objectives, list) and objectives:
+            lines = []
+            for ob in objectives[:8]:
+                if isinstance(ob, dict):
+                    lab = str(ob.get("label", ob.get("id", "")))
+                    checked = ob.get("checked", False)
+                    lines.append("[x] " + lab if checked else "[ ] " + lab)
+                else:
+                    lines.append("[ ] " + str(ob))
+            return "\n".join(lines)
+        return "[ ] Find the key\n[x] Talk to the guard\n[ ] Open the door"
+    # narrative-log.pane: box with lines[]
+    elif component_name == "narrative-log.pane":
+        lines_in = props.get("lines", [])
+        inner = 50
+        if isinstance(lines_in, list) and lines_in:
+            body = "\n".join("| " + str(line)[:inner].ljust(inner) + " |" for line in lines_in[:5])
+        else:
+            body = "| You enter the clearing.                          |\n| The guard eyes you but says nothing.             |\n|                                                  |"
+        return "+-- Narrative log ---------------------------------+\n" + body + "\n+--------------------------------------------------+"
+    # command-input.default: prompt + placeholder, then hint line
+    elif component_name == "command-input.default":
+        prompt = str(props.get("prompt", "> "))
+        placeholder = str(props.get("placeholder", "go north"))
+        hint = str(props.get("hint_text", "[Tab: complete] [Up/Down: history]"))
+        return prompt + placeholder + "\n" + hint
+    # hint-bar.contextual: Commands: hints
+    elif component_name == "hint-bar.contextual":
+        hints = props.get("hints", [])
+        if isinstance(hints, list) and hints:
+            labels = [h.get("label", h.get("id", "")) if isinstance(h, dict) else str(h) for h in hints[:6]]
+            return "Commands: " + ", ".join(labels)
+        return "Commands: look, go <dir>, take <item>, i(nventory), ? for help"
+    # hint-bar.interactions: You can: interactions
+    elif component_name == "hint-bar.interactions":
+        interactions = props.get("interactions", [])
+        if isinstance(interactions, list) and interactions:
+            labels = [i.get("label", i.get("id", "")) if isinstance(i, dict) else str(i) for i in interactions[:6]]
+            return "You can: " + ", ".join(labels)
+        return "You can: pet dog, talk to guard, inspect statue"
+    # tree.compact: category lines and indented children
+    elif component_name == "tree.compact":
+        nodes = props.get("nodes", [])
+        if isinstance(nodes, list) and nodes:
+            lines = []
+            for node in nodes[:6]:
+                label = node.get("label", node.get("id", "")) if isinstance(node, dict) else str(node)
+                lines.append(label)
+                children = node.get("children", []) if isinstance(node, dict) else []
+                for c in children[:4]:
+                    clab = c.get("label", c.get("id", "")) if isinstance(c, dict) else str(c)
+                    lines.append("  > " + clab)
+            return "\n".join(lines)
+        return "Combat\n  > Strike\n  > Block\n  > Parry\nLore\n  > Identify\n  > Persuade"
+    # tree.relationships: category then "  > name (attitude) [tags]"
+    elif component_name == "tree.relationships":
+        relations = props.get("relations", [])
+        if isinstance(relations, list) and relations:
+            lines = []
+            for r in relations[:6]:
+                label = r.get("label", r.get("id", "")) if isinstance(r, dict) else str(r)
+                lines.append(label)
+                sub = r.get("items", r.get("children", [])) if isinstance(r, dict) else []
+                for s in (sub if isinstance(sub, list) else [])[:4]:
+                    slab = s.get("label", s.get("id", "")) if isinstance(s, dict) else str(s)
+                    att = s.get("attitude", "") if isinstance(s, dict) else ""
+                    tags = s.get("tags", []) if isinstance(s, dict) else []
+                    tag_str = " [" + ", ".join(tags[:3]) + "]" if tags else ""
+                    lines.append("  > " + slab + (f" ({att})" if att else "") + tag_str)
+            return "\n".join(lines)
+        return "Allies\n  > Guard captain (friendly) [city, watch]\nRivals\n  > Thieves' Guild (hostile) [underworld]"
     # Generic path: explicit branch or default-as-placeholder substitution.
     # When parsed_props is provided, replace default values in art with current props.
     else:

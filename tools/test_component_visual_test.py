@@ -112,12 +112,102 @@ class TestComponentVisualTestHelpers(unittest.TestCase):
         props = {"title": "Card title", "body_text": "Body text goes here and may wrap"}
         preview = cvt.apply_props_to_art("card.simple", art, props)
         self.assertIn("Card title", preview)
-        self.assertIn("Body text goes here and may wrap", preview)
+        # Body text may be word-wrapped across lines
+        self.assertIn("Body text", preview)
+        self.assertIn("may wrap", preview)
         self.assertNotIn("[ Props:", preview)
         props2 = {"title": "Other Title", "body_text": "Short."}
         preview2 = cvt.apply_props_to_art("card.simple", art, props2)
         self.assertIn("Other Title", preview2)
         self.assertIn("Short.", preview2)
+
+    def test_apply_props_to_art_for_feedback_success(self) -> None:
+        """feedback.success returns message line with no Props fallback."""
+        preview = cvt.apply_props_to_art("feedback.success", "", {"message": "Taken: key"})
+        self.assertEqual(preview, "Taken: key")
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_label_inline(self) -> None:
+        """label.inline returns 'label: value' with no Props fallback."""
+        preview = cvt.apply_props_to_art("label.inline", "", {"label": "HP", "value": 85})
+        self.assertEqual(preview, "HP: 85")
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_progress_bar_horizontal(self) -> None:
+        """progress-bar.horizontal returns bar and percent with no Props fallback."""
+        preview = cvt.apply_props_to_art("progress-bar.horizontal", "", {"value": 50, "max": 100})
+        self.assertIn("[", preview)
+        self.assertIn("]", preview)
+        self.assertIn("50%", preview)
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_meter_resource(self) -> None:
+        """meter.resource returns type + bar + current/max with no Props fallback."""
+        preview = cvt.apply_props_to_art("meter.resource", "", {"type": "HP", "current": 50, "max": 100})
+        self.assertIn("HP", preview)
+        self.assertIn("50/100", preview)
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_character_sheet_compact(self) -> None:
+        """character-sheet.compact uses name and stats with bars."""
+        props = {"name": "Hero", "stats": [{"label": "HP", "current": 50, "max": 100}, {"label": "Mana", "current": 30, "max": 60}]}
+        preview = cvt.apply_props_to_art("character-sheet.compact", "", props)
+        self.assertIn("Hero", preview)
+        self.assertIn("HP", preview)
+        self.assertIn("50/100", preview)
+        self.assertIn("Mana", preview)
+        self.assertIn("30/60", preview)
+        self.assertIn("=", preview)
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_exit_list_inline(self) -> None:
+        """exit-list.inline returns 'Exits: dir1 dir2' with no Props fallback."""
+        props = {"directions": [{"id": "n", "label": "north"}, {"id": "s", "label": "south"}]}
+        preview = cvt.apply_props_to_art("exit-list.inline", "", props)
+        self.assertIn("Exits:", preview)
+        self.assertIn("north", preview)
+        self.assertIn("south", preview)
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_choice_wheel_inline(self) -> None:
+        """choice-wheel.inline returns numbered options with no Props fallback."""
+        props = {"options": [{"id": "1", "label": "Go north"}, {"id": "2", "label": "Talk"}]}
+        preview = cvt.apply_props_to_art("choice-wheel.inline", "", props)
+        self.assertIn("1. Go north", preview)
+        self.assertIn("2. Talk", preview)
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_panel_survival_status(self) -> None:
+        """panel.survival-status: every need label/current/max controls a row with bar."""
+        props = {"needs": [{"label": "Hunger", "current": 30, "max": 100}, {"label": "Thirst", "current": 55, "max": 100}]}
+        preview = cvt.apply_props_to_art("panel.survival-status", "", props)
+        self.assertIn("Survival", preview)
+        self.assertIn("Hunger", preview)
+        self.assertIn("30/100", preview)
+        self.assertIn("Thirst", preview)
+        self.assertIn("55/100", preview)
+        self.assertIn("=", preview)
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_cooldown_row(self) -> None:
+        """cooldown.row: every ability label and turns_left controls badge in row."""
+        props = {"abilities": [{"label": "Strike", "turns_left": 0}, {"label": "Block", "turns_left": 2}]}
+        preview = cvt.apply_props_to_art("cooldown.row", "", props)
+        self.assertIn("Strike [0]", preview)
+        self.assertIn("Block [2]", preview)
+        self.assertNotIn("[ Props:", preview)
+
+    def test_apply_props_to_art_for_tooltip_default(self) -> None:
+        """tooltip.default: text controls default content; variant stats use name + stats_dict."""
+        preview = cvt.apply_props_to_art("tooltip.default", "", {"text": "Help text here."})
+        self.assertIn("Help text here", preview)
+        self.assertIn("+", preview)
+        self.assertNotIn("[ Props:", preview)
+        preview_stats = cvt.apply_props_to_art("tooltip.default", "", {"variant": "stats", "name": "Player", "stats_dict": {"HP": 80, "Mana": 40}})
+        self.assertIn("Player", preview_stats)
+        self.assertIn("HP", preview_stats)
+        self.assertIn("80", preview_stats)
+        self.assertIn("Mana", preview_stats)
 
     def test_apply_props_to_art_generic_default_as_placeholder(self) -> None:
         """Generic path with parsed_props substitutes default values in art with current props."""

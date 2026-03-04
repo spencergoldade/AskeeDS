@@ -224,7 +224,7 @@ COMPONENT LIBRARY (examples)
 
 ␟␟␟ COMPONENT: button.icon
 ␟ description: Button with leading icon (one or two chars).
-␟ component-status: In Review
+␟ component-status: Approved
 ␟ usage: Use for primary or secondary actions where a small symbol reinforces meaning.
 ␟ props: label, icon
 
@@ -423,7 +423,7 @@ HP: 85
 
 ␟␟␟ COMPONENT: breadcrumb.inline
 ␟ description: Inline path (e.g. location hierarchy).
-␟ component-status: In Review
+␟ component-status: Approved
 ␟ usage: Show above a main pane to orient the player in nested locations or menus.
 ␟ props: segments[]
 
