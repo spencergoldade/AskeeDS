@@ -6,7 +6,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Tuple
 
 from askee_ds._paths import repo_root
 
@@ -21,7 +20,7 @@ MAX_LINE_LENGTH = 80
 @dataclass
 class Tileset:
     id: str
-    chars_to_tiles: Dict[str, str]
+    chars_to_tiles: dict[str, str]
 
 
 @dataclass
@@ -36,7 +35,7 @@ class MapDefinition:
     height_hint: int | None
 
 
-def load_tilesets(tiles_path: Path) -> Dict[str, Tileset]:
+def load_tilesets(tiles_path: Path) -> dict[str, Tileset]:
     """Load tilesets from design/ascii/map-tiles.yaml. Raises RuntimeError on invalid schema."""
     if yaml is None:
         raise RuntimeError(
@@ -46,7 +45,7 @@ def load_tilesets(tiles_path: Path) -> Dict[str, Tileset]:
     if not isinstance(data, dict):
         raise RuntimeError("map-tiles.yaml must contain a top-level mapping")
 
-    all_tiles: Dict[str, dict] = data.get("tiles", {}) or {}
+    all_tiles: dict[str, dict] = data.get("tiles", {}) or {}
     if not isinstance(all_tiles, dict):
         raise RuntimeError("map-tiles.yaml: 'tiles' must be a mapping of tile ids to definitions")
 
@@ -69,16 +68,16 @@ def load_tilesets(tiles_path: Path) -> Dict[str, Tileset]:
                 f"map-tiles.yaml: tile {tile_id!r} must define a single-character 'char' field"
             )
 
-    tilesets: Dict[str, Tileset] = {}
+    tilesets: dict[str, Tileset] = {}
     for tileset_id, ts in tilesets_data.items():
         if not isinstance(ts, dict):
             raise RuntimeError(f"map-tiles.yaml: tileset {tileset_id!r} must be a mapping")
-        tile_ids: List[str] = ts.get("tiles", []) or []
+        tile_ids: list[str] = ts.get("tiles", []) or []
         if not isinstance(tile_ids, list):
             raise RuntimeError(
                 f"map-tiles.yaml: tileset {tileset_id!r} 'tiles' must be a list of tile ids"
             )
-        mapping: Dict[str, str] = {}
+        mapping: dict[str, str] = {}
         for tile_id in tile_ids:
             if tile_id not in all_tiles:
                 raise RuntimeError(
@@ -93,7 +92,7 @@ def load_tilesets(tiles_path: Path) -> Dict[str, Tileset]:
     return tilesets
 
 
-def load_map_index(index_path: Path, maps_dir: Path) -> List[MapDefinition]:
+def load_map_index(index_path: Path, maps_dir: Path) -> list[MapDefinition]:
     """Load map definitions from design/ascii/maps/index.yaml. Raises RuntimeError on invalid schema."""
     if yaml is None:
         raise RuntimeError(
@@ -105,7 +104,7 @@ def load_map_index(index_path: Path, maps_dir: Path) -> List[MapDefinition]:
     maps_section = data.get("maps", {}) or {}
     if not isinstance(maps_section, dict):
         raise RuntimeError("maps/index.yaml: 'maps' must be a mapping of map ids to configs")
-    results: List[MapDefinition] = []
+    results: list[MapDefinition] = []
 
     for map_id, cfg in maps_section.items():
         file_rel = cfg.get("file")
@@ -128,7 +127,7 @@ def load_map_index(index_path: Path, maps_dir: Path) -> List[MapDefinition]:
     return results
 
 
-def parse_map_file(path: Path) -> Tuple[List[str], int, int]:
+def parse_map_file(path: Path) -> tuple[list[str], int, int]:
     """
     Parse a single ASCII map file into rows, width, and height.
     """
@@ -142,16 +141,16 @@ def parse_map_file(path: Path) -> Tuple[List[str], int, int]:
 
 
 def validate_maps(
-    tilesets: Dict[str, Tileset], maps: List[MapDefinition]
-) -> Tuple[List[str], List[str], List[dict]]:
+    tilesets: dict[str, Tileset], maps: list[MapDefinition]
+) -> tuple[list[str], list[str], list[dict]]:
     """
     Validate maps against tilesets and basic layout rules.
 
     Returns (errors, warnings, parsed_maps_json_ready).
     """
-    errors: List[str] = []
-    warnings: List[str] = []
-    parsed_maps: List[dict] = []
+    errors: list[str] = []
+    warnings: list[str] = []
+    parsed_maps: list[dict] = []
 
     for m in maps:
         if not m.file.exists():
