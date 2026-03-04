@@ -13,6 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT))
 
 from parse_components import parse_components
 
@@ -47,6 +48,22 @@ def main() -> int:
         c = by_name["layout.stack"]
         print("--- layout.stack (structure) ---")
         print(c["art"].rstrip())
+        print()
+
+    # Render typography.banner (Figlet when available; else static art)
+    if "typography.banner" in by_name:
+        c = by_name["typography.banner"]
+        print("--- typography.banner ---")
+        try:
+            from askee_ds.banner import render_banner_text
+            art = render_banner_text("AskeeDS", style_hint="splash", max_height=10)
+            if art is not None:
+                print(art.rstrip())
+            else:
+                print(c["art"].rstrip())
+        except ImportError:
+            print(c["art"].rstrip())
+        print()
 
     print()
     print(f"(Rendered from {len(components)} components in {components_path})")

@@ -1,3 +1,18 @@
+Metadata-Version: 2.4
+Name: askee-ds
+Version: 0.1.0
+Summary: AskeeDS ASCII design system tools and parsers.
+Author: Spencer Goldade
+License: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: pyyaml>=6.0.0
+Provides-Extra: visual-test
+Requires-Dist: textual>=0.47.0; extra == "visual-test"
+Requires-Dist: pyfiglet>=0.8.0; extra == "visual-test"
+Provides-Extra: banner
+Requires-Dist: pyfiglet>=0.8.0; extra == "banner"
+
 # AskeeDS
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?style=flat&logo=ko-fi)](https://ko-fi.com/spencerg1350)

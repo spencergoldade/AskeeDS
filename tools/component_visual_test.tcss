@@ -41,3 +41,19 @@
 .art_block {
   padding-left: 2;
 }
+
+/* Figlet font browser: list left, preview right */
+.figlet_list_container {
+  width: 22;
+  min-width: 18;
+}
+
+.figlet_preview_container {
+  width: 1fr;
+  padding-left: 2;
+  overflow: auto;
+}
+
+.section_muted {
+  color: $foreground-muted;
+}

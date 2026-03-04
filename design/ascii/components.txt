@@ -32,7 +32,7 @@ HOW TO USE
     (Rich/Textual) per ␟ color-hint: on each component when present.
   - Respect props listed in meta (e.g. title, description_text, directions[])
     when implementing; they define the data the component expects.
-  - Max width 80 chars; prefer 60–70 for body text. Test at 80×24; 256-color.
+  - Max width 80 chars; prefer 60–70 for body text. Test at 80×24; 256-color. Line width and text roles: see design/tokens/typography.md.
   - Layout components (e.g. layout.two-column, layout.stack): Props like
     left_content, right_content, and blocks[] are content slots. Your runtime
     may pass pre-rendered strings or the output of other components; this file
@@ -557,8 +557,8 @@ Home > The Clearing > Guard post
 ␟ description: Multi-line ASCII-art title; structural placeholder for Figlet/Art.
 ␟ component-status: In Review
 ␟ usage: Use on splash screens or major transitions to emphasize titles or chapter breaks.
-␟ note: For production, consider generating via Figlet/Art or similar.
-␟ props: text, style_hint
+␟ note: For production, consider generating via Figlet/Art or similar. When font is set, use that Figlet font name from the approved list; otherwise style_hint applies.
+␟ props: text, style_hint, font_optional
 
   ___  ____  _  __ ______
  / _ )/ __ \/ |/ // __/ /

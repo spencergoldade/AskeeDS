@@ -1,0 +1,4 @@
+[console_scripts]
+askee-ds-demo = askee_ds.cli:demo_main
+askee-ds-export = askee_ds.cli:export_main
+askee-ds-validate = askee_ds.cli:validate_main

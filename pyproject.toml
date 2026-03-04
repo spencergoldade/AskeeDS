@@ -13,7 +13,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-visual-test = ["textual>=0.47.0"]
+visual-test = ["textual>=0.47.0", "pyfiglet>=0.8.0"]
+banner = ["pyfiglet>=0.8.0"]
 
 [project.scripts]
 askee-ds-validate = "askee_ds.cli:validate_main"

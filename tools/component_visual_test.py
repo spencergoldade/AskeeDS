@@ -20,6 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
+sys.path.insert(0, str(ROOT))  # so askee_ds.banner is importable for typography.banner
 
 try:
     from textual.app import App, ComposeResult
@@ -111,6 +112,8 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
         "content": "Value 1",
         "icon": "☆",
         "variant": "default",
+        "style_hint": "splash",
+        "font": "",
     }
     result = {}
     for p in parsed_props:
@@ -736,6 +739,22 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
             item_lines = ["|  Resume                         |", "|  Options                        |", "|  Quit                           |"]
         header = "+-- " + title + " " + "-" * max(0, 29 - len(title)) + "+"
         return header + "\n" + "\n".join(item_lines) + "\n+---------------------------------+"
+    # typography.banner: Figlet-style art from text + style_hint or font (banner only; use pyfiglet when available)
+    elif component_name == "typography.banner":
+        text = str(props.get("text", "AskeeDS"))
+        style_hint = str(props.get("style_hint", "splash"))
+        font_val = props.get("font")
+        font = str(font_val).strip() if font_val else None
+        try:
+            from askee_ds.banner import render_banner_text
+            rendered = render_banner_text(
+                text, style_hint=style_hint, font=font or None, max_height=10
+            )
+            if rendered is not None:
+                return rendered.rstrip()
+        except ImportError:
+            pass
+        return art.strip() or "  ___  ____  _  __ ______\n / _ )/ __ \\/ |/ // __/ /\n/ _  / /_/ /    /_/ /_/\n/____/\\____/_/|_/___/___"
     # tracker.objective: [ ] or [x] + label per line
     elif component_name == "tracker.objective":
         objectives = props.get("objectives", [])
@@ -887,8 +906,30 @@ class NoteModal(ModalScreen):
         self.dismiss()
 
 
+def _startup_banner_text() -> str:
+    """AskeeDS Figlet banner for the main menu; random approved font if any, else splash style. Empty if pyfiglet not available."""
+    try:
+        from askee_ds.banner import render_banner_text
+        approved_path = ROOT / "tools" / "figlet_approved_fonts.txt"
+        fonts: list[str] = []
+        if approved_path.exists():
+            try:
+                fonts = [f.strip() for f in approved_path.read_text(encoding="utf-8").strip().splitlines() if f.strip()]
+            except Exception:
+                pass
+        out = None
+        if fonts:
+            font = random.choice(fonts)
+            out = render_banner_text("AskeeDS", font=font, max_height=8)
+        if not out:
+            out = render_banner_text("AskeeDS", style_hint="splash", max_height=8)
+        return (out or "").rstrip()
+    except ImportError:
+        return ""
+
+
 class StartupScreen(Screen):
-    """Choose how to start: browse all, filter by status, or quick jump to In Review."""
+    """Choose how to start: browse all, filter by status, quick jump to In Review, or browse Figlet fonts."""
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
@@ -901,16 +942,20 @@ class StartupScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=False)
+        yield Static("", id="startup_banner")
         yield Static("How do you want to start?", classes="section_title")
         yield Static(SECTION_DIVIDER, classes="section_divider")
         yield OptionList(id="startup_options")
         yield Footer()
 
     def on_mount(self) -> None:
+        banner_el = self.query_one("#startup_banner", Static)
+        banner_el.update(_startup_banner_text() or "AskeeDS — Component visual test")
         opt_list = self.query_one("#startup_options", OptionList)
         opt_list.add_option("Browse all components")
         opt_list.add_option("Filter by status only")
         opt_list.add_option("Quick jump to In Review")
+        opt_list.add_option("Browse Figlet fonts")
 
     @on(OptionList.OptionSelected)
     def _on_option_selected(self, event: OptionList.OptionSelected) -> None:
@@ -921,8 +966,190 @@ class StartupScreen(Screen):
             self.app.switch_screen(BrowserScreen(self.components, initial_status=None))
         elif idx == 2:
             self.app.switch_screen(BrowserScreen(self.components, initial_status="In Review", quick_jump_in_review=True))
+        elif idx == 3:
+            self.app.push_screen(FigletFontBrowserScreen())
         else:
             self.app.switch_screen(BrowserScreen(self.components, initial_status=None))
+
+    def action_quit(self) -> None:
+        self.app.exit()
+
+
+# Path for approved Figlet fonts (one name per line); typography.md can reference this.
+FIGLET_APPROVED_PATH = ROOT / "tools" / "figlet_approved_fonts.txt"
+
+
+class FigletFontBrowserScreen(Screen):
+    """Browse all pyfiglet fonts with live preview. Approve fonts for use in typography.banner."""
+
+    BINDINGS = [
+        Binding("q", "quit", "Quit"),
+        Binding("b", "back", "Back"),
+        Binding("a", "approve", "Approve font"),
+        Binding("u", "unapprove", "Unapprove font"),
+        Binding("escape", "back", "Back"),
+    ]
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.fonts: list[str] = []
+        self._approved: set[str] = set()
+
+    def compose(self) -> ComposeResult:
+        yield Header(show_clock=False)
+        yield Static("Figlet fonts — select to preview. A = approve, U = unapprove. Green = approved.", classes="section_title")
+        yield Static(SECTION_DIVIDER, classes="section_divider")
+        yield Horizontal(
+            Container(OptionList(id="figlet_font_list"), classes="figlet_list_container"),
+            Container(Static("Select a font to see preview.", id="figlet_preview"), classes="figlet_preview_container"),
+        )
+        yield Static("Approved fonts saved to tools/figlet_approved_fonts.txt; document in design/tokens/typography.md.", id="figlet_footer_note", classes="section_muted")
+        yield Footer()
+
+    def on_mount(self) -> None:
+        try:
+            from askee_ds.banner import get_figlet_fonts, render_banner_text
+            self.fonts = get_figlet_fonts() or []
+        except ImportError:
+            self.fonts = []
+        if not self.fonts:
+            self.query_one("#figlet_preview", Static).update(
+                "pyfiglet not installed.\n\n"
+                "From repo root run:\n  pip install -e \".[visual-test]\"\n"
+                "(includes Figlet) or:\n  pip install -e \".[banner]\"\n\n"
+                "Plain \"pip install -e .\" does not install optional extras."
+            )
+            return
+        self._load_approved()
+        self._refresh_font_list()
+
+    def _load_approved(self) -> None:
+        if FIGLET_APPROVED_PATH.exists():
+            try:
+                self._approved = set(FIGLET_APPROVED_PATH.read_text(encoding="utf-8").strip().splitlines())
+            except Exception:
+                self._approved = set()
+        else:
+            self._approved = set()
+
+    def _refresh_font_list(self) -> None:
+        """Rebuild the option list with approved fonts shown in green (e.g. on mount)."""
+        opt_list = self.query_one("#figlet_font_list", OptionList)
+        opt_list.clear_options()
+        for f in self.fonts:
+            if f in self._approved:
+                opt_list.add_option(f"[green]{f}[/green]")
+            else:
+                opt_list.add_option(f)
+
+    def _update_font_list_option_at_index(self, idx: int) -> None:
+        """Update only the option at idx (green if approved, else plain) so highlight/focus is preserved."""
+        if idx < 0 or idx >= len(self.fonts):
+            return
+        font = self.fonts[idx]
+        opt_list = self.query_one("#figlet_font_list", OptionList)
+        prompt = f"[green]{font}[/green]" if font in self._approved else font
+        try:
+            opt_list.replace_option_prompt_at_index(idx, prompt)
+        except Exception:
+            pass
+
+    def _approve_current(self) -> None:
+        if not self.fonts:
+            self.app.notify("No fonts loaded", severity="warning", timeout=1)
+            return
+        try:
+            opt_list = self.query_one("#figlet_font_list", OptionList)
+            idx = getattr(opt_list, "highlighted", None)
+            if idx is None or not (0 <= idx < len(self.fonts)):
+                self.app.notify("Select a font first (click or Enter)", severity="information", timeout=2)
+                return
+            font = self.fonts[idx]
+            self._approved.add(font)
+            FIGLET_APPROVED_PATH.parent.mkdir(parents=True, exist_ok=True)
+            lines = sorted(self._approved)
+            FIGLET_APPROVED_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            self._update_font_list_option_at_index(idx)
+            self.app.notify(f"Approved: {font}", severity="information", timeout=2)
+            self._update_preview_approval_line(font)
+        except Exception as e:
+            self.app.notify(f"Could not save: {e}", severity="error", timeout=2)
+
+    def _unapprove_current(self) -> None:
+        if not self.fonts:
+            self.app.notify("No fonts loaded", severity="warning", timeout=1)
+            return
+        try:
+            opt_list = self.query_one("#figlet_font_list", OptionList)
+            idx = getattr(opt_list, "highlighted", None)
+            if idx is None or not (0 <= idx < len(self.fonts)):
+                self.app.notify("Select a font first (click or Enter)", severity="information", timeout=2)
+                return
+            font = self.fonts[idx]
+            self._approved.discard(font)
+            FIGLET_APPROVED_PATH.parent.mkdir(parents=True, exist_ok=True)
+            if self._approved:
+                lines = sorted(self._approved)
+                FIGLET_APPROVED_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            else:
+                FIGLET_APPROVED_PATH.write_text("", encoding="utf-8")
+            self._update_font_list_option_at_index(idx)
+            self.app.notify(f"Unapproved: {font}", severity="information", timeout=2)
+            self._update_preview_approval_line(font)
+        except Exception as e:
+            self.app.notify(f"Could not save: {e}", severity="error", timeout=2)
+
+    def _update_preview_approval_line(self, font: str) -> None:
+        """Refresh the preview for the given font (so Approved: yes/no is current) if it is the one highlighted."""
+        try:
+            opt_list = self.query_one("#figlet_font_list", OptionList)
+            idx = getattr(opt_list, "highlighted", None)
+            if idx is None or idx < 0 or idx >= len(self.fonts) or self.fonts[idx] != font:
+                return
+        except Exception:
+            return
+        try:
+            from askee_ds.banner import render_banner_text
+            art = render_banner_text("AskeeDS", font=font, max_height=12)
+            if art:
+                sample2 = render_banner_text("Quick Fox", font=font, max_height=6)
+                block = f"[ {font} ]\n\n{art.rstrip()}"
+                if sample2:
+                    block += f"\n\n--- sample: Quick Fox ---\n{sample2.rstrip()}"
+                block += f"\n\nApproved: {'yes' if font in self._approved else 'no'} (A=approve, U=unapprove)"
+                self.query_one("#figlet_preview", Static).update(block)
+        except Exception:
+            pass
+
+    @on(OptionList.OptionSelected)
+    def _on_font_selected(self, event: OptionList.OptionSelected) -> None:
+        idx = event.option_index
+        if idx < 0 or idx >= len(self.fonts):
+            return
+        font = self.fonts[idx]
+        try:
+            from askee_ds.banner import render_banner_text
+            art = render_banner_text("AskeeDS", font=font, max_height=12)
+            if art:
+                sample2 = render_banner_text("Quick Fox", font=font, max_height=6)
+                block = f"[ {font} ]\n\n{art.rstrip()}"
+                if sample2:
+                    block += f"\n\n--- sample: Quick Fox ---\n{sample2.rstrip()}"
+                block += f"\n\nApproved: {'yes' if font in self._approved else 'no'} (A=approve, U=unapprove)"
+                self.query_one("#figlet_preview", Static).update(block)
+            else:
+                self.query_one("#figlet_preview", Static).update(f"[ {font} ]\n\n(render failed)")
+        except Exception as e:
+            self.query_one("#figlet_preview", Static).update(f"[ {font} ]\n\nError: {e}")
+
+    def action_back(self) -> None:
+        self.app.pop_screen()
+
+    def action_approve(self) -> None:
+        self._approve_current()
+
+    def action_unapprove(self) -> None:
+        self._unapprove_current()
 
     def action_quit(self) -> None:
         self.app.exit()

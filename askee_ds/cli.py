@@ -209,7 +209,17 @@ def demo_main(argv: list[str] | None = None) -> int:
         print(name)
         print("-" * 80)
         art = comp.get("art", "") or ""
-        print(art)
+        if name == "typography.banner":
+            try:
+                from askee_ds.banner import render_banner_text
+                text = "AskeeDS"
+                style_hint = "splash"
+                rendered = render_banner_text(text, style_hint=style_hint, max_height=10)
+                if rendered is not None:
+                    art = rendered
+            except ImportError:
+                pass
+        print(art.rstrip() if art else "")
         print()
 
     return 0
