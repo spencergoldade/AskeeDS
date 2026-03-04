@@ -15,14 +15,12 @@ ROOT = Path(__file__).resolve().parent.parent
 COMPONENTS_PATH = ROOT / "design" / "ascii" / "components.txt"
 MANIFEST_PATH = ROOT / "design" / "ascii" / "manifest.yaml"
 
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 
 def main() -> int:
-    try:
-        from tools.parse_components import parse_components  # type: ignore[import]
-    except Exception:
-        # Fallback to relative import when run via `python3 tools/update_manifest.py`.
-        sys.path.insert(0, str(ROOT / "tools"))
-        from parse_components import parse_components  # type: ignore[import]
+    from askee_ds.components import parse_components
 
     if not COMPONENTS_PATH.exists():
         print(f"Error: components file not found: {COMPONENTS_PATH}", file=sys.stderr)
