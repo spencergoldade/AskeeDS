@@ -6,7 +6,7 @@ Machine-readable grammar for the component library file (e.g. `design/ascii/comp
 
 - **Component boundary:** A line that starts with exactly three U+241F characters, then the literal `COMPONENT: ` (with trailing space), then the component name. The component name is the rest of the line (trimmed). No leading/trailing spaces in the name.
 - **Meta line:** A line that starts with exactly one U+241F character, then a key (identifier or word), then the literal `: ` (colon + space), then the value. The value is the rest of the line (trimmed). Keys are case-sensitive (e.g. `description`, `props`).
-- **ASCII art block:** Consecutive lines that are not a component boundary and not a meta line. This is the component's structural sketch. May be empty. Ends at the next component boundary or end of file.
+- **ASCII art block:** Consecutive lines that are not a component boundary and not a meta line. This is the component's structural sketch. May be empty. Ends at the next component boundary, at a **section header** line (a line that starts with `---------- ` and ends with `----------`), or at end of file.
 
 ## Parsing algorithm
 
@@ -14,7 +14,7 @@ Machine-readable grammar for the component library file (e.g. `design/ascii/comp
 2. Scan for the delimiter character (U+241F). Count leading delimiters on each line.
 3. If a line starts with `␟␟␟` and then `COMPONENT: `, begin a new component. Record the name (rest of line after `COMPONENT: `, trimmed).
 4. Subsequent lines starting with exactly one `␟` are meta: parse key and value (after the first `␟`, take up to first `: ` as key, rest as value).
-5. After the meta block (first line that is not component-boundary and not meta), treat all following lines until the next `␟␟␟ COMPONENT: ` as the ASCII art block. Store it as a string (lines joined by newline) or list of lines.
+5. After the meta block (first line that is not component-boundary and not meta), treat all following lines as the ASCII art block. Stop when you reach the next `␟␟␟ COMPONENT: ` line or a section-header line (starts with `---------- ` and ends with `----------`). Store the art as a string (lines joined by newline) or list of lines.
 6. Repeat until EOF.
 
 ## Multiple files and overrides

@@ -14,6 +14,9 @@ design/DESIGN-LENS-REASSESSMENT.md
 # Cursor-only docs (not shipped in repo)
 docs/
 
+# Local tickets (review/backlog; do not ship)
+tickets/
+
 # Python bytecode and cache
 __pycache__/
 *.pyc

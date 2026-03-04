@@ -71,6 +71,14 @@ def _parse_props_meta(raw: str) -> list[dict]:
     return props
 
 
+def parse_props_meta(raw: str) -> list[dict]:
+    """
+    Parse a ␟ props: meta value into a structured list. Public API for tools
+    (e.g. component_visual_test) that need to inspect prop definitions.
+    """
+    return _parse_props_meta(raw)
+
+
 def parse_components(content: str) -> list[dict]:
     """
     Parse component library text into a list of component dicts.
@@ -97,8 +105,16 @@ def parse_components(content: str) -> list[dict]:
                     meta[key.strip()] = value.strip()
                 i += 1
             art_lines: list[str] = []
-            while i < len(lines) and not lines[i].startswith(COMPONENT_PREFIX):
-                art_lines.append(lines[i])
+            while i < len(lines):
+                candidate = lines[i]
+                if candidate.startswith(COMPONENT_PREFIX):
+                    break
+                if (
+                    candidate.startswith("---------- ")
+                    and candidate.rstrip().endswith("----------")
+                ):
+                    break
+                art_lines.append(candidate)
                 i += 1
             art = "\n".join(art_lines) if art_lines else ""
             components.append({"name": name, "meta": meta, "art": art})

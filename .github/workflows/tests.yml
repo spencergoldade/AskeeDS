@@ -3,12 +3,16 @@ name: CI
 on:
   push:
     paths:
+      - "askee_ds/**"
+      - "examples/**"
       - "tools/**"
       - "design/**"
       - "package.json"
       - ".github/workflows/tests.yml"
   pull_request:
     paths:
+      - "askee_ds/**"
+      - "examples/**"
       - "tools/**"
       - "design/**"
       - "package.json"
@@ -38,6 +42,9 @@ jobs:
 
       - name: Validate design (maps)
         run: python tools/parse_maps.py --validate
+
+      - name: Validate design (decorations)
+        run: python tools/parse_decorations.py --validate
 
       - name: Run Python tests
         run: |

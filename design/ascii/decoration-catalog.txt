@@ -286,7 +286,7 @@ Celestial and symbols
 Corners and borders
 -------------------------------------------------------------------------------
 
-␟␟⟟ ART: decoration.vine.corner
+␟␟␟ ART: decoration.vine.corner
 ␟ title: Corner vine
 ␟ tags: vine,corner,border
 ␟ source: original
