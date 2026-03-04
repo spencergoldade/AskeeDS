@@ -50,3 +50,7 @@ jobs:
         run: |
           python -m unittest discover -s tools
 
+      - name: Run package tests
+        run: |
+          python -m unittest discover -s tests -v
+
