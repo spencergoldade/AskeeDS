@@ -86,6 +86,49 @@ class TestComponentVisualTestHelpers(unittest.TestCase):
         self.assertEqual(preview, "Home > The Clearing > Guard post")
         self.assertNotIn("[ Props:", preview)
 
+    def test_apply_props_to_art_for_button_icon(self) -> None:
+        """apply_props_to_art for button.icon returns [icon] label with no Props fallback."""
+        art = "[☆] Star this"
+        defaults = {"icon": "☆", "label": "Star this"}
+        preview = cvt.apply_props_to_art("button.icon", art, defaults)
+        self.assertEqual(preview, "[☆] Star this")
+        self.assertNotIn("[ Props:", preview)
+        custom = {"icon": "★", "label": "Other"}
+        preview2 = cvt.apply_props_to_art("button.icon", art, custom)
+        self.assertEqual(preview2, "[★] Other")
+
+    def test_apply_props_to_art_for_button_text(self) -> None:
+        """apply_props_to_art for button.text returns [ label ] with no Props fallback."""
+        art = "[ Submit ]"
+        preview = cvt.apply_props_to_art("button.text", art, {"label": "Submit"})
+        self.assertEqual(preview, "[ Submit ]")
+        self.assertNotIn("[ Props:", preview)
+        preview2 = cvt.apply_props_to_art("button.text", art, {"label": "Cancel"})
+        self.assertEqual(preview2, "[ Cancel ]")
+
+    def test_apply_props_to_art_for_card_simple(self) -> None:
+        """apply_props_to_art for card.simple uses title and body_text, no Props fallback."""
+        art = "+-- Card title ------------------------+\n| Body text goes here and may wrap     |\n| across multiple lines when needed.   |\n+--------------------------------------+"
+        props = {"title": "Card title", "body_text": "Body text goes here and may wrap"}
+        preview = cvt.apply_props_to_art("card.simple", art, props)
+        self.assertIn("Card title", preview)
+        self.assertIn("Body text goes here and may wrap", preview)
+        self.assertNotIn("[ Props:", preview)
+        props2 = {"title": "Other Title", "body_text": "Short."}
+        preview2 = cvt.apply_props_to_art("card.simple", art, props2)
+        self.assertIn("Other Title", preview2)
+        self.assertIn("Short.", preview2)
+
+    def test_apply_props_to_art_generic_default_as_placeholder(self) -> None:
+        """Generic path with parsed_props substitutes default values in art with current props."""
+        art = "Prefix Label suffix"
+        parsed_props = [{"name": "label", "is_array": False}]
+        props = {"label": "Replaced"}
+        preview = cvt.apply_props_to_art("generic.fake", art, props, parsed_props)
+        self.assertIn("Replaced", preview)
+        self.assertNotIn("Label", preview)
+        self.assertNotIn("[ Props:", preview)
+
     def test_append_session_note_writes_expected_line(self) -> None:
         """append_session_note writes a timestamped line into today's notes file."""
         original_notes_dir = cvt.NOTES_DIR

@@ -109,6 +109,7 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
         "luck_band_optional": "Fading",
         "hint_text": "[Tab: complete] [Up/Down: history]",
         "content": "Value 1",
+        "icon": "☆",
     }
     result = {}
     for p in parsed_props:
@@ -148,6 +149,7 @@ _RANDOM_WORDS = (
 )
 _RANDOM_PLACES = ("The Clearing", "The Alley", "Town Square", "Dark Woods", "Riverbank", "Cave Mouth")
 _RANDOM_LABELS = ("Submit", "Cancel", "Look", "Go north", "Take item", "Use", "Drop", "Inventory")
+_RANDOM_ICONS = ("☆", "★", "†", "•", "◆", "►", "♥")
 
 
 def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
@@ -190,6 +192,8 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 result[prop_name] = random.choice(_RANDOM_PLACES)
             elif "body" in prop_name or "description" in prop_name or "text" in prop_name:
                 result[prop_name] = " ".join(random.choices(_RANDOM_WORDS, k=random.randint(3, 8))).capitalize() + "."
+            elif "icon" in prop_name:
+                result[prop_name] = random.choice(_RANDOM_ICONS)
             elif "label" in prop_name:
                 result[prop_name] = random.choice(_RANDOM_LABELS)
             elif "prompt" in prop_name:
@@ -220,9 +224,28 @@ def _parse_prop_value(raw: str, is_array: bool) -> tuple[object, str | None]:
     return raw, None
 
 
-def apply_props_to_art(component_name: str, art: str, props: dict) -> str:
+def _format_prop_value_for_art(value: object) -> str:
+    """Format a prop value as it appears in reference art for default-as-placeholder substitution.
+    Exits/directions use '  ' (e.g. 'north  south'); other lists use ', ' (e.g. 'Item 1, Item 2')."""
+    if isinstance(value, list):
+        if not value:
+            return ""
+        if isinstance(value[0], dict):
+            labels = [str(item.get("label", item.get("id", ""))) for item in value]
+            if len(labels) == 2 and all(
+                L in ("north", "south", "east", "west", "up", "down") for L in labels
+            ):
+                return "  ".join(labels)
+            return ", ".join(labels)
+        return ", ".join(str(x) for x in value)
+    return str(value)
+
+
+def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props: list[dict] | None = None) -> str:
     """Substitute current prop values into the reference art for preview.
-    Prefer adding explicit branches for components in approved_component_names()."""
+    Explicit branches take precedence for precise layout. When parsed_props is provided,
+    the generic path uses default-as-placeholder substitution so all components can show
+    visible prop changes; add new components via an explicit branch or rely on this."""
     out = art
     # status-bar.default: HP: 85/100  |  The Clearing  |  Turn 12
     if component_name == "status-bar.default":
@@ -265,18 +288,60 @@ def apply_props_to_art(component_name: str, art: str, props: dict) -> str:
         else:
             out = art.strip() or "Home > The Clearing > Guard post"
         return out
-    # Generic: replace any prop value that appears verbatim in art
+    # button.icon: [icon] label
+    elif component_name == "button.icon":
+        icon = str(props.get("icon", "☆"))[:2]
+        label = str(props.get("label", "Star this"))
+        return f"[{icon}] {label}"
+    # button.text: [ label ]
+    elif component_name == "button.text":
+        label = str(props.get("label", "Submit")).strip()
+        return f"[ {label} ]"
+    # card.simple: title in header, body_text in first body line (fixed-width box)
+    elif component_name == "card.simple":
+        title_part = str(props.get("title", "Card title"))[:36]
+        filler_len = max(0, 37 - len(title_part))
+        header = "+-- " + title_part + " " + "-" * filler_len + "+"
+        body_content = str(props.get("body_text", "Body text goes here and may wrap"))[:37].ljust(37)
+        body_line1 = "| " + body_content + " |"
+        out = header + "\n" + body_line1 + "\n| across multiple lines when needed.   |\n+--------------------------------------+"
+        return out
+    # Generic path: explicit branch or default-as-placeholder substitution.
+    # When parsed_props is provided, replace default values in art with current props.
     else:
-        for key, val in props.items():
-            if isinstance(val, (str, int, float)) and str(val) in out:
-                out = out.replace(str(val), str(val), 1)
-    # Fallback: append current props so user sees they're applied
-    try:
-        props_preview = json.dumps({k: v for k, v in props.items()}, indent=0)[:200]
-    except Exception:
-        props_preview = str(props)[:200]
-    if "\n[ Props:" not in out:
-        out = out.rstrip() + "\n\n[ Props: " + props_preview + " ]"
+        substituted = False
+        if parsed_props is not None:
+            default_props = default_props_for_component(component_name, parsed_props)
+            for key in props:
+                default_val = default_props.get(key)
+                if default_val is None:
+                    continue
+                current_val = props.get(key)
+                if isinstance(default_val, (str, int, float)):
+                    default_str = str(default_val)
+                    current_str = str(current_val)
+                elif isinstance(default_val, list):
+                    default_str = _format_prop_value_for_art(default_val)
+                    current_str = _format_prop_value_for_art(current_val) if isinstance(current_val, list) else str(current_val)
+                else:
+                    default_str = str(default_val)
+                    current_str = str(current_val)
+                if default_str and default_str in out:
+                    out = out.replace(default_str, current_str, 1)
+                    substituted = True
+        if not substituted:
+            for key, val in props.items():
+                if isinstance(val, (str, int, float)) and str(val) in out:
+                    out = out.replace(str(val), str(val), 1)
+                    break
+    # Fallback: when parsed_props was provided, append only if no substitution; else always append
+    if parsed_props is None or not substituted:
+        try:
+            props_preview = json.dumps({k: v for k, v in props.items()}, indent=0)[:200]
+        except Exception:
+            props_preview = str(props)[:200]
+        if "\n[ Props:" not in out:
+            out = out.rstrip() + "\n\n[ Props: " + props_preview + " ]"
     return out
 
 
@@ -528,6 +593,7 @@ class DetailScreen(Screen):
             self.component["name"],
             self.component.get("art") or "",
             self.prop_values,
+            self.parsed_props,
         )
         self.query_one("#preview_art", Static).update(preview.rstrip())
 
