@@ -10,3 +10,8 @@ design/content/
 
 # Cursor-only docs (not shipped in repo)
 docs/
+
+# Python bytecode and cache
+__pycache__/
+*.pyc
+*.pyo
