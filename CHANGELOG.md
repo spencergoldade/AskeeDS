@@ -6,6 +6,11 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **color_role support**: Component visual test applies `color_role` to the preview (background, text, border). Default and random prop values for `color_role`; palette and role list from `design/ascii/askee_ds_tokens.yaml`.
+- **AskeeDS token file** (`design/ascii/askee_ds_tokens.yaml`): Canonical source for color role ids and default TUI palette. Values may be copied from local design token files; this file is the only token source committed to the repo.
+- Component visual test: approve (A), unapprove (U), and set-status (S) from browser and detail screens; status persisted to `design/ascii/components.txt`.
+- Component visual test: status picker modal to choose any component status; popup closes after selection.
+- Component visual test: toggleable overview pane (O) on detail screen showing purpose, default-view, randomized-view, prop-types, and edge-cases in a scrollable pane.
 - Component visual test TUI for interactive preview of components and props.
 - Component statuses and component count tooling.
 - Decoration extension; component descriptions and examples in the manifest.

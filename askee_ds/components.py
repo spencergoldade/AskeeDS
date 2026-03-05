@@ -92,7 +92,11 @@ def parse_components(content: str) -> list[dict]:
                 DELIMITER * 3
             ):
                 meta_line = lines[i][len(META_PREFIX) :]
-                if ": " in meta_line:
+                # Continuation: line starts with two+ spaces → append to previous key's value
+                if meta_line.startswith("  ") and meta:
+                    last_key = next(reversed(meta))
+                    meta[last_key] = meta[last_key] + "\n" + meta_line.strip()
+                elif ": " in meta_line:
                     key, _, value = meta_line.partition(": ")
                     meta[key.strip()] = value.strip()
                 i += 1

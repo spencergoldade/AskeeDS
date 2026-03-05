@@ -1051,7 +1051,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: card.simple
 ␟ description: Generic bordered title + body; room-card is game variant.
-␟ component-status: In Review
+␟ component-status: Approved
 ␟ usage: Use as a generic info card for help, lore snippets, or small summaries.
 ␟ props: title, body_text, color_role_optional
 ␟ shape: box.card
@@ -1474,7 +1474,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: choice-wheel.inline
 ␟ description: Vertical numbered options for dialog/choice flow.
-␟ component-status: In Review
+␟ component-status: Approved
 ␟ usage: Present small sets of mutually exclusive options during dialog or scripted choices.
 ␟ props: options[], color_role_optional
 ␟ purpose: Presents the player with a set of selectable dialogue or action choices
@@ -1662,7 +1662,7 @@ Home > The Clearing > Guard post
 
 ␟␟␟ COMPONENT: character-sheet.compact
 ␟ description: Name plus 2–3 rows (HP, mana, status); reuses meter/label.
-␟ component-status: In Review
+␟ component-status: Approved
 ␟ usage: Show as a sidebar or dedicated screen summarizing the current character state.
 ␟ props: name, stats[], color_role_optional
 ␟ purpose: A condensed view of a character's core attributes — name, class, level,
@@ -1853,7 +1853,7 @@ Mana: [====                           ] 20/50
 
 ␟␟␟ COMPONENT: counter.ammo
 ␟ description: Ammo or similar resource count (current/max or bar).
-␟ component-status: In Review
+␟ component-status: Approved
 ␟ usage: Use in combat or ranged-weapon HUDs to show current and max ammo.
 ␟ props: current, max, label, color_role_optional
 ␟ purpose: Tracks ammunition count for weapons — bullets in the chamber, arrows in
@@ -2002,7 +2002,7 @@ Invasion front:
 
 ␟␟␟ COMPONENT: cooldown.row
 ␟ description: Row of labeled cooldown badges for multiple abilities.
-␟ component-status: In Review
+␟ component-status: Approved
 ␟ usage: Show multiple abilities' cooldowns under character or combat HUD elements.
 ␟ props: abilities[], color_role_optional
 ␟ color-hint: ui.muted for labels; status.warning when turns_left > 0

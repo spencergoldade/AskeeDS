@@ -263,7 +263,7 @@ python tools/parse_components.py --validate design/ascii/components.txt design/a
 python tools/parse_components.py --json design/ascii/components.txt design/ascii/overrides.txt > components.json
 ```
 
-In code, you can import `parse_components` from [tools/parse_components.py](tools/parse_components.py) and load/merge files however your runtime prefers.
+In code, you can import `parse_components` from [tools/parse_components.py](tools/parse_components.py) and load/merge files however your runtime prefers. When using the Python package, load border characters from the design assets with `askee_ds.box_drawing.load_box_drawing(root=None)` so implementations use the approved set (see [design/ascii/box-drawing.yaml](design/ascii/box-drawing.yaml)) instead of hardcoding.
 
 To keep the component manifest in sync with the library, you can regenerate `design/ascii/manifest.yaml` directly from `components.txt`:
 

@@ -47,8 +47,15 @@ except ImportError as e:
 
 from parse_components import parse_components, parse_props_meta, COMPONENT_STATUSES
 
+try:
+    from askee_ds.components import COMPONENT_PREFIX, META_PREFIX
+except ImportError:
+    COMPONENT_PREFIX = "\u241f" * 3 + " COMPONENT: "
+    META_PREFIX = "\u241f" + " "
+
 COMPONENTS_PATH = ROOT / "design" / "ascii" / "components.txt"
 PROP_SHAPES_PATH = ROOT / "design" / "ascii" / "prop_shapes.yaml"
+ASKEE_DS_TOKENS_PATH = ROOT / "design" / "ascii" / "askee_ds_tokens.yaml"
 STATUS_OPTIONS = [("All", "All")] + [(s, s) for s in sorted(COMPONENT_STATUSES)]
 
 # Section divider for TUI (horizontal line from box-drawing convention; 60 chars)
@@ -57,6 +64,9 @@ SECTION_DIVIDER = "-" * 60
 # Prop intent: array element shapes (and optional scalar types) for defaults/randomizer.
 # Loaded from design/ascii/prop_shapes.yaml when present; empty dict if missing or invalid.
 _PROP_SHAPES_CACHE: dict | None = None
+
+# AskeeDS token file (color roles and default palette). Loaded from design/ascii/askee_ds_tokens.yaml.
+_ASKEE_DS_TOKENS_CACHE: dict | None = None
 
 
 def _load_prop_shapes() -> dict:
@@ -87,8 +97,134 @@ def _get_array_shape(prop_name: str) -> str | None:
         return shapes.get(prop_name)
     return None
 
+
+def _get_scalar_type(prop_name: str) -> str | None:
+    """Return scalar type ('integer' or 'number') for a prop from prop_shapes.yaml, or None."""
+    data = _load_prop_shapes()
+    types = data.get("scalar_types")
+    if isinstance(types, dict):
+        return types.get(prop_name)
+    return None
+
+
+def _load_askee_ds_tokens() -> dict:
+    """Load design/ascii/askee_ds_tokens.yaml; return { color_roles: { id: { description, tui: {...} } } } or empty."""
+    global _ASKEE_DS_TOKENS_CACHE
+    if _ASKEE_DS_TOKENS_CACHE is not None:
+        return _ASKEE_DS_TOKENS_CACHE
+    out: dict = {}
+    if not ASKEE_DS_TOKENS_PATH.exists():
+        _ASKEE_DS_TOKENS_CACHE = out
+        return out
+    try:
+        import yaml  # type: ignore[import-untyped]
+        raw = yaml.safe_load(ASKEE_DS_TOKENS_PATH.read_text(encoding="utf-8"))
+        if isinstance(raw, dict):
+            out = raw
+    except Exception:
+        pass
+    _ASKEE_DS_TOKENS_CACHE = out
+    return out
+
+
+def get_color_role_ids() -> list[str]:
+    """Return list of color role ids from askee_ds_tokens.yaml for default/random and validation."""
+    data = _load_askee_ds_tokens()
+    roles = data.get("color_roles")
+    if isinstance(roles, dict):
+        return list(roles.keys())
+    return ["neutral"]
+
+
+def _default_label_current_max(prop_name: str) -> list[dict]:
+    """Return default list of { label, current, max } or { label, value } for stats/needs-style props."""
+    if prop_name == "needs":
+        return [
+            {"label": "Hunger", "current": 30, "max": 100},
+            {"label": "Thirst", "current": 55, "max": 100},
+            {"label": "Fatigue", "current": 70, "max": 100},
+        ]
+    # stats (character-sheet.compact) or any other label_current_max prop
+    return [
+        {"label": "HP", "current": 50, "max": 100},
+        {"label": "Mana", "current": 30, "max": 60},
+        {"label": "Status", "value": "Cautious"},
+    ]
+
 # Session notes: one file per day under tools/visual_test_notes/
 NOTES_DIR = ROOT / "tools" / "visual_test_notes"
+
+
+def update_component_status_in_file(component_name: str, new_status: str) -> bool:
+    """Update component-status for one component in design/ascii/components.txt.
+    Validates new_status against COMPONENT_STATUSES. Returns True on success, False on failure.
+    """
+    if new_status not in COMPONENT_STATUSES:
+        return False
+    if not COMPONENTS_PATH.exists():
+        return False
+    try:
+        lines = COMPONENTS_PATH.read_text(encoding="utf-8").splitlines(keepends=True)
+    except OSError:
+        return False
+    result: list[str] = []
+    i = 0
+    found_and_updated = False
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith(COMPONENT_PREFIX):
+            name = line[len(COMPONENT_PREFIX) :].strip()
+            if name != component_name:
+                result.append(line)
+                i += 1
+                while i < len(lines) and not lines[i].startswith(COMPONENT_PREFIX) and not (
+                    lines[i].startswith("---------- ") and lines[i].rstrip().endswith("----------")
+                ):
+                    result.append(lines[i])
+                    i += 1
+                continue
+            result.append(line)
+            i += 1
+            first_meta_idx = None
+            status_replaced = False
+            while i < len(lines):
+                next_line = lines[i]
+                if next_line.startswith(META_PREFIX) and not next_line.startswith(COMPONENT_PREFIX):
+                    if first_meta_idx is None:
+                        first_meta_idx = len(result)
+                    if ": " in next_line:
+                        key = next_line[len(META_PREFIX) :].partition(": ")[0].strip()
+                        if key == "component-status":
+                            result.append(META_PREFIX + "component-status: " + new_status + "\n")
+                            status_replaced = True
+                            found_and_updated = True
+                            i += 1
+                            continue
+                    result.append(next_line)
+                    i += 1
+                else:
+                    break
+            if not status_replaced and first_meta_idx is not None:
+                result.insert(first_meta_idx + 1, META_PREFIX + "component-status: " + new_status + "\n")
+                found_and_updated = True
+            while i < len(lines):
+                candidate = lines[i]
+                if candidate.startswith(COMPONENT_PREFIX):
+                    break
+                if candidate.startswith("---------- ") and candidate.rstrip().endswith("----------"):
+                    break
+                result.append(candidate)
+                i += 1
+            continue
+        result.append(line)
+        i += 1
+    if not found_and_updated:
+        return False
+    try:
+        COMPONENTS_PATH.write_text("".join(result), encoding="utf-8")
+    except OSError:
+        return False
+    return True
 
 
 def append_session_note(component_name: str | None, text: str) -> None:
@@ -149,20 +285,16 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
         "variant": "default",
         "style_hint": "splash",
         "font": "",
+        "color_role": "neutral",
     }
     result = {}
     for p in parsed_props:
         prop_name = p["name"]
         if p["is_array"]:
-            if "exit" in prop_name or "direction" in prop_name:
+            if _get_array_shape(prop_name) == "label_current_max":
+                result[prop_name] = _default_label_current_max(prop_name)
+            elif "exit" in prop_name or "direction" in prop_name:
                 result[prop_name] = [{"id": "n", "label": "north"}, {"id": "s", "label": "south"}]
-            elif prop_name == "stats":
-                # Character sheet-style stats: mix of value-only and current/max rows.
-                result[prop_name] = [
-                    {"label": "HP", "current": 50, "max": 100},
-                    {"label": "Mana", "current": 30, "max": 60},
-                    {"label": "Status", "value": "Cautious"},
-                ]
             elif "item" in prop_name or "option" in prop_name or "entity" in prop_name or "npcs" in prop_name:
                 result[prop_name] = [
                     {"id": "1", "label": "Item 1"},
@@ -170,12 +302,6 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 ]
             elif "hint" in prop_name or "hints" in prop_name:
                 result[prop_name] = [{"id": "1", "label": "look"}, {"id": "2", "label": "go <dir>"}]
-            elif prop_name == "needs":
-                result[prop_name] = [
-                    {"label": "Hunger", "current": 30, "max": 100},
-                    {"label": "Thirst", "current": 55, "max": 100},
-                    {"label": "Fatigue", "current": 70, "max": 100},
-                ]
             elif "block" in prop_name:
                 result[prop_name] = ["Block 1", "Block 2"]
             elif "segment" in prop_name:
@@ -336,6 +462,26 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 result[prop_name] = {random.choice(_RANDOM_WORDS).capitalize(): random.randint(1, 100) for _ in range(3)}
             elif prop_name == "name":
                 result[prop_name] = random.choice(_RANDOM_HERO_NAMES)
+            elif prop_name == "risk_level":
+                result[prop_name] = random.choice(("LOW", "MEDIUM", "HIGH", "CRITICAL"))
+            elif prop_name == "luck_band_optional":
+                result[prop_name] = random.choice(("Cursed", "Neutral", "Blessed", "Lucky", "Fading"))
+            elif prop_name == "color_role":
+                result[prop_name] = random.choice(get_color_role_ids())
+            elif _get_scalar_type(prop_name) == "integer":
+                # Designer pass: scalar_types in prop_shapes.yaml (columns, max_visible, etc.)
+                if "columns" in prop_name or "width" in prop_name or "height" in prop_name:
+                    result[prop_name] = random.randint(2, 12)
+                elif "max_visible" in prop_name:
+                    result[prop_name] = random.randint(5, 25)
+                elif "current_stage_index" in prop_name or "filled" in prop_name:
+                    result[prop_name] = random.randint(0, 5)
+                elif "turns_left" in prop_name:
+                    result[prop_name] = random.randint(0, 5)
+                elif "success_chance" in prop_name:
+                    result[prop_name] = random.randint(50, 100)
+                else:
+                    result[prop_name] = random.randint(1, 99)
             else:
                 result[prop_name] = random.choice(_RANDOM_WORDS).capitalize()
     return result
@@ -968,6 +1114,39 @@ class NoteModal(ModalScreen):
         self.dismiss()
 
 
+class StatusPickerModal(ModalScreen[str | None]):
+    """Modal to choose a component status; dismisses with the selected status or None on cancel."""
+
+    BINDINGS = [Binding("escape", "cancel", "Cancel")]
+
+    def compose(self) -> ComposeResult:
+        with Vertical():
+            yield Static("Set component status", classes="section_title")
+            yield Static("Choose a status; popup closes after selection.", classes="section_muted")
+            yield OptionList(id="status_picker_list")
+            yield Horizontal(Button("Cancel", id="status_picker_cancel"))
+
+    def on_mount(self) -> None:
+        opt_list = self.query_one("#status_picker_list", OptionList)
+        for status in sorted(COMPONENT_STATUSES):
+            opt_list.add_option(status)
+        opt_list.focus()
+
+    @on(OptionList.OptionSelected)
+    def _on_option_selected(self, event: OptionList.OptionSelected) -> None:
+        idx = event.option_index
+        statuses = sorted(COMPONENT_STATUSES)
+        if 0 <= idx < len(statuses):
+            self.dismiss(statuses[idx])
+
+    @on(Button.Pressed, "#status_picker_cancel")
+    def _cancel(self) -> None:
+        self.dismiss(None)
+
+    def action_cancel(self) -> None:
+        self.dismiss(None)
+
+
 def _startup_banner_text() -> str:
     """AskeeDS Figlet banner for the main menu; random approved font if any, else splash style. Empty if pyfiglet not available."""
     try:
@@ -1044,10 +1223,10 @@ class FigletFontBrowserScreen(Screen):
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
-        Binding("b", "back", "Back"),
+        Binding("b", "back", "Back to menu"),
         Binding("a", "approve", "Approve font"),
         Binding("u", "unapprove", "Unapprove font"),
-        Binding("escape", "back", "Back"),
+        Binding("escape", "back", "Back to menu"),
     ]
 
     def __init__(self) -> None:
@@ -1221,7 +1400,11 @@ class BrowserScreen(Screen):
 
     BINDINGS = [
         Binding("q", "quit", "Quit"),
-        Binding("escape", "quit", "Quit"),
+        Binding("b", "back", "Back to menu"),
+        Binding("escape", "back", "Back to menu"),
+        Binding("a", "approve", "Approve"),
+        Binding("u", "unapprove", "Unapprove"),
+        Binding("s", "set_status", "Set status"),
     ]
 
     def __init__(self, components: list[dict], initial_status: str | None = None) -> None:
@@ -1251,6 +1434,9 @@ class BrowserScreen(Screen):
 
     def on_mount(self) -> None:
         self._apply_filter()
+        self._refresh_list()
+
+    def on_resume(self) -> None:
         self._refresh_list()
 
     def _apply_filter(self) -> None:
@@ -1294,6 +1480,49 @@ class BrowserScreen(Screen):
         comp = self.filtered[idx]
         self.app.push_screen(DetailScreen(comp, idx, self.filtered))
 
+    def _get_current_component(self) -> dict | None:
+        """Return the component at the currently highlighted list index, or None if none selected."""
+        opt_list = self.query_one("#component_list", OptionList)
+        idx = getattr(opt_list, "highlighted", None)
+        if idx is None or idx < 0 or idx >= len(self.filtered):
+            return None
+        return self.filtered[idx]
+
+    def _apply_status_change(self, new_status: str) -> None:
+        comp = self._get_current_component()
+        if comp is None:
+            self.app.notify("Select a component first", severity="information", timeout=2)
+            return
+        name = comp["name"]
+        if not update_component_status_in_file(name, new_status):
+            self.app.notify("Could not save status", severity="error", timeout=2)
+            return
+        if "meta" not in comp:
+            comp["meta"] = {}
+        comp["meta"]["component-status"] = new_status
+        self._refresh_list()
+        self.app.notify(f"{new_status}: {name}", severity="information", timeout=2)
+
+    def _on_status_picked(self, status: str | None) -> None:
+        if status is not None:
+            self._apply_status_change(status)
+
+    def action_approve(self) -> None:
+        self._apply_status_change("Approved")
+
+    def action_unapprove(self) -> None:
+        self._apply_status_change("In Review")
+
+    def action_set_status(self) -> None:
+        comp = self._get_current_component()
+        if comp is None:
+            self.app.notify("Select a component first", severity="information", timeout=2)
+            return
+        self.app.push_screen(StatusPickerModal(), self._on_status_picked)
+
+    def action_back(self) -> None:
+        self.app.pop_screen()
+
     def action_quit(self) -> None:
         self.app.exit()
 
@@ -1310,6 +1539,10 @@ class DetailScreen(Screen):
         Binding("r", "reset_props", "Reset props"),
         Binding("z", "randomize_props", "Randomize props"),
         Binding("N", "add_note", "Note"),
+        Binding("a", "approve", "Approve"),
+        Binding("u", "unapprove", "Unapprove"),
+        Binding("s", "set_status", "Set status"),
+        Binding("o", "toggle_overview", "Overview"),
     ]
 
     def __init__(self, component: dict, index: int, filtered_list: list[dict]) -> None:
@@ -1319,25 +1552,37 @@ class DetailScreen(Screen):
         self.filtered_list = filtered_list
         self.parsed_props = parse_props_meta(component.get("meta", {}).get("props", "") or "")
         self.prop_values = default_props_for_component(component["name"], self.parsed_props)
+        self._overview_visible = False
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=False)
         yield ScrollableContainer(
             Vertical(
                 Static(id="detail_header"),
-                Static("R = reset props · Z = randomize · N = note · P/N = prev/next", id="detail_hint", classes="section_muted"),
+                Static("R = reset props · Z = randomize · N = note · P/N = prev/next · A/U/S = status · O = overview", id="detail_hint", classes="section_muted"),
+                Container(
+                    Static("Component overview", classes="section_title"),
+                    Static(SECTION_DIVIDER, classes="section_divider"),
+                    ScrollableContainer(
+                        Static(id="overview_content", expand=True),
+                        id="overview_scroll_wrapper",
+                        classes="overview_pane",
+                    ),
+                    id="overview_container",
+                ),
                 Static("Reference (canonical art)", classes="section_title"),
                 Static(SECTION_DIVIDER, classes="section_divider"),
-                Container(Static(id="reference_art"), classes="art_block section_reference"),
+                Container(Static(id="reference_art"), id="reference_pane", classes="art_block section_reference"),
                 Static("Props (edit below)", classes="section_title"),
                 Static(SECTION_DIVIDER, classes="section_divider"),
                 Container(
                     *self._props_widgets(),
+                    id="props_pane",
                     classes="section_props",
                 ),
                 Static("Preview (live)", classes="section_title"),
                 Static(SECTION_DIVIDER, classes="section_divider"),
-                Container(Static(id="preview_art"), classes="art_block section_preview"),
+                Container(Static(id="preview_art"), id="preview_container", classes="art_block section_preview"),
                 id="detail_content",
             ),
             id="detail_scroll",
@@ -1368,15 +1613,48 @@ class DetailScreen(Screen):
         self._set_header()
         self._set_reference_art()
         self._update_preview()
+        overview_container = self.query_one("#overview_container", Container)
+        overview_container.styles.display = "none"
 
     def _set_header(self) -> None:
         meta = self.component.get("meta", {})
         name = self.component["name"]
         status = meta.get("component-status", "—")
         desc = (meta.get("description") or "")[:80]
+        # Component name via Figlet (4max or amc_3_line) then two blank lines then plain name
+        figlet_art = None
+        for font_name in ("4max", "amc_3line", "amc_3_line"):
+            try:
+                from askee_ds.banner import render_banner_text
+                figlet_art = render_banner_text(name, font=font_name, max_height=6)
+                if figlet_art and figlet_art.strip():
+                    break
+            except Exception:
+                continue
+        if figlet_art and figlet_art.strip():
+            title_block = figlet_art.rstrip() + "\n\n\n" + name
+        else:
+            title_block = name
         self.query_one("#detail_header", Static).update(
-            f"[bold]{name}[/bold]  [dim]({status})[/dim]\n{desc}"
+            title_block + "\n[dim]({})[/dim] {}".format(status, desc)
         )
+
+    def _set_overview_content(self) -> None:
+        meta = self.component.get("meta", {})
+        sections = [
+            ("Purpose", meta.get("purpose")),
+            ("Default view", meta.get("default-view")),
+            ("Randomized view", meta.get("randomized-view")),
+            ("Prop types", meta.get("prop-types")),
+            ("Edge cases", meta.get("edge-cases")),
+        ]
+        parts: list[str] = []
+        for label, value in sections:
+            if not (value and value.strip()):
+                continue
+            parts.append(f"[bold]{label}:[/bold]\n{value.strip()}\n")
+        content = "\n".join(parts) if parts else "(No purpose, default-view, randomized-view, prop-types, or edge-cases in meta.)"
+        self.query_one("#overview_content", Static).update(content)
 
     def _set_reference_art(self) -> None:
         art = (self.component.get("art") or "").rstrip()
@@ -1404,6 +1682,16 @@ class DetailScreen(Screen):
             self.parsed_props,
         )
         self.query_one("#preview_art", Static).update(preview.rstrip())
+        # Apply color_role to preview container (class drives TCSS; values in design/ascii/askee_ds_tokens.yaml)
+        role_ids = get_color_role_ids()
+        raw_role = self.prop_values.get("color_role")
+        role = (str(raw_role).strip().lower() if raw_role is not None else "") or "neutral"
+        if role not in role_ids:
+            role = "neutral"
+        preview_container = self.query_one("#preview_container", Container)
+        for c in role_ids:
+            preview_container.remove_class(f"color-role-{c}")
+        preview_container.add_class(f"color-role-{role}")
 
     @on(Input.Changed)
     @on(TextArea.Changed)
@@ -1458,6 +1746,39 @@ class DetailScreen(Screen):
 
     def action_add_note(self) -> None:
         self.app.push_screen(NoteModal(component_name=self.component["name"]))
+
+    def _apply_status_change(self, new_status: str) -> None:
+        name = self.component["name"]
+        if not update_component_status_in_file(name, new_status):
+            self.app.notify("Could not save status", severity="error", timeout=2)
+            return
+        if "meta" not in self.component:
+            self.component["meta"] = {}
+        self.component["meta"]["component-status"] = new_status
+        if self.index < len(self.filtered_list):
+            self.filtered_list[self.index] = self.component
+        self._set_header()
+        self.app.notify(f"{new_status}: {name}", severity="information", timeout=2)
+
+    def _on_status_picked(self, status: str | None) -> None:
+        if status is not None:
+            self._apply_status_change(status)
+
+    def action_approve(self) -> None:
+        self._apply_status_change("Approved")
+
+    def action_unapprove(self) -> None:
+        self._apply_status_change("In Review")
+
+    def action_set_status(self) -> None:
+        self.app.push_screen(StatusPickerModal(), self._on_status_picked)
+
+    def action_toggle_overview(self) -> None:
+        self._overview_visible = not self._overview_visible
+        overview_container = self.query_one("#overview_container", Container)
+        overview_container.styles.display = "block" if self._overview_visible else "none"
+        if self._overview_visible:
+            self._set_overview_content()
 
     def action_quit(self) -> None:
         self.app.exit()

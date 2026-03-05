@@ -1,7 +1,9 @@
 README.md
 pyproject.toml
 askee_ds/__init__.py
+askee_ds/_paths.py
 askee_ds/banner.py
+askee_ds/box_drawing.py
 askee_ds/cli.py
 askee_ds/components.py
 askee_ds/decorations.py

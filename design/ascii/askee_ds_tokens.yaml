@@ -1,0 +1,65 @@
+# AskeeDS project token source for this repo.
+# Values may be copied from local design token files to keep alignment;
+# this file is the canonical source for the repo.
+
+color_roles:
+  neutral:
+    description: Default theme; no strong tint.
+    tui:
+      background: "#1e1e1e"
+      color: "#d4d4d4"
+      border: "#404040"
+  danger:
+    description: Red tint for threat, error, death.
+    tui:
+      background: "#2d1b1b"
+      color: "#f48771"
+      border: "#8b3a3a"
+  arcane:
+    description: Purple/magenta for magic, rare systems.
+    tui:
+      background: "#251b2d"
+      color: "#d4a0f0"
+      border: "#6b4a7b"
+  nature:
+    description: Green tones for outdoors, growth, safe zones.
+    tui:
+      background: "#1b2d1b"
+      color: "#90c990"
+      border: "#4a6b4a"
+  frost:
+    description: Cyan/blue for cold, water, tech.
+    tui:
+      background: "#1b252d"
+      color: "#90c9d4"
+      border: "#4a6b7b"
+  success:
+    description: Green/gold for success, victory, confirmation.
+    tui:
+      background: "#2d2d1b"
+      color: "#c9c990"
+      border: "#6b6b4a"
+  rare:
+    description: Blue tint for rare items, quality.
+    tui:
+      background: "#1b1b2d"
+      color: "#90a0d4"
+      border: "#4a5a8b"
+  legendary:
+    description: Gold/amber for legendary, premium.
+    tui:
+      background: "#2d251b"
+      color: "#d4c090"
+      border: "#8b7b4a"
+  dungeon:
+    description: Dark stone, interior, underground.
+    tui:
+      background: "#252525"
+      color: "#a0a0a0"
+      border: "#505050"
+  forest:
+    description: Forest zone; green-brown.
+    tui:
+      background: "#1e251b"
+      color: "#a0b890"
+      border: "#5a6b4a"

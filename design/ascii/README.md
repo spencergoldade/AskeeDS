@@ -6,6 +6,7 @@ This folder is the **source of truth** for the AskeeDS ASCII-based design system
 
 | File | Purpose |
 |------|---------|
+| **askee_ds_tokens.yaml** | AskeeDS project token source: color role ids and default palette (TUI). Canonical source for the repo; values may be copied from local design token files to keep alignment. Used by the component visual test and implementers. |
 | **box-drawing.yaml** | Approved border characters (light/heavy/double). Load in code; do not hardcode in component art. |
 | **map-tiles.yaml** | Character/role sets for minimap, grid, and world/encounter maps (empty, wall, door, river, player, etc.), plus metadata and adjacency hints for procedural generation. |
 | **manifest.yaml** | List of component names for tooling and discovery; points to the component library file. |

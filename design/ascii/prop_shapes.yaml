@@ -19,14 +19,26 @@ array_shapes:
   relations: relations          # tree.relationships: { id, label, items? }
   abilities: label_turns_left   # cooldown.row: { label, turns_left }
   blocks: blocks                # layout.stack: string[]
+  controls: id_label            # header.banner: { id, label }[]
+  slots: id_label               # inventory.grid: { id, label?, item_ref? }[]
+  frames: lines                 # spinner.loading: string[] (animation frames)
+  actions: id_label             # screen.death, etc.: { id, label }[]
   # Generic fallback when not listed: id_label
 
-# Optional future: scalar types so randomizer keeps e.g. hp_current as integer.
-# scalar_types:
-#   hp_current: integer
-#   hp_max: integer
-#   turn_count: integer
-#   max_length: integer
-#   value: integer
-#   max: integer
-#   current: integer
+# Scalar prop types (from designer pass). Randomizer uses these so e.g. hp_current stays integer.
+scalar_types:
+  hp_current: integer
+  hp_max: integer
+  turn_count: integer
+  max_visible: integer
+  max_length: integer
+  value: integer
+  max: integer
+  current: integer
+  columns: integer
+  current_stage_index: integer
+  turns_left: integer
+  width: integer
+  height: integer
+  filled: integer
+  success_chance_optional: integer
