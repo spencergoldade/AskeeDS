@@ -1,0 +1,34 @@
+"""Render type: bubble — speech bubble with directional tail."""
+
+from __future__ import annotations
+
+import textwrap
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ._registry import RenderContext
+
+
+def render_bubble(spec: dict, props: dict, ctx: RenderContext) -> str:
+    text = props.get("text", "")
+    tail = spec.get("tail", "left")
+    max_width = spec.get("max_width", 40)
+    inner = max_width - 4
+    wrapped = textwrap.wrap(
+        text, width=inner, break_long_words=False,
+    ) or [""]
+    content_w = max(len(line) for line in wrapped)
+    w = content_w + 2
+    sep = "+" + "-" * w + "+"
+
+    lines = [sep]
+    for i, wline in enumerate(wrapped):
+        padded = " " + wline.ljust(content_w) + " "
+        if tail == "left" and i == 0:
+            lines.append("/" + padded + "|")
+        elif tail == "right" and i == len(wrapped) - 1:
+            lines.append("|" + padded + "\\")
+        else:
+            lines.append("|" + padded + "|")
+    lines.append(sep)
+    return "\n".join(lines)

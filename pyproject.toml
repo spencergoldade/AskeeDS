@@ -22,4 +22,4 @@ dev = ["pytest>=7.0.0"]
 askee-ds = "askee_ds.cli:main"
 
 [tool.setuptools]
-packages = ["askee_ds", "askee_ds.adapters"]
+packages = ["askee_ds", "askee_ds.adapters", "askee_ds.render_types"]

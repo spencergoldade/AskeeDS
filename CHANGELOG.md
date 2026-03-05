@@ -2,6 +2,14 @@
 
 All notable changes to AskeeDS will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- **Registry-based renderer**: Refactored the monolithic 520-line `renderer.py` into a thin dispatcher backed by a pluggable render type registry (`askee_ds/render_types/`). Each of the 16 render types is now a standalone module. Consumers can register custom render types via `Renderer.register_type()` or `from askee_ds.render_types import register` without modifying framework source. Zero regressions — all 53 tests pass, all 62 renderable components produce identical output.
+
+---
+
 ## [0.2.0] — 2026-03-05
 
 ### Added
