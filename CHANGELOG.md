@@ -6,6 +6,7 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **README rewritten**: Fresh README for the YAML-first framework. Covers getting started (CLI + Python API), rendered component examples, how to add components, render types, status lifecycle, and adoption patterns. All references to the old format removed.
 - **Framework tests** (`tests/test_framework.py`): 25 tests covering Loader, Renderer, Theme, and Validator — including a test that renders every non-reference component to catch regressions.
 - **Schema validator** (`askee_ds/validator.py`): Validates all 63 YAML component definitions against `components/_schema.yaml`. Checks required fields, status values, category prefixes, prop types, render types, border values, and section types.
 - **Unified CLI** (`askee-ds`): New `validate`, `preview`, and `list` subcommands using the YAML pipeline. Legacy commands (`askee-ds-validate`, `askee-ds-export`, `askee-ds-demo`) kept for backward compatibility.

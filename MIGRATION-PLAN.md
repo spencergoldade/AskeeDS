@@ -261,35 +261,18 @@ The user has NOT yet identified which specific components to keep vs archive.
 - [x] **Remove npm dependency**: `package.json` deleted. All scripts it
       wrapped are either archived or covered by Python CLI commands.
 
-## Phase 7 — README and documentation
+## Phase 7 — README and documentation (done)
 
-Do this LAST, when everything else is stable.
-
-- [ ] **Rewrite README.md**: The current README (303 lines) describes the
-      old project structure, old commands, and old format. Write a fresh
-      README that covers:
-      - What AskeeDS is (ASCII design system + framework for TUI games).
-      - Who it's for (game designers, developers, Askee engine consumers).
-      - The new file structure (components/, tokens/, askee_ds/).
-      - Getting started: `from askee_ds import Loader, Theme, Renderer`.
-      - How to add a new component (write YAML, add render spec).
-      - How to validate (`askee-ds-validate` or equivalent).
-      - How to use AskeeDS in another project (copy components/ + tokens/,
-        or pip install, or git submodule).
-      - Component examples (rendered output, not raw YAML).
-      - Tools and dependencies (PyYAML, Textual optional, pyfiglet optional).
-      - Versioning and changelog.
-      - Remove ALL references to the U+241F format, `components.txt`,
-        old tools, old workflows. The README should look like a fresh
-        project.
-- [ ] **Update or remove `design/ascii/README.md`**: If old format files are
-      archived, this README should either redirect to the new structure or
-      be removed/archived.
-- [ ] **Update CHANGELOG.md**: Ensure all migration work is documented under
-      Unreleased with user-facing language. When the migration is complete,
-      consider bumping to `0.2.0` since the format change is significant
-      (though not breaking for anyone using the Python API, which is
-      experimental).
+- [x] **Rewrite README.md**: Fresh README covering the YAML-first framework:
+      what AskeeDS is, who it's for, file structure, getting started (CLI
+      and Python API), component examples (rendered output), how to add
+      components, render types, status lifecycle, adoption patterns, testing,
+      dependencies, and versioning. All references to the old U+241F format,
+      components.txt, and old tools removed.
+- [x] **Update `design/ascii/README.md`**: Rewritten as a redirect to the
+      new structure (done in Phase 5).
+- [x] **Update CHANGELOG.md**: All migration work documented under
+      Unreleased. Version bump to 0.2.0 recommended when ready to tag.
 
 ---
 
