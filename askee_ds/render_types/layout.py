@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..sizing import resolve_width
+
 if TYPE_CHECKING:
     from ._registry import RenderContext
 
@@ -14,10 +16,8 @@ def render_stack(spec: dict, props: dict, ctx: RenderContext) -> str:
     if not blocks or not isinstance(blocks, list):
         return ""
     bd = ctx.theme.border(spec.get("border", "single"))
-    width = max(
-        (max(len(ln) for ln in str(b).splitlines()) if str(b).strip() else 0)
-        for b in blocks
-    )
+    outer = resolve_width(spec, ctx.available_width)
+    width = outer - 2
     width = max(width, 10)
     lines: list[str] = []
     for i, block in enumerate(blocks):
@@ -37,6 +37,9 @@ def render_columns(spec: dict, props: dict, ctx: RenderContext) -> str:
     right_str = str(props.get(spec.get("right_prop", "right_content"), ""))
     left_w = int(props.get(spec.get("width_prop", "left_width"), 0)) or 20
     bd = ctx.theme.border(spec.get("border", "single"))
+    outer = resolve_width(spec, ctx.available_width)
+    right_w = outer - left_w - 3
+    right_w = max(right_w, 10)
     left_lines = left_str.splitlines() if left_str.strip() else [""]
     right_lines = right_str.splitlines() if right_str.strip() else [""]
     height = max(len(left_lines), len(right_lines))
@@ -44,8 +47,6 @@ def render_columns(spec: dict, props: dict, ctx: RenderContext) -> str:
         left_lines.append("")
     while len(right_lines) < height:
         right_lines.append("")
-    right_w = max((len(ln) for ln in right_lines), default=20)
-    right_w = max(right_w, 10)
     lines: list[str] = []
     lines.append(bd["tl"] + bd["h"] * left_w + bd["tj_down"] + bd["h"] * right_w + bd["tr"])
     for ll, rl in zip(left_lines, right_lines):
@@ -64,6 +65,10 @@ def render_shell(spec: dict, props: dict, ctx: RenderContext) -> str:
     content_str = str(props.get(spec.get("content_prop", "content"), ""))
     sidebar_w = int(props.get(spec.get("width_prop", "sidebar_width"), 0)) or 20
     bd = ctx.theme.border(spec.get("border", "single"))
+    outer = resolve_width(spec, ctx.available_width)
+    content_w = outer - sidebar_w - 3
+    content_w = max(content_w, 10)
+    total_inner = sidebar_w + 1 + content_w
     sb_lines = sidebar_str.splitlines() if sidebar_str.strip() else [""]
     ct_lines = content_str.splitlines() if content_str.strip() else [""]
     body_h = max(len(sb_lines), len(ct_lines))
@@ -71,9 +76,6 @@ def render_shell(spec: dict, props: dict, ctx: RenderContext) -> str:
         sb_lines.append("")
     while len(ct_lines) < body_h:
         ct_lines.append("")
-    content_w = max((len(ln) for ln in ct_lines), default=30)
-    content_w = max(content_w, 10)
-    total_inner = sidebar_w + 1 + content_w
     lines: list[str] = []
     lines.append(bd["tl"] + bd["h"] * total_inner + bd["tr"])
     for hl in (header_str.splitlines() or [""]):

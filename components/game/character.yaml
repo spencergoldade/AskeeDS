@@ -22,7 +22,9 @@ character-sheet.compact:
       required: false
   render:
     type: box
-    width: 34
+    width: fill
+    min_width: 28
+    max_width: 44
     border: single
     sections:
       - type: header

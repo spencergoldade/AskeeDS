@@ -121,7 +121,9 @@ card.simple:
       required: false
   render:
     type: box
-    width: 40
+    width: fill
+    min_width: 28
+    max_width: 50
     border: single
     sections:
       - type: header

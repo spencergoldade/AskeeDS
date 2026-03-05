@@ -36,7 +36,9 @@ room-card.default:
       required: false
   render:
     type: box
-    width: 44
+    width: fill
+    min_width: 30
+    max_width: 60
     border: single
     sections:
       - type: header
@@ -96,7 +98,9 @@ entity-list.room:
       required: false
   render:
     type: box
-    width: 30
+    width: fill
+    min_width: 20
+    max_width: 40
     border: single
     sections:
       - type: list
@@ -198,7 +202,9 @@ narrative-log.pane:
       required: false
   render:
     type: box
-    width: 52
+    width: fill
+    min_width: 40
+    max_width: 70
     border: single
     sections:
       - type: header

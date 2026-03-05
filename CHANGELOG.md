@@ -21,6 +21,8 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Changed
 
+- **Layout render types are now responsive**: `render_stack`, `render_columns`, and `render_shell` use `ctx.available_width` via `resolve_width` instead of sizing from content. Layouts propagate available width to children for proper responsive behavior.
+- **8 components migrated to adaptive sizing**: `status-bar.default`, `room-card.default`, `narrative-log.pane`, `entity-list.room`, `modal.overlay`, `character-sheet.compact`, `menu.main`, `card.simple` now use `width: fill` with `min_width`/`max_width` constraints instead of fixed integers. They reflow to the available terminal width while staying within readable bounds.
 - **Renamed `tokens/box-drawing.yaml` → `tokens/borders.yaml`** for clarity.
 
 ### Documentation

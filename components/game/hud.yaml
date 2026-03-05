@@ -24,7 +24,9 @@ status-bar.default:
       required: false
   render:
     type: box
-    width: 50
+    width: fill
+    min_width: 40
+    max_width: 80
     border: single
     sections:
       - type: text
