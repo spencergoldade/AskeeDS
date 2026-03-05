@@ -36,6 +36,11 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Fixed
 
+- Visual test crash (`BadIdentifier`) when components use informal prop notation with parentheses; prop widget IDs are now sanitized.
+- `cooldown.badge` preview not reflecting `turns_left` prop changes (missing renderer branch).
+- `counter.score` now formats numeric values with thousands-separator commas matching reference art.
+- `divider.horizontal` and `spinner.loading` props cleaned up from informal `(none or style)` notation to proper `style_hint_optional`.
+- `decoration.placeholder` gains `art_id` prop so art is loaded from the decoration catalog and cropped to `width`/`height`.
 - Parser treating section headings as part of the previous component.
 - Manifest and components getting out of sync.
 - Table component border and minor component display issues in visual test.

@@ -849,7 +849,7 @@ You don't see "sword" here. Did you mean "rusty sword"?
 ␟ description: Section separator within a pane; no box.
 ␟ component-status: In Review
 ␟ usage: Separate logical sections inside a larger pane without drawing a full box.
-␟ props: (none or style), color_role_optional
+␟ props: style_hint_optional, color_role_optional
 ␟ purpose: A simple horizontal line used to visually separate sections of UI —
 ␟   between a room card and the command input, between log entries of
 ␟   different types, or between sections of a menu or character sheet.
@@ -1331,7 +1331,7 @@ Home > The Clearing > Guard post
 ␟ description: Animated loading indicator (cycle through frames in code).
 ␟ component-status: In Review
 ␟ usage: Show inline while waiting on short operations such as network or disk I/O.
-␟ props: (none) or style_hint, frames[], color_role_optional
+␟ props: style_hint_optional, frames[], color_role_optional
 ␟ note: Implementation cycles frames e.g. | / - \ or + x.
 ␟ purpose: A loading/waiting indicator shown during async operations — loading a
 ␟   save file, generating a dungeon, waiting for a network response in a
@@ -2114,7 +2114,7 @@ Strike [0]  Block [2]  Dash [1]
 ␟ component-status: In Review
 ␟ usage: Reserve a fixed-size area for decorative ASCII art such as logos, monsters, or scenes.
 ␟ note: Use public-domain or project-owned art; choose pieces from design/ascii/decoration-catalog.txt or attach specific art assets.
-␟ props: width, height, color_role_optional
+␟ props: art_id, width, height, color_role_optional
 
     .-~~~-.
    (  o   o  )

@@ -14,6 +14,7 @@ in date-separated files (YYYY-MM-DD.md). No other data is persisted.
 
 import json
 import random
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -52,6 +53,28 @@ try:
 except ImportError:
     COMPONENT_PREFIX = "\u241f" * 3 + " COMPONENT: "
     META_PREFIX = "\u241f" + " "
+
+try:
+    from askee_ds.decorations import load_default_decorations
+except ImportError:
+    load_default_decorations = None
+
+_DECORATIONS_CACHE: list[dict] | None = None
+
+
+def _get_decorations() -> list[dict]:
+    """Lazy-load the decoration catalog; returns [] on failure."""
+    global _DECORATIONS_CACHE
+    if _DECORATIONS_CACHE is None:
+        if load_default_decorations is not None:
+            try:
+                _DECORATIONS_CACHE = load_default_decorations()
+            except Exception:
+                _DECORATIONS_CACHE = []
+        else:
+            _DECORATIONS_CACHE = []
+    return _DECORATIONS_CACHE
+
 
 COMPONENTS_PATH = ROOT / "design" / "ascii" / "components.txt"
 PROP_SHAPES_PATH = ROOT / "design" / "ascii" / "prop_shapes.yaml"
@@ -288,6 +311,7 @@ def default_props_for_component(name: str, parsed_props: list[dict]) -> dict:
         "style_hint": "splash",
         "font": "",
         "color_role": "neutral",
+        "art_id": "decoration.skull.small",
     }
     result = {}
     for p in parsed_props:
@@ -468,6 +492,12 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 result[prop_name] = random.choice(("LOW", "MEDIUM", "HIGH", "CRITICAL"))
             elif prop_name == "luck_band_optional":
                 result[prop_name] = random.choice(("Cursed", "Neutral", "Blessed", "Lucky", "Fading"))
+            elif prop_name == "art_id":
+                decos = _get_decorations()
+                if decos:
+                    result[prop_name] = random.choice(decos)["id"]
+                else:
+                    result[prop_name] = "decoration.skull.small"
             elif prop_name == "color_role":
                 result[prop_name] = random.choice(get_color_role_ids())
             elif _get_scalar_type(prop_name) == "integer":
@@ -487,6 +517,11 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
             else:
                 result[prop_name] = random.choice(_RANDOM_WORDS).capitalize()
     return result
+
+
+def _prop_widget_id(name: str) -> str:
+    """Sanitize a prop name to a valid Textual widget id."""
+    return "prop_" + re.sub(r"[^a-zA-Z0-9_-]", "_", name)
 
 
 def _serialize_prop_value(value: object) -> str:
@@ -689,6 +724,14 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
             label_part = (label + ":").ljust(9)
             lines_list.append(f"{label_part} [{bar}] {cur}/{mx}")
         return "\n".join(lines_list)
+    # cooldown.badge: single turn-based cooldown "[n]"
+    elif component_name == "cooldown.badge":
+        turns = props.get("turns_left", 3)
+        try:
+            turns = int(turns)
+        except (TypeError, ValueError):
+            turns = 0
+        return f"[{turns}]"
     # cooldown.row: each ability { label, turns_left } → "Label [n]" in one row
     elif component_name == "cooldown.row":
         abilities = props.get("abilities", []) or []
@@ -822,11 +865,15 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
         cur = props.get("current", 12)
         mx = props.get("max", 24)
         return f"{label}: {cur}/{mx}"
-    # counter.score: label: value
+    # counter.score: label: value (comma-formatted)
     elif component_name == "counter.score":
         label = str(props.get("label", "Score"))
-        value = props.get("value", "1,250")
-        return f"{label}: {value}"
+        value = props.get("value", 1250)
+        try:
+            formatted = f"{int(value):,}"
+        except (TypeError, ValueError):
+            formatted = str(value)
+        return f"{label}: {formatted}"
     # modal.overlay: box.card with title and body_text (same inner width pattern as card.simple)
     elif component_name == "modal.overlay":
         inner = 36
@@ -1036,6 +1083,36 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
                     lines.append("  > " + slab + (f" ({att})" if att else "") + tag_str)
             return "\n".join(lines)
         return "Allies\n  > Guard captain (friendly) [city, watch]\nRivals\n  > Thieves' Guild (hostile) [underworld]"
+    # decoration.placeholder: look up art by art_id and crop to width×height
+    elif component_name == "decoration.placeholder":
+        art_id = str(props.get("art_id", "")).strip()
+        width = 20
+        height = 6
+        try:
+            width = int(props.get("width", 20))
+        except (TypeError, ValueError):
+            pass
+        try:
+            height = int(props.get("height", 6))
+        except (TypeError, ValueError):
+            pass
+        width = max(1, width)
+        height = max(1, height)
+        art_text = ""
+        if art_id:
+            for d in _get_decorations():
+                if d["id"] == art_id:
+                    art_text = d.get("art", "")
+                    break
+        if not art_text:
+            art_text = art
+        raw_lines = art_text.splitlines()
+        cropped: list[str] = []
+        for line in raw_lines[:height]:
+            cropped.append(line[:width])
+        while len(cropped) < height:
+            cropped.append("")
+        return "\n".join(cropped)
     # Generic path: default-as-placeholder substitution only. No [ Props: ... ] in preview.
     # Only substitute simple values (str/int/float) or list labels; never dicts or JSON-like strings.
     else:
@@ -1597,8 +1674,9 @@ class DetailScreen(Screen):
             name = p["name"]
             suffix = "[]" if p["is_array"] else ""
             raw = _serialize_prop_value(self.prop_values.get(name))
+            wid = _prop_widget_id(name)
             if p["is_array"]:
-                ta = TextArea(raw, id=f"prop_{name}")
+                ta = TextArea(raw, id=wid)
                 ta.styles.height = 8
                 widgets.append(
                     Vertical(
@@ -1608,7 +1686,7 @@ class DetailScreen(Screen):
                     )
                 )
             else:
-                widgets.append(Horizontal(Label(f"{name}{suffix}: "), Input(value=raw, id=f"prop_{name}")))
+                widgets.append(Horizontal(Label(f"{name}{suffix}: "), Input(value=raw, id=wid)))
         return widgets
 
     def on_mount(self) -> None:
@@ -1676,7 +1754,7 @@ class DetailScreen(Screen):
         for p in self.parsed_props:
             name = p["name"]
             try:
-                w = self.query_one(f"#prop_{name}")
+                w = self.query_one(f"#{_prop_widget_id(name)}")
                 raw = (w.text if hasattr(w, "text") else w.value) or ""
                 val, err = _parse_prop_value(raw, p["is_array"])
                 out[name] = val
@@ -1729,7 +1807,7 @@ class DetailScreen(Screen):
         for p in self.parsed_props:
             name = p["name"]
             try:
-                w = self.query_one(f"#prop_{name}")
+                w = self.query_one(f"#{_prop_widget_id(name)}")
                 serialized = _serialize_prop_value(self.prop_values.get(name))
                 if hasattr(w, "text"):
                     w.text = serialized
@@ -1744,7 +1822,7 @@ class DetailScreen(Screen):
         for p in self.parsed_props:
             name = p["name"]
             try:
-                w = self.query_one(f"#prop_{name}")
+                w = self.query_one(f"#{_prop_widget_id(name)}")
                 serialized = _serialize_prop_value(self.prop_values.get(name))
                 if hasattr(w, "text"):
                     w.text = serialized
