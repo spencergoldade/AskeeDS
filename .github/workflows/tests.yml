@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pyyaml rich textual
+          python -m pip install pyyaml rich textual pytest
           pip install -e .
 
       - name: Validate YAML components
@@ -62,4 +62,4 @@ jobs:
           "
 
       - name: Run framework tests
-        run: python -m unittest discover -s tests -v
+        run: python -m pytest tests/ -v
