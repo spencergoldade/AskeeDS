@@ -21,3 +21,6 @@ tickets/
 __pycache__/
 *.pyc
 *.pyo
+
+# Local merge backup (script creates components.txt.bak)
+*.bak
