@@ -6,6 +6,9 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **Schema validator** (`askee_ds/validator.py`): Validates all 63 YAML component definitions against `components/_schema.yaml`. Checks required fields, status values, category prefixes, prop types, render types, border values, and section types.
+- **Unified CLI** (`askee-ds`): New `validate`, `preview`, and `list` subcommands using the YAML pipeline. Legacy commands (`askee-ds-validate`, `askee-ds-export`, `askee-ds-demo`) kept for backward compatibility.
+- **Validate-on-load**: `Loader(schema_path=...)` optionally runs schema validation when loading components, emitting warnings to stderr.
 - **Framework POC** (`poc_renderer.py`): Self-contained proof-of-concept demonstrating the proposed AskeeDS v2 architecture — YAML component definitions with typed props and declarative render specs, a token-based theme system, and a renderer that produces real ASCII output from definition + props + theme. Covers four components (button, status bar, character sheet, room card) spanning inline to complex box layouts with text wrapping, conditional lists, and resource bars.
 - **YAML component definitions** (`components/`): All 63 components migrated from the U+241F format to structured YAML, split into 15 category files across `components/core/` (6 files: layouts, buttons, inputs, feedback, navigation, display) and `components/game/` (9 files: hud, inventory, character, exploration, conversation, trackers, notifications, menus, screens). Each component has typed props, status, reference art, and (for 4 proven components) declarative render specs.
 - **Design tokens** (`tokens/`): Canonical color roles (`tokens/colors.yaml`), box-drawing character sets (`tokens/box-drawing.yaml`), and typography conventions (`tokens/typography.yaml`) extracted from the old `design/ascii/` files into the new top-level token directory.
@@ -33,6 +36,8 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Changed
 
+- **POC archived**: `poc_renderer.py` moved to `_archive/`; the real `askee_ds` package now covers all its functionality.
+- **CLI rewritten**: `askee_ds/cli.py` now has a unified `askee-ds` entry point alongside the legacy commands.
 - README and instructional updates.
 - Component, prop, and control model and docs; major prop wiring and minor prop research.
 - General refactor and readability improvements; experimental CLI.

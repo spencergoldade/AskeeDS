@@ -10,14 +10,24 @@ dicts that the Theme wraps.
     loader = Loader()
     components = loader.load_components_dir("components/")
     tokens = loader.load_tokens_dir("tokens/")
+
+Enable validation warnings at load time:
+
+    loader = Loader(schema_path="components/_schema.yaml")
+    components = loader.load_components_dir("components/")
+    # Any schema violations print to stderr as warnings.
 """
 
 from __future__ import annotations
 
+import sys
 import yaml
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
+
+if TYPE_CHECKING:
+    from .validator import Validator
 
 
 @dataclass
@@ -42,6 +52,12 @@ class Component:
 
 class Loader:
 
+    def __init__(self, schema_path: str | Path | None = None):
+        self._validator: Validator | None = None
+        if schema_path is not None:
+            from .validator import Validator
+            self._validator = Validator.from_schema_file(schema_path)
+
     def load_components(self, source: str) -> dict[str, Component]:
         """Parse a YAML string containing one or more component definitions."""
         raw = yaml.safe_load(source)
@@ -62,6 +78,8 @@ class Loader:
                 art=defn.get("art", ""),
                 color_hint=defn.get("color_hint", "neutral"),
             )
+        if self._validator:
+            self._warn_on_errors(components)
         return components
 
     def load_components_dir(self, path: str | Path) -> dict[str, Component]:
@@ -87,6 +105,12 @@ class Loader:
             if data and isinstance(data, dict):
                 merged.update(data)
         return merged
+
+    def _warn_on_errors(self, components: dict[str, Component]) -> None:
+        assert self._validator is not None
+        errors = self._validator.validate_all(components)
+        for name, msg in errors:
+            print(f"Warning [{name}]: {msg}", file=sys.stderr)
 
     @staticmethod
     def _parse_props(raw: dict) -> dict[str, PropDef]:

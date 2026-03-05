@@ -17,6 +17,7 @@ visual-test = ["textual>=0.47.0", "pyfiglet>=0.8.0"]
 banner = ["pyfiglet>=0.8.0"]
 
 [project.scripts]
+askee-ds = "askee_ds.cli:main"
 askee-ds-validate = "askee_ds.cli:validate_main"
 askee-ds-export = "askee_ds.cli:export_main"
 askee-ds-demo = "askee_ds.cli:demo_main"
