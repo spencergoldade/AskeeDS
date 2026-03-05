@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 def render_bubble(spec: dict, props: dict, ctx: RenderContext) -> str:
     text = props.get("text", "")
-    tail = spec.get("tail", "left")
+    tail = props.get("tail", spec.get("tail", "left"))
     max_width = spec.get("max_width", 40)
     inner = max_width - 4
     wrapped = textwrap.wrap(

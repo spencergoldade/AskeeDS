@@ -53,39 +53,4 @@ menu.main:
         description: Select the highlighted item
   notes: Use on startup or return-to-menu flows for core game navigation.
 
-menu.pause:
-  category: game/menus
-  description: Pause/options overlay; same list shape.
-  status: ideated
-  props:
-    title:
-      type: string
-      required: true
-    items:
-      type: array
-      required: true
-      element:
-        id: string
-        label: string
-    color_role:
-      type: string
-      required: false
-  render:
-    type: box
-    width: 36
-    border: single
-    sections:
-      - type: header
-        text: "{title}"
-      - type: divider
-      - type: list
-        over: items
-        template: "  {label}"
-  art: |2
-    +-- Paused -----------------------+
-    |  Resume                         |
-    |  Settings                       |
-    |  Quit to menu                   |
-    +---------------------------------+
-  notes: Overlay during gameplay pauses to access settings or exit options.
 

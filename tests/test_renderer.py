@@ -163,8 +163,8 @@ def test_render_table(renderer, components):
 
 def test_render_bubble_left(renderer, components):
     output = renderer.render(
-        components["speech-bubble.left"],
-        {"text": "Hello there.", "speaker_id": "npc"},
+        components["speech-bubble"],
+        {"text": "Hello there.", "speaker_id": "npc", "tail": "left"},
     )
     assert "/" in output
     assert "Hello there." in output
@@ -172,7 +172,8 @@ def test_render_bubble_left(renderer, components):
 
 def test_render_bubble_right(renderer, components):
     output = renderer.render(
-        components["speech-bubble.right"], {"text": "Goodbye."}
+        components["speech-bubble"],
+        {"text": "Goodbye.", "tail": "right"},
     )
     assert "\\" in output
     assert "Goodbye." in output
