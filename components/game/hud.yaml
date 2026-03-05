@@ -74,7 +74,7 @@ status-bar.risk:
 
 hint-bar.contextual:
   category: game/hud
-  description: Contextual shortcuts; progressive disclosure for new vs expert.
+  description: Contextual hints or interaction shortcuts for progressive disclosure.
   status: ideated
   props:
     hints:
@@ -83,6 +83,9 @@ hint-bar.contextual:
       element:
         id: string
         label: string
+    prefix:
+      type: string
+      required: false
     color_role:
       type: string
       required: false
@@ -91,40 +94,12 @@ hint-bar.contextual:
     over: hints
     separator: ", "
     template: "{label}"
-    prefix: "Commands: "
+    prefix: "{prefix}"
   art: |2
     Commands: look, go <dir>, take <item>, i(nventory), ? for help
   notes: >-
-    Show above or below input to teach core commands without overwhelming
-    experts.
-
-hint-bar.interactions:
-  category: game/hud
-  description: >-
-    Context-sensitive interaction hints emphasizing playful or emotional
-    verbs.
-  status: ideated
-  props:
-    interactions:
-      type: array
-      required: true
-      element:
-        id: string
-        label: string
-    color_role:
-      type: string
-      required: false
-  render:
-    type: join
-    over: interactions
-    separator: ", "
-    template: "{label}"
-    prefix: "You can: "
-  art: |2
-    You can: pet dog, talk to guard, inspect statue
-  notes: >-
-    Surface fun, optional verbs like pet, talk, or inspect when relevant
-    entities are present.
+    Show above or below input to teach core commands or surface playful
+    verbs. Set prefix to "Commands: ", "You can: ", etc.
 
 meter.resource:
   category: game/hud

@@ -105,27 +105,6 @@ label.inline:
     HP: 85
   notes: "Pair with numbers or short values in HUDs, sheets, and summary rows."
 
-icon.placeholder:
-  category: core/display
-  description: Single- or two-char icon slot for buttons/menus.
-  status: ideated
-  props:
-    symbol:
-      type: string
-      required: true
-    alt_text:
-      type: string
-      required: true
-    color_role:
-      type: string
-      required: false
-  render:
-    type: inline
-    template: "[{symbol}]"
-  art: |2
-    [?]
-  notes: Reserve space for an icon when you do not yet know the final symbol.
-
 card.simple:
   category: core/display
   description: Generic bordered title + body; room-card is game variant.

@@ -173,32 +173,3 @@ screen.tutorial:
     +---------------------------------+
   notes: Use to surface onboarding hints or contextual guidance early in play.
 
-decoration.placeholder:
-  category: game/screens
-  description: >-
-    Slot for decorative ASCII art. Width and height define slot size;
-    art is supplied from a catalog and cropped or centered to fit.
-  status: ideated
-  props:
-    art_id:
-      type: string
-      required: true
-    width:
-      type: integer
-      required: true
-    height:
-      type: integer
-      required: true
-    color_role:
-      type: string
-      required: false
-  render:
-    type: art_lookup
-  art: |2
-     .-~~~-.
-    (  o   o  )
-    (   ^   )
-     \|_|_/
-  notes: >-
-    Falls back to reference art until decorations are migrated to YAML.
-    Once migrated, looks up art by art_id from the decoration catalog.

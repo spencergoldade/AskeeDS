@@ -1,12 +1,15 @@
 # AskeeDS — game/notifications
-# Achievement and loot notification components.
+# In-game notification components.
 
 
-notification.achievement:
+notification.inline:
   category: game/notifications
-  description: Bordered one-liner for achievements.
+  description: Bordered one-liner for achievements, loot drops, or alerts.
   status: ideated
   props:
+    prefix:
+      type: string
+      required: true
     message:
       type: string
       required: true
@@ -19,37 +22,11 @@ notification.achievement:
     border: single
     sections:
       - type: text
-        text: "  Achievement: {message}"
+        text: "  {prefix}: {message}"
   art: |2
     +------------------------------------------+
     |  Achievement: First Steps                |
     +------------------------------------------+
   notes: >-
-    Pop up when the player meets achievement conditions or milestone
-    goals.
-
-notification.loot:
-  category: game/notifications
-  description: Bordered one-liner for loot drops.
-  status: ideated
-  props:
-    message:
-      type: string
-      required: true
-    color_role:
-      type: string
-      required: false
-  render:
-    type: box
-    width: 44
-    border: single
-    sections:
-      - type: text
-        text: "  Loot: {message}"
-  art: |2
-    +------------------------------------------+
-    |  Loot: rusty sword                       |
-    +------------------------------------------+
-  notes: >-
-    Use when the player gains items outside of the main log, such as
-    auto-loot.
+    Pop up for achievements, loot drops, or other brief in-game
+    events. Set prefix to "Achievement", "Loot", "Alert", etc.

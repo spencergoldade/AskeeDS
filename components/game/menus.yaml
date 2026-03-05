@@ -37,7 +37,18 @@ menu.main:
     |  Options                        |
     |  Quit                           |
     +---------------------------------+
-  interactive: true
+  interaction:
+    focusable: true
+    actions:
+      - name: select_next
+        keys: [down]
+        description: Move to next menu item
+      - name: select_prev
+        keys: [up]
+        description: Move to previous menu item
+      - name: confirm
+        keys: [enter]
+        description: Select the highlighted item
   notes: Use on startup or return-to-menu flows for core game navigation.
 
 menu.pause:
@@ -76,29 +87,3 @@ menu.pause:
     +---------------------------------+
   notes: Overlay during gameplay pauses to access settings or exit options.
 
-quick-select.radial:
-  category: game/menus
-  description: Compass-style or 8-slot radial (e.g. weapon wheel).
-  status: ideated
-  props:
-    options:
-      type: array
-      required: true
-      element:
-        id: string
-        label: string
-    selected_id:
-      type: string
-      required: true
-    color_role:
-      type: string
-      required: false
-  render:
-    type: reference
-  art: |2
-       [1]
-    [4]   [2]
-       [3]
-  notes: >-
-    Represent quick-select menus like weapon or item wheels in purely text
-    form.

@@ -227,31 +227,45 @@ def test_render_charmap(renderer, components):
     assert ". floor" in output
 
 
-def test_render_art_lookup_fallback(renderer, components):
-    output = renderer.render(
-        components["decoration.placeholder"],
-        {"art_id": "nonexistent.thing", "width": 10, "height": 5},
+def test_render_art_lookup_fallback(renderer):
+    from askee_ds.loader import Component
+
+    comp = Component(
+        name="test.art-fallback",
+        category="core",
+        status="approved",
+        description="Art lookup fallback test",
+        props={"art_id": {"type": "string"}},
+        render={"type": "art_lookup"},
+        art="fallback art",
     )
-    assert len(output) > 0
+    output = renderer.render(comp, {"art_id": "nonexistent.thing"})
+    assert "fallback art" in output
 
 
-def test_render_art_lookup_with_decorations_dict(components):
+def test_render_art_lookup_with_decorations_dict():
     from askee_ds import Theme, Renderer
+    from askee_ds.loader import Component
 
     decos = {
         "test.art": {
             "art": ".-====-.\n|      |\n'------'",
         },
     }
-    tokens_data = Path(TOKENS_DIR).parent / "tokens"
     r = Renderer(
         Theme(Loader().load_tokens_dir(TOKENS_DIR)),
         decorations=decos,
     )
-    output = r.render(
-        components["decoration.placeholder"],
-        {"art_id": "test.art", "width": 20, "height": 6},
+    comp = Component(
+        name="test.art-decos",
+        category="core",
+        status="approved",
+        description="Art lookup with decorations",
+        props={"art_id": {"type": "string"}, "width": {"type": "integer"}, "height": {"type": "integer"}},
+        render={"type": "art_lookup"},
+        art="fallback",
     )
+    output = r.render(comp, {"art_id": "test.art", "width": 20, "height": 6})
     assert ".-====-." in output
     lines = output.splitlines()
     assert len(lines) == 6

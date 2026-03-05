@@ -73,9 +73,9 @@ examples/
   textual_app.py            live TUI demo using Textual adapter
 ```
 
-63 components total. 10 are approved (proven core); 53 are ideated
-(defined but not yet individually proven). 62 render from declarative
-specs; 1 is intentionally reference-only (`quick-select.radial`).
+58 components total. 10 are approved (proven core); 48 are ideated
+(defined but not yet individually proven). All 58 render from
+declarative specs.
 
 ---
 
@@ -250,7 +250,7 @@ framework turns definition + props + theme into ASCII output.
 World > Dungeon > Level 3
 ```
 
-Run `askee-ds list` to see all 63 components, `askee-ds preview <name>`
+Run `askee-ds list` to see all 58 components, `askee-ds preview <name>`
 to render any of them, or `python examples/all_components.py` to see
 every renderable component at once.
 
@@ -297,6 +297,22 @@ Components progress through these statuses:
 | `deprecated` | Superseded; will be removed in a future version. |
 | `cancelled` | Abandoned; kept for reference only. |
 
+### Proving criteria (ideated to approved)
+
+A component can be promoted to `approved` when it meets all of:
+
+1. **Renders correctly**: The render spec produces ASCII output matching
+   the reference art for at least one representative set of props.
+2. **Has tests**: At least one test exercises the component's render path.
+3. **Props validated**: All required props are typed; optional props have
+   sensible defaults. Schema validation passes.
+4. **Serves a stated genre**: The component clearly supports text
+   adventure, low-fi RPG, procedural RPG, or open-world ASCII gameplay.
+5. **No duplicates**: The component's function is not redundant with
+   another approved component.
+6. **Interaction spec** (if interactive): Focusable components have a
+   valid `interaction` block with named actions and key bindings.
+
 ### Render types
 
 | Type | What it does | Example |
@@ -317,7 +333,6 @@ Components progress through these statuses:
 | `stack` | Vertically stacked bordered blocks. | Full-screen layouts. |
 | `columns` | Side-by-side panes with border column. | Two-column layouts. |
 | `shell` | Header + sidebar + content area. | App shell. |
-| `reference` | Falls back to the reference ASCII art. | Radial menus. |
 
 ---
 
