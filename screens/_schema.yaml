@@ -1,0 +1,24 @@
+# AskeeDS Screen Schema
+# Defines what a valid screen YAML definition looks like.
+# Used by the Composer to load and render full-screen layouts.
+
+screen:
+  required_fields:
+    - name
+    - description
+    - layout
+    - slots
+
+  optional_fields:
+    - available_width
+    - available_height
+
+slot_entry:
+  # Each slot entry can be:
+  #   - A dict with "component" + "props" (render a component)
+  #   - A dict with "component" + "slots" (compose a layout, recursively)
+  #   - A dict with "text" (plain string content)
+  #   - A list of the above (for array-typed slots like "blocks")
+  entry_types:
+    - component
+    - text

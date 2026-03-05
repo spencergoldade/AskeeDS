@@ -4,6 +4,7 @@ Command-line entry points for the AskeeDS Python package.
     askee-ds validate          Validate YAML component definitions against the schema.
     askee-ds preview           Render a named component with sample props.
     askee-ds list              List all component names.
+    askee-ds compose           Render a screen from a YAML screen definition.
 """
 
 from __future__ import annotations
@@ -13,6 +14,7 @@ import json
 import sys
 from pathlib import Path
 
+from .composer import Composer
 from .loader import Loader
 from .renderer import Renderer
 from .theme import Theme
@@ -97,6 +99,21 @@ def main(argv: list[str] | None = None) -> int:
     )
     _add_path_args(list_parser)
 
+    # -- compose --------------------------------------------------------
+    compose_parser = sub.add_parser(
+        "compose",
+        help="Render a screen from a YAML screen definition.",
+    )
+    compose_parser.add_argument(
+        "screen",
+        help="Path to a screen YAML file (e.g. screens/examples/adventure_main.yaml).",
+    )
+    compose_parser.add_argument(
+        "--width", metavar="N", type=int,
+        help="Override available width (default: from screen YAML or 80).",
+    )
+    _add_path_args(compose_parser)
+
     args = parser.parse_args(argv)
     if args.command is None:
         parser.print_help()
@@ -108,6 +125,8 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_preview(args)
     if args.command == "list":
         return _cmd_list(args)
+    if args.command == "compose":
+        return _cmd_compose(args)
 
     parser.print_help()
     return 1
@@ -189,6 +208,30 @@ def _cmd_list(args: argparse.Namespace) -> int:
             continue
         print(f"{name}  [{comp.status}]  {comp.description}")
 
+    return 0
+
+
+def _cmd_compose(args: argparse.Namespace) -> int:
+    comp_dir, tok_dir, _ = _resolve_paths(args)
+    screen_path = Path(args.screen)
+
+    if not screen_path.is_file():
+        print(f"Error: screen file not found: {screen_path}", file=sys.stderr)
+        return 1
+    if not comp_dir.is_dir():
+        print(f"Error: component directory not found: {comp_dir}", file=sys.stderr)
+        return 1
+
+    loader = Loader()
+    components = loader.load_components_dir(comp_dir)
+    tokens = loader.load_tokens_dir(tok_dir) if tok_dir.is_dir() else {}
+    theme = Theme(tokens)
+    renderer = Renderer(theme)
+    composer = Composer(renderer, components)
+
+    width = args.width if hasattr(args, "width") and args.width else None
+    output = composer.compose_screen(screen_path, available_width=width)
+    print(output)
     return 0
 
 

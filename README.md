@@ -55,9 +55,12 @@ tokens/                     design tokens
   box-drawing.yaml          3 border character sets (single, heavy, double)
   typography.yaml           Figlet font conventions, line width rules
   sizing.yaml               terminal defaults for adaptive width/height
+screens/                    YAML screen definitions (full-screen layouts)
+  _schema.yaml              meta-schema for screen files
+  examples/                 example screens
 askee_ds/                   Python package
   loader.py                 loads YAML components and tokens
-  composer.py               composes layout components from child trees
+  composer.py               composes layout components and screens from YAML
   render_types/             modular render type registry (16 built-in types)
   adapters/rich.py          Rich adapter: ANSI-colored output
   adapters/textual.py       Textual adapter: AskeeWidget for TUI apps
@@ -192,6 +195,26 @@ output = composer.compose("layout.stack", {
 })
 print(output)
 ```
+
+### Compose a screen from YAML
+
+Define a complete game screen in YAML and render it with one call:
+
+```bash
+askee-ds compose screens/examples/adventure_main.yaml
+askee-ds compose screens/examples/adventure_main.yaml --width 60
+```
+
+Or from Python:
+
+```python
+output = composer.compose_screen("screens/examples/adventure_main.yaml")
+print(output)
+```
+
+Screen YAML files reference layout components and fill slots with
+component references, nested layouts, or plain text. See
+`screens/examples/adventure_main.yaml` for a working example.
 
 ### Validate on load (optional)
 

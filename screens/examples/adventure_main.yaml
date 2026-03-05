@@ -1,0 +1,36 @@
+# AskeeDS Screen — adventure.main
+# A complete text adventure game screen: status bar, room card, and input.
+# Compose with: askee-ds compose screens/examples/adventure_main.yaml
+
+name: adventure.main
+description: Main text adventure game screen with HUD, room, and input.
+layout: layout.stack
+available_width: 50
+
+slots:
+  blocks:
+    - component: status-bar.default
+      props:
+        hp_current: 85
+        hp_max: 100
+        location: The Undercroft
+        turn_count: 12
+
+    - component: room-card.default
+      props:
+        title: The Undercroft
+        description_text: >-
+          A low-ceilinged stone chamber. Water drips from the
+          walls and the air smells of damp earth.
+        items:
+          - {id: rusty_key, label: rusty key}
+          - {id: torch, label: torch (lit)}
+        npcs:
+          - {id: hooded_figure, label: hooded figure}
+        exits:
+          - {id: north, label: north}
+          - {id: east, label: east}
+
+    - component: command-input.default
+      props:
+        prompt: ">"
