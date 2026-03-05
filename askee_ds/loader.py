@@ -47,7 +47,7 @@ class Component:
     props: dict[str, PropDef]
     render: dict
     art: str = ""
-    color_hint: str = "neutral"
+    default_color_role: str = "neutral"
 
 
 class Loader:
@@ -76,7 +76,7 @@ class Loader:
                 props=props,
                 render=defn.get("render", {}),
                 art=defn.get("art", ""),
-                color_hint=defn.get("color_hint", "neutral"),
+                default_color_role=defn.get("default_color_role", "neutral"),
             )
         if self._validator:
             self._warn_on_errors(components)

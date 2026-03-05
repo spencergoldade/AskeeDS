@@ -41,6 +41,8 @@ class Validator:
         self._prop_type_values = set(prop.get("type_values", []))
         self._prop_optional_fields = set(prop.get("optional_fields", []))
 
+        self._color_role_values = set(comp.get("color_role_values", []))
+
         render = schema.get("render", {})
         self._render_type_values = set(render.get("type_values", []))
         self._section_types = set(render.get("section_types", []))
@@ -78,6 +80,13 @@ class Validator:
                 (name, f"invalid status '{component.status}'; "
                        f"allowed: {sorted(self._status_values)}")
             )
+
+        if component.default_color_role != "neutral" and self._color_role_values:
+            if component.default_color_role not in self._color_role_values:
+                errors.append(
+                    (name, f"default_color_role '{component.default_color_role}' "
+                           f"is not valid; allowed: {sorted(self._color_role_values)}")
+                )
 
         if not component.render:
             errors.append((name, "missing required field: render"))

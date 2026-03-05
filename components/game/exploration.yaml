@@ -113,7 +113,7 @@ entity-list.room:
     You see:
       * brass lamp
       * guard
-  color_hint: entity.item
+  default_color_role: neutral
   notes: >-
     Render under a room description or in a sidebar to list interactable
     entities.
@@ -140,7 +140,7 @@ exit-list.inline:
     prefix: "Exits: "
   art: |2
     Exits: north  south  east
-  color_hint: entity.npc
+  default_color_role: neutral
   notes: >-
     Place after a room description or entity list to advertise available
     directions.

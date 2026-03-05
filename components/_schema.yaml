@@ -12,10 +12,22 @@ component:
   optional_fields:
     - props
     - art
-    - color_hint
+    - default_color_role
     - interactive
     - variant
     - notes
+
+  color_role_values:
+    - neutral
+    - danger
+    - arcane
+    - nature
+    - frost
+    - success
+    - rare
+    - legendary
+    - dungeon
+    - forest
 
   status_values:
     - ideated

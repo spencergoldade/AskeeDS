@@ -61,7 +61,7 @@ tracker.clock:
   art: |2
     Quest: Find the key
     [○○○○]   0 / 4
-  color_hint: status.good/warning/danger
+  default_color_role: neutral
   notes: >-
     Pair with objectives to visualize time pressure or progress toward a
     key event.

@@ -74,7 +74,7 @@ panel.survival-status:
     Hunger:   [=====               ] 30/100
     Thirst:   [========            ] 55/100
     Fatigue:  [===========         ] 70/100
-  color_hint: status.good/warning/danger
+  default_color_role: neutral
   notes: >-
     Use in survival-focused games to track core needs alongside HP and
     resources.

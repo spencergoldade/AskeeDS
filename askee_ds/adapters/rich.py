@@ -123,5 +123,5 @@ class RichAdapter:
         assert isinstance(component, Component)
 
         ascii_out = renderer.render(component, props)
-        role = color_role or getattr(component, "color_hint", "neutral")
+        role = color_role or getattr(component, "default_color_role", "neutral")
         return self.colorize(ascii_out, role)

@@ -18,7 +18,7 @@ feedback.success:
     template: "{message}"
   art: |2
     Taken: rusty sword (+1 weapon)
-  color_hint: status.good
+  default_color_role: success
   notes: Display directly under the input or log to confirm accepted commands.
 
 feedback.error:
@@ -40,7 +40,7 @@ feedback.error:
     template: "{message}"
   art: |2
     You don't see "sword" here. Did you mean "rusty sword"?
-  color_hint: status.warning
+  default_color_role: danger
   notes: >-
     Use when a command fails to parse or act, ideally with a suggested
     fix.

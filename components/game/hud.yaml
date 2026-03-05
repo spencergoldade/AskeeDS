@@ -31,7 +31,7 @@ status-bar.default:
         text: " HP: {hp_current}/{hp_max}  |  {location}  |  Turn {turn_count}"
   art: |2
     HP: 85/100  |  The Clearing  |  Turn 12
-  color_hint: status.good/warning/danger
+  default_color_role: neutral
   notes: >-
     Pin to the top or bottom of the screen to show core moment-to-moment
     status.
@@ -67,7 +67,7 @@ status-bar.risk:
     template: "HP: {hp_current}/{hp_max}  |  {location}  |  Turn {turn_count}  |  Risk: {risk_level}"
   art: |2
     HP: 40/100  |  The Alley  |  Turn 27  |  Risk: Hunted  |  Luck: Fading
-  color_hint: status.good/warning/danger
+  default_color_role: neutral
   notes: >-
     Swap in when the game tracks global danger level or player fortune
     alongside HP.
@@ -149,7 +149,7 @@ meter.resource:
   art: |2
     HP:   [=========>                    ] 85/100
     Mana: [====                           ] 20/50
-  color_hint: status.good/warning/danger
+  default_color_role: neutral
   notes: >-
     Embed wherever you need a labeled resource bar, often inside sheets or
     HUDs.
@@ -270,7 +270,7 @@ cooldown.row:
     template: "{label} [{turns_left}]"
   art: |2
     Strike [0]  Block [2]  Dash [1]
-  color_hint: ui.muted
+  default_color_role: dungeon
   notes: >-
     Show multiple abilities' cooldowns under character or combat HUD
     elements.

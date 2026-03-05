@@ -12,6 +12,7 @@ All notable changes to AskeeDS will be documented in this file.
 ### Removed
 
 - **Maps and decorations evicted**: `maps/` and `decorations/` archived to `_archive/` — these are game content, not design system primitives. The render capabilities (`charmap`, `art_lookup`) remain and accept any data passed at runtime. `load_decorations()` removed from Loader. CI path triggers updated.
+- **Validated color roles**: Replaced free-form `color_hint` (e.g. `status.good/warning/danger`) with `default_color_role` — a validated field that must reference an actual color role from `tokens/colors.yaml` (neutral, danger, arcane, nature, frost, success, rare, legendary, dungeon, forest). Schema, Validator, Loader, and Rich adapter all updated. Components can still accept a runtime `color_role` prop to override the default.
 
 ---
 
