@@ -16,6 +16,7 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Fixed
 
+- **`typography.banner` snapshot test**: Snapshot now uses the component’s fallback art and mocks `render_banner_text` so the test is deterministic with or without the optional `pyfiglet` dependency. Fixes CI failure when the banner extra is not installed.
 - **Layout junction characters**: `render_stack` now uses shared separator borders (`├`/`┤`) between blocks instead of double top/bottom corners. `render_columns` and `render_shell` use proper junction characters (`┬`/`┴`) at column splits. Correct rendering for all three border styles (single, heavy, double).
 - **`narrative-log.pane`**: Fixed broken template `" {}"` → `" {label}"` so list items are actually interpolated.
 - **`progress-bar.horizontal`**: Changed from broken `inline` type (which can't compute bar fill) to `box` with a `progress` section that correctly renders the bar.

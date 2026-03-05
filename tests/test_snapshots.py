@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 import pytest
 
@@ -185,7 +186,13 @@ def _golden_path(name: str) -> Path:
 @pytest.mark.parametrize("name", sorted(CANONICAL_PROPS.keys()))
 def test_snapshot(name: str, renderer, components):
     comp = components[name]
-    output = renderer.render(comp, CANONICAL_PROPS[name])
+    # typography.banner uses pyfiglet when available, which can vary by environment.
+    # Force fallback art so the snapshot is deterministic with or without pyfiglet.
+    if name == "typography.banner":
+        with patch("askee_ds.banner.render_banner_text", return_value=None):
+            output = renderer.render(comp, CANONICAL_PROPS[name])
+    else:
+        output = renderer.render(comp, CANONICAL_PROPS[name])
     golden = _golden_path(name)
     if UPDATE or not golden.exists():
         golden.write_text(output, encoding="utf-8")
