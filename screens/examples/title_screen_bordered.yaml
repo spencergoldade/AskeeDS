@@ -1,0 +1,30 @@
+# AskeeDS Screen — title.bordered
+# Bordered title screen with banner, menu, and contextual hints.
+# Compose with: askee-ds compose screens/examples/title_screen_bordered.yaml
+
+name: title.bordered
+description: Bordered title screen with banner, menu, and contextual hints.
+layout: layout.stack
+available_width: 60
+
+slots:
+  blocks:
+    - component: typography.banner
+      props:
+        text: "SHADOW KEEP"
+
+    - component: menu.main
+      props:
+        title: "Shadow Keep"
+        items:
+          - {id: new_game, label: "New Game"}
+          - {id: load_game, label: "Load Game"}
+          - {id: settings, label: "Settings"}
+          - {id: credits, label: "Credits"}
+
+    - component: hint-bar.contextual
+      props:
+        prefix: ""
+        hints:
+          - {id: nav, label: "↑↓ Navigate"}
+          - {id: select, label: "Enter Select"}

@@ -1,0 +1,50 @@
+# AskeeDS Screen — openworld.entities
+# Stacked layout with status bar, two-column minimap + entity list, and input.
+# Compose with: askee-ds compose screens/examples/openworld_entities.yaml
+
+name: openworld.entities
+description: Open-world screen with status bar, minimap and entity list in two columns, and command input.
+layout: layout.stack
+available_width: 70
+
+slots:
+  blocks:
+    - component: status-bar.default
+      props:
+        hp_current: 65
+        hp_max: 100
+        location: Mountain Pass
+        turn_count: 201
+
+    - component: layout.two-column
+      slots:
+        left_content:
+          component: minimap.default
+          props:
+            grid:
+              - ["#", "#", "#", "#", "#"]
+              - ["#", ".", ".", ".", "#"]
+              - ["#", ".", "P", ".", "#"]
+              - ["#", ".", ".", ".", "#"]
+              - ["#", "#", "#", "#", "#"]
+            legend_entries:
+              - {char: "#", label: mountain}
+              - {char: ".", label: path}
+              - {char: "P", label: you}
+            player_position: "2,2"
+
+        right_content:
+          component: entity-list.room
+          props:
+            items:
+              - {id: rope, label: "Rope"}
+              - {id: pick, label: "Climbing pick"}
+            npcs:
+              - {id: eagle, label: Eagle}
+              - {id: goat, label: "Mountain goat"}
+
+        left_width: 40
+
+    - component: command-input.default
+      props:
+        prompt: ">"

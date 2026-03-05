@@ -1,0 +1,42 @@
+# AskeeDS Screen — conversation.split
+# Split conversation screen with dialogue on left, character sheet on right.
+# Compose with: askee-ds compose screens/examples/conversation_split.yaml
+
+name: conversation.split
+description: Split conversation screen with dialogue on left, character sheet on right.
+layout: layout.two-column
+available_width: 80
+
+slots:
+  left_content:
+    component: layout.stack
+    slots:
+      blocks:
+        - component: speech-bubble
+          props:
+            text: 'The merchant eyes you carefully. "These are rare goods."'
+            tail: left
+            speaker_id: merchant
+
+        - component: speech-bubble
+          props:
+            text: "How much for the healing potion?"
+            tail: right
+
+        - component: choice-wheel.inline
+          props:
+            options:
+              - {id: buy, label: "Buy for 50 gold"}
+              - {id: haggle, label: "[Barter 12] Can you do 30?"}
+              - {id: leave, label: "Maybe later."}
+
+  right_content:
+    component: character-sheet.compact
+    props:
+      name: "Rynn"
+      stats:
+        - {label: STR, current: 14, max: 20}
+        - {label: DEX, current: 16, max: 20}
+        - {label: INT, current: 11, max: 20}
+
+  left_width: 50

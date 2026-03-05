@@ -1,0 +1,60 @@
+# AskeeDS Screen — openworld.map-dominant
+# Two-column layout with minimap dominant on left, status and character sheet on right.
+# Compose with: askee-ds compose screens/examples/openworld_map_dominant.yaml
+
+name: openworld.map-dominant
+description: Open-world screen with dominant minimap on left, status bar and character sheet on right.
+layout: layout.two-column
+available_width: 80
+
+slots:
+  left_content:
+    component: layout.stack
+    slots:
+      blocks:
+        - component: minimap.default
+          props:
+            grid:
+              - ["#", "#", "#", "#", "#", "#", "#", "#"]
+              - ["#", ".", ".", ".", ".", ".", ".", "#"]
+              - ["#", ".", ".", ".", ".", "D", ".", "#"]
+              - ["#", ".", ".", ".", "P", ".", ".", "#"]
+              - ["#", ".", ".", "#", "#", ".", ".", "#"]
+              - ["#", ".", ".", ".", ".", ".", ".", "#"]
+              - ["#", "#", "#", "#", "#", "#", "#", "#"]
+            legend_entries:
+              - {char: ".", label: floor}
+              - {char: "#", label: wall}
+              - {char: "P", label: you}
+              - {char: "D", label: door}
+            player_position: "3,4"
+
+        - component: hint-bar.contextual
+          props:
+            prefix: "Move: "
+            hints:
+              - {id: n, label: "W/↑ North"}
+              - {id: s, label: "S/↓ South"}
+              - {id: e, label: "D/→ East"}
+              - {id: w, label: "A/← West"}
+
+  right_content:
+    component: layout.stack
+    slots:
+      blocks:
+        - component: status-bar.default
+          props:
+            hp_current: 90
+            hp_max: 100
+            location: "Dungeon Level 2"
+            turn_count: 47
+
+        - component: character-sheet.compact
+          props:
+            name: Thane
+            stats:
+              - {label: HP, current: 90, max: 100}
+              - {label: MP, current: 45, max: 60}
+              - {label: STR, current: 16, max: 20}
+
+  left_width: 50

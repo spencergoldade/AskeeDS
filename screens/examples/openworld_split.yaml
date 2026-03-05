@@ -1,0 +1,46 @@
+# AskeeDS Screen — openworld.split
+# App shell with status header, entity list sidebar, and minimap content.
+# Compose with: askee-ds compose screens/examples/openworld_split.yaml
+
+name: openworld.split
+description: Open-world shell layout with status header, entity list sidebar, and minimap content.
+layout: layout.app.shell
+available_width: 80
+
+slots:
+  header:
+    component: status-bar.default
+    props:
+      hp_current: 78
+      hp_max: 100
+      location: Open Plains
+      turn_count: 112
+
+  sidebar:
+    component: entity-list.room
+    props:
+      items:
+        - {id: herb, label: "Healing herb"}
+        - {id: stone, label: "Sharp stone"}
+      npcs:
+        - {id: deer, label: Deer}
+        - {id: wolf, label: "Wolf (hostile)"}
+
+  content:
+    component: minimap.default
+    props:
+      grid:
+        - [".", ".", ".", ".", ".", ".", "T", "T"]
+        - [".", ".", ".", ".", ".", ".", ".", "T"]
+        - [".", ".", "P", ".", ".", ".", ".", "."]
+        - [".", ".", ".", ".", ".", ".", ".", "."]
+        - [".", "~", "~", "~", ".", ".", ".", "."]
+        - [".", "~", "~", "~", ".", ".", ".", "."]
+      legend_entries:
+        - {char: ".", label: grass}
+        - {char: "T", label: trees}
+        - {char: "P", label: you}
+        - {char: "~", label: water}
+      player_position: "2,2"
+
+  sidebar_width: 20

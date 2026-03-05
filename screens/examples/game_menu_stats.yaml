@@ -1,0 +1,35 @@
+# AskeeDS Screen — game-menu.stats
+# In-game menu shell with Stats tab showing character sheet.
+# Compose with: askee-ds compose screens/examples/game_menu_stats.yaml
+
+name: game-menu.stats
+description: In-game menu shell with Stats tab showing character sheet.
+layout: layout.app.shell
+available_width: 70
+
+slots:
+  header:
+    text: "═══ In-Game Menu ═══"
+
+  sidebar:
+    component: nav.vertical
+    props:
+      items:
+        - {id: items, label: Items}
+        - {id: stats, label: Stats}
+        - {id: skills, label: Skills}
+        - {id: quests, label: Quests}
+      active_id: stats
+
+  content:
+    component: character-sheet.compact
+    props:
+      name: "Kael the Bold"
+      stats:
+        - {label: HP, current: 85, max: 100}
+        - {label: MP, current: 30, max: 50}
+        - {label: STR, current: 16, max: 20}
+        - {label: DEX, current: 14, max: 20}
+        - {label: INT, current: 11, max: 20}
+
+  sidebar_width: 18

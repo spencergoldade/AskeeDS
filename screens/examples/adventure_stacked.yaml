@@ -1,0 +1,40 @@
+# AskeeDS Screen — adventure.stacked
+# Stacked layout with status bar, room card, hints, and input.
+# Compose with: askee-ds compose screens/examples/adventure_stacked.yaml
+
+name: adventure.stacked
+description: Stacked adventure screen with status bar, room card, hints, and command input.
+layout: layout.stack
+available_width: 60
+
+slots:
+  blocks:
+    - component: status-bar.default
+      props:
+        hp_current: 95
+        hp_max: 100
+        location: Forest Path
+        turn_count: 3
+
+    - component: room-card.default
+      props:
+        title: Forest Path
+        description_text: Sunlight filters through the canopy. A well-worn trail leads north and south.
+        items:
+          - {id: mushroom, label: "Strange mushroom"}
+        npcs: []
+        exits:
+          - {id: north, label: North}
+          - {id: south, label: South}
+
+    - component: hint-bar.contextual
+      props:
+        prefix: "Actions: "
+        hints:
+          - {id: look, label: look}
+          - {id: go, label: "go <dir>"}
+          - {id: take, label: "take <item>"}
+
+    - component: command-input.default
+      props:
+        prompt: ">"

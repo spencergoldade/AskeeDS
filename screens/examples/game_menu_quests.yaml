@@ -1,0 +1,41 @@
+# AskeeDS Screen — game-menu.quests
+# In-game menu shell with Quests tab showing active quest and objectives.
+# Compose with: askee-ds compose screens/examples/game_menu_quests.yaml
+
+name: game-menu.quests
+description: In-game menu shell with Quests tab showing active quest and objectives.
+layout: layout.app.shell
+available_width: 70
+
+slots:
+  header:
+    text: "═══ In-Game Menu ═══"
+
+  sidebar:
+    component: nav.vertical
+    props:
+      items:
+        - {id: items, label: Items}
+        - {id: stats, label: Stats}
+        - {id: skills, label: Skills}
+        - {id: quests, label: Quests}
+      active_id: quests
+
+  content:
+    component: layout.stack
+    slots:
+      blocks:
+        - component: card.simple
+          props:
+            title: "Active Quest: The Lost Key"
+            body_text: "The old hermit needs a key to unlock the ancient vault. Search the Undercroft for clues."
+
+        - component: tracker.objective
+          props:
+            objectives:
+              - {id: talk, label: "Talk to the hermit", checked: true}
+              - {id: enter, label: "Enter the Undercroft", checked: true}
+              - {id: find, label: "Find the rusty key", checked: false}
+              - {id: return, label: "Return to the hermit", checked: false}
+
+  sidebar_width: 18

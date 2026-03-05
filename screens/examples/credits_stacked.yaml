@@ -1,0 +1,34 @@
+# AskeeDS Screen — credits.stacked
+# Stacked credits screen with banner and multiple thank-you cards.
+# Compose with: askee-ds compose screens/examples/credits_stacked.yaml
+
+name: credits.stacked
+description: Stacked credits screen with banner and multiple thank-you cards.
+layout: layout.stack
+available_width: 60
+
+slots:
+  blocks:
+    - component: typography.banner
+      props:
+        text: "THANK YOU"
+
+    - component: card.simple
+      props:
+        title: "Lead Designer"
+        body_text: "Spencer Goldade — spencergoldade.ca"
+
+    - component: card.simple
+      props:
+        title: "Engine"
+        body_text: "Built with AskeeDS, the ASCII design system for text-based games."
+
+    - component: card.simple
+      props:
+        title: "Open Source"
+        body_text: "This project is open source. Contributions welcome!"
+
+    - component: card.simple
+      props:
+        title: "Special Thanks"
+        body_text: "To everyone who believed in text-based gaming."

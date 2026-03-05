@@ -1,0 +1,33 @@
+# AskeeDS Screen — title.left
+# Two-column title screen with banner on left, card and menu on right.
+# Compose with: askee-ds compose screens/examples/title_screen_left.yaml
+
+name: title.left
+description: Two-column title screen with banner on left, card and menu on right.
+layout: layout.two-column
+available_width: 70
+
+slots:
+  left_content:
+    component: typography.banner
+    props:
+      text: "ROGUE"
+
+  right_content:
+    component: layout.stack
+    slots:
+      blocks:
+        - component: card.simple
+          props:
+            title: "Rogue v1.0"
+            body_text: "A classic roguelike adventure."
+
+        - component: menu.main
+          props:
+            title: "Menu"
+            items:
+              - {id: new_game, label: "New Game"}
+              - {id: load_game, label: "Load Game"}
+              - {id: quit, label: "Quit"}
+
+  left_width: 30

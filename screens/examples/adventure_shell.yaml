@@ -1,0 +1,60 @@
+# AskeeDS Screen — adventure.shell
+# App shell layout with header, sidebar nav + entity list, and main content.
+# Compose with: askee-ds compose screens/examples/adventure_shell.yaml
+
+name: adventure.shell
+description: App shell adventure screen with status bar header, sidebar nav and entity list, and room content.
+layout: layout.app.shell
+available_width: 80
+
+slots:
+  header:
+    component: status-bar.default
+    props:
+      hp_current: 72
+      hp_max: 100
+      location: Dark Corridor
+      turn_count: 23
+
+  sidebar:
+    component: layout.stack
+    slots:
+      blocks:
+        - component: nav.vertical
+          props:
+            items:
+              - {id: inv, label: Inventory}
+              - {id: map, label: Map}
+              - {id: journal, label: Journal}
+              - {id: stats, label: Stats}
+            active_id: map
+
+        - component: entity-list.room
+          props:
+            items:
+              - {id: potion, label: "Health potion"}
+            npcs:
+              - {id: rat, label: "Giant rat"}
+
+  content:
+    component: layout.stack
+    slots:
+      blocks:
+        - component: room-card.default
+          props:
+            title: Dark Corridor
+            description_text: The corridor stretches into shadow. You hear scratching ahead.
+            items:
+              - {id: potion, label: "Health potion"}
+            npcs:
+              - {id: rat, label: "Giant rat"}
+            exits:
+              - {id: north, label: North}
+              - {id: south, label: South}
+              - {id: west, label: West}
+
+        - component: command-input.default
+          props:
+            prompt: ">"
+
+  sidebar_width: 20

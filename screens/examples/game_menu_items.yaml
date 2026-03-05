@@ -1,0 +1,34 @@
+# AskeeDS Screen — game-menu.items
+# In-game menu shell with Items tab showing inventory list.
+# Compose with: askee-ds compose screens/examples/game_menu_items.yaml
+
+name: game-menu.items
+description: In-game menu shell with Items tab showing inventory list.
+layout: layout.app.shell
+available_width: 70
+
+slots:
+  header:
+    text: "═══ In-Game Menu ═══"
+
+  sidebar:
+    component: nav.vertical
+    props:
+      items:
+        - {id: items, label: Items}
+        - {id: stats, label: Stats}
+        - {id: skills, label: Skills}
+        - {id: quests, label: Quests}
+      active_id: items
+
+  content:
+    component: inventory.list
+    props:
+      items:
+        - {id: sword, label: "Rusty sword"}
+        - {id: shield, label: "Wooden shield"}
+        - {id: potion, label: "Health potion x3"}
+        - {id: scroll, label: "Scroll of identify"}
+        - {id: gold, label: "Gold (127)"}
+
+  sidebar_width: 18

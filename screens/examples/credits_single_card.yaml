@@ -1,0 +1,36 @@
+# AskeeDS Screen — credits.single-card
+# Credits screen with banner, two info cards, and hint bar.
+# Compose with: askee-ds compose screens/examples/credits_single_card.yaml
+
+name: credits.single-card
+description: Credits screen with banner, two info cards, and hint bar.
+layout: layout.stack
+available_width: 60
+
+slots:
+  blocks:
+    - component: typography.banner
+      props:
+        text: "CREDITS"
+
+    - component: card.simple
+      props:
+        title: "Design & Development"
+        body_text: |
+          Game Design: Spencer Goldade
+          Development: AskeeDS Team
+          Art Direction: Spencer Goldade
+          Special Thanks: The open-source community
+
+    - component: card.simple
+      props:
+        title: "Powered By"
+        body_text: |
+          AskeeDS - ASCII Design System
+          Python · Rich · Textual
+
+    - component: hint-bar.contextual
+      props:
+        prefix: ""
+        hints:
+          - {id: back, label: "Press ESC to return to menu"}

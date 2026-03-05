@@ -1,0 +1,43 @@
+# AskeeDS Screen — conversation.full
+# Full conversation screen with status bar, dialogue, choices, and hints.
+# Compose with: askee-ds compose screens/examples/conversation_full.yaml
+
+name: conversation.full
+description: Full conversation screen with status bar, dialogue, choices, and hints.
+layout: layout.stack
+available_width: 60
+
+slots:
+  blocks:
+    - component: status-bar.default
+      props:
+        hp_current: 85
+        hp_max: 100
+        location: "Town Square"
+        turn_count: 15
+
+    - component: speech-bubble
+      props:
+        text: "Greetings, traveler. The road ahead is dangerous. Will you help us?"
+        tail: left
+        speaker_id: guard
+
+    - component: speech-bubble
+      props:
+        text: "What kind of help do you need?"
+        tail: right
+
+    - component: choice-wheel.inline
+      props:
+        options:
+          - {id: help, label: "I'll help. What do you need?"}
+          - {id: decline, label: "Sorry, I'm busy."}
+          - {id: persuade, label: "[Persuasion 15] Tell me more about the reward."}
+
+    - component: hint-bar.contextual
+      props:
+        prefix: "Commands: "
+        hints:
+          - {id: look, label: "look"}
+          - {id: talk, label: "talk"}
+          - {id: leave, label: "leave"}

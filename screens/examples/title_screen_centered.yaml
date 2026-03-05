@@ -1,0 +1,28 @@
+# AskeeDS Screen — title.centered
+# Centered title screen with banner, intro card, and main menu.
+# Compose with: askee-ds compose screens/examples/title_screen_centered.yaml
+
+name: title.centered
+description: Centered title screen with banner, intro card, and main menu.
+layout: layout.stack
+available_width: 60
+
+slots:
+  blocks:
+    - component: typography.banner
+      props:
+        text: "DUNGEON QUEST"
+
+    - component: card.simple
+      props:
+        title: "A Text Adventure"
+        body_text: "Explore the depths, battle monsters, and find the legendary treasure."
+
+    - component: menu.main
+      props:
+        title: "Main Menu"
+        items:
+          - {id: new_game, label: "New Game"}
+          - {id: load_game, label: "Load Game"}
+          - {id: settings, label: "Settings"}
+          - {id: credits, label: "Credits"}
