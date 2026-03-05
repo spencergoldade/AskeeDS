@@ -1,0 +1,15 @@
+# AskeeDS — Sizing Defaults
+# Terminal-level constraints for adaptive components.
+#
+# Components declare how they size via their render spec:
+#   width: 44          fixed: always 44 characters
+#   width: fill        adaptive: expand to available space
+#   width: content     adaptive: size to content
+#   min_width: 30      constraint: never narrower than 30
+#   max_width: 60      constraint: never wider than 60
+
+terminal:
+  default_width: 80
+  default_height: 24
+  min_width: 40
+  min_height: 10

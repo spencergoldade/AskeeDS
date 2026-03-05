@@ -36,7 +36,14 @@ class Composer:
         self.renderer = renderer
         self.components = components
 
-    def compose(self, layout_name: str, slots: dict) -> str:
+    def compose(
+        self,
+        layout_name: str,
+        slots: dict,
+        *,
+        available_width: int = 80,
+        available_height: int | None = None,
+    ) -> str:
         """Render a layout component with child components in its slots.
 
         Each slot value can be:
@@ -49,10 +56,14 @@ class Composer:
             raise ValueError(f"Unknown component: {layout_name!r}")
         resolved: dict = {}
         for key, value in slots.items():
-            resolved[key] = self._resolve(value)
-        return self.renderer.render(comp, resolved)
+            resolved[key] = self._resolve(value, available_width=available_width)
+        return self.renderer.render(
+            comp, resolved,
+            available_width=available_width,
+            available_height=available_height,
+        )
 
-    def _resolve(self, value: object) -> object:
+    def _resolve(self, value: object, *, available_width: int = 80) -> object:
         if isinstance(value, str):
             return value
         if isinstance(value, tuple) and len(value) == 2:
@@ -61,8 +72,16 @@ class Composer:
                 child = self.components.get(name)
                 if child is None:
                     raise ValueError(f"Unknown component: {name!r}")
-                child_props = {k: self._resolve(v) for k, v in props.items()}
-                return self.renderer.render(child, child_props)
+                child_props = {
+                    k: self._resolve(v, available_width=available_width)
+                    for k, v in props.items()
+                }
+                return self.renderer.render(
+                    child, child_props, available_width=available_width,
+                )
         if isinstance(value, list):
-            return [self._resolve(item) for item in value]
+            return [
+                self._resolve(item, available_width=available_width)
+                for item in value
+            ]
         return value

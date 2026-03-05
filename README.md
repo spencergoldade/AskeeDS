@@ -54,6 +54,7 @@ tokens/                     design tokens
   colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
   box-drawing.yaml          3 border character sets (single, heavy, double)
   typography.yaml           Figlet font conventions, line width rules
+  sizing.yaml               terminal defaults for adaptive width/height
 askee_ds/                   Python package
   loader.py                 loads YAML components and tokens
   composer.py               composes layout components from child trees
@@ -136,6 +137,35 @@ print(output)
 # | HP: 85/100  |  The Clearing  |  Turn 12        |
 # +------------------------------------------------+
 ```
+
+### Adaptive sizing
+
+Components with `width: fill` adapt to the available terminal width.
+Pass `available_width` when rendering to control the output size:
+
+```python
+output = renderer.render(
+    components["room-card.default"],
+    {"title": "Cavern", "description_text": "A dark cave.",
+     "items": [], "npcs": [], "exits": []},
+    available_width=60,
+)
+```
+
+Components can also declare `min_width` and `max_width` constraints
+in their render spec to clamp the adaptive range:
+
+```yaml
+render:
+  type: box
+  width: fill
+  min_width: 30
+  max_width: 60
+  border: single
+  sections: [...]
+```
+
+Integer widths (`width: 44`) still work exactly as before.
 
 ### Compose full screens
 

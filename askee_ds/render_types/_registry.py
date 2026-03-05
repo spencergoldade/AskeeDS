@@ -19,6 +19,8 @@ class RenderContext:
     theme: "Theme"
     component: "Component"
     decorations: dict[str, dict]
+    available_width: int = 80
+    available_height: int | None = None
 
 
 _registry: dict[str, RenderFunc] = {}

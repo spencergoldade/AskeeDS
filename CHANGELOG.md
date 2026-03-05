@@ -4,6 +4,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Declarative sizing model**: Components can now declare adaptive width and height via their render spec. `width: fill` expands to available space, `width: content` sizes to content, and integer values remain fixed (backwards-compatible). Optional `min_width`, `max_width`, `min_height`, `max_height` constraints clamp the result. New `askee_ds/sizing.py` resolver, `tokens/sizing.yaml` with terminal defaults, `available_width`/`available_height` on `RenderContext`, and Renderer/Composer pass-through. 25 new sizing tests (87 total, all green).
+
 ### Changed
 
 - **Registry-based renderer**: Refactored the monolithic 520-line `renderer.py` into a thin dispatcher backed by a pluggable render type registry (`askee_ds/render_types/`). Each of the 16 render types is now a standalone module. Consumers can register custom render types via `Renderer.register_type()` or `from askee_ds.render_types import register` without modifying framework source. Zero regressions — all 62 renderable components produce identical output.

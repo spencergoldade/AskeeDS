@@ -38,7 +38,14 @@ class Renderer:
         self.theme = theme
         self._decorations = decorations or {}
 
-    def render(self, component: Component, props: dict) -> str:
+    def render(
+        self,
+        component: Component,
+        props: dict,
+        *,
+        available_width: int = 80,
+        available_height: int | None = None,
+    ) -> str:
         spec = component.render
         rtype = spec.get("type", "inline")
 
@@ -48,6 +55,8 @@ class Renderer:
                 theme=self.theme,
                 component=component,
                 decorations=self._decorations,
+                available_width=available_width,
+                available_height=available_height,
             )
             return render_func(spec, props, ctx)
 

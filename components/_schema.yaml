@@ -109,3 +109,14 @@ render:
     - single
     - heavy
     - double
+
+  width_mode_values:
+    - fill
+    - content
+
+  sizing_fields:
+    - min_width
+    - max_width
+    - height
+    - min_height
+    - max_height

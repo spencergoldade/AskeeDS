@@ -10,13 +10,14 @@ import textwrap
 from typing import TYPE_CHECKING
 
 from ._helpers import interpolate, row
+from ..sizing import resolve_width
 
 if TYPE_CHECKING:
     from ._registry import RenderContext
 
 
 def render_box(spec: dict, props: dict, ctx: RenderContext) -> str:
-    width = spec.get("width", 40)
+    width = resolve_width(spec, ctx.available_width)
     bd = ctx.theme.border(spec.get("border", "single"))
     inner = width - 2
     lines: list[str] = []
