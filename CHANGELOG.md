@@ -27,8 +27,15 @@ All notable changes to AskeeDS will be documented in this file.
 - **Layout render types are now responsive**: `render_stack`, `render_columns`, and `render_shell` use `ctx.available_width` via `resolve_width` instead of sizing from content. Layouts propagate available width to children for proper responsive behavior.
 - **8 components migrated to adaptive sizing**: `status-bar.default`, `room-card.default`, `narrative-log.pane`, `entity-list.room`, `modal.overlay`, `character-sheet.compact`, `menu.main`, `card.simple` now use `width: fill` with `min_width`/`max_width` constraints instead of fixed integers. They reflow to the available terminal width while staying within readable bounds.
 - **Consolidated `speech-bubble.left` + `speech-bubble.right`** into a single `speech-bubble` component with a `tail` prop (`left` or `right`, defaults to `left`). Bubble renderer reads tail from props first, spec as fallback.
-- **Removed `menu.pause`** — `menu.main` with `title: "Paused"` handles this case identically. 56 components total (10 approved, 46 ideated).
+- **Removed `menu.pause`** — `menu.main` with `title: "Paused"` handles this case identically. 56 components total (24 approved, 32 ideated).
 - **Renamed `tokens/box-drawing.yaml` → `tokens/borders.yaml`** for clarity.
+
+### Documentation
+
+- **README**: Replaced "What AskeeDS does not do" list with a designer-centric comparison table ("AskeeDS handles the look / Your engine handles the logic"). Updated component counts (56 total, 24 approved) and file tree (17 example screens).
+- **GUIDE.md**: Updated component counts, added adaptive sizing details for the 8 migrated components, and noted the 17 example screens across 6 gameplay contexts.
+- **REFERENCE.md**: Expanded `element_type` documentation and added adaptive sizing note.
+- **Private sizing guide**: Created `docs/sizing-guide.md` (gitignored) — a plain-language walkthrough for the designer explaining when and how to use `fill`, `content`, fixed widths, and min/max constraints.
 
 ### Documentation
 

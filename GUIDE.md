@@ -113,7 +113,7 @@ askee-ds validate
 If everything is correct, you'll see:
 
 ```
-OK — 59 components validated, 0 errors.
+OK — 56 components validated, 0 errors.
 ```
 
 If something is wrong — a missing field, a typo in the render type —
@@ -278,7 +278,9 @@ cannot receive focus.
 ## Composing a screen
 
 A screen combines multiple components into a full game view. You define
-screens as YAML files under `screens/`.
+screens as YAML files under `screens/`. There are 17 example screens
+under `screens/examples/` covering 6 gameplay contexts: title,
+conversation, adventure play, open world, credits, and game menu.
 
 Here's a text adventure screen with a status bar, a room card, and a
 command input:
@@ -411,10 +413,13 @@ render:
 Height works the same way: `height: fill`, `height: content`, or a
 fixed integer, with optional `min_height` and `max_height`.
 
-Most components use a fixed width today. As you design new components,
-think about whether they should grow and shrink — status bars and log
-panes usually should, while notifications and tooltips usually should
-not.
+Eight components now use `width: fill` with `min_width`/`max_width`
+constraints: `status-bar.default`, `room-card.default`,
+`narrative-log.pane`, `entity-list.room`, `modal.overlay`,
+`character-sheet.compact`, `menu.main`, and `card.simple`. Most other
+components use a fixed width. As you design new components, think
+about whether they should grow and shrink — status bars and log panes
+usually should, while notifications and tooltips usually should not.
 
 ---
 
@@ -486,8 +491,8 @@ A component can be promoted to `approved` when it meets all of these:
   [REFERENCE.md](REFERENCE.md) has the complete lookup tables.
 - **Wire AskeeDS into a game engine or Python app** —
   [INTEGRATING.md](INTEGRATING.md) covers the Python API and adapters.
-- **Browse existing components** — Run `askee-ds list` to see all 58
-  components, or `askee-ds list --status approved` for the 10 proven
+- **Browse existing components** — Run `askee-ds list` to see all 56
+  components, or `askee-ds list --status approved` for the 24 approved
   ones.
 - **See everything rendered at once** — Run
   `python examples/all_components.py` for a visual catalog.

@@ -79,8 +79,8 @@ askee-ds compose screens/examples/adventure_main.yaml
 ```
 components/                 YAML component definitions (the product)
   _schema.yaml              meta-schema enforced by the validator
-  core/                     20 components: buttons, inputs, display, feedback, navigation, layouts
-  game/                     38 components: HUD, inventory, character, exploration, conversation, etc.
+  core/                     19 components: buttons, inputs, display, feedback, navigation, layouts
+  game/                     37 components: HUD, inventory, character, exploration, conversation, etc.
 tokens/                     design tokens
   colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
   borders.yaml              3 border character sets (single, heavy, double)
@@ -88,7 +88,7 @@ tokens/                     design tokens
   sizing.yaml               terminal defaults for adaptive width/height
 screens/                    YAML screen definitions (full-screen layouts)
   _schema.yaml              meta-schema for screen files
-  examples/                 example screens
+  examples/                 17 example game screens (title, conversation, adventure, etc.)
 askee_ds/                   Python package
   loader.py                 loads YAML components and tokens
   composer.py               composes layout components and screens from YAML
@@ -107,37 +107,31 @@ examples/
   textual_app.py            live TUI demo using Textual adapter
 ```
 
-58 components total. 10 are approved (proven core); 48 are ideated
-(defined but not yet individually proven). All 58 render from
-declarative specs.
+56 components total. 24 are approved (proven, tested, and snapshot-locked);
+32 are ideated (defined but not yet individually proven). All 56 render
+from declarative specs. 17 example game screens demonstrate real layouts.
 
 ---
 
-## What AskeeDS does not do
+## What AskeeDS handles vs. what your engine handles
 
-AskeeDS is focused on **defining and rendering game UI**. These are
-explicitly outside its scope:
+AskeeDS gives your game its **look** — the layout, components, and
+visual structure. Everything else lives in your game engine.
 
-- **Game logic or state management.** AskeeDS produces ASCII output from
-  data you provide. It does not manage HP, inventory, turn order, or
-  any game state — that is the engine's job.
-- **Input handling or event loops.** Components can declare interaction
-  specs (focusable, keyboard bindings), but AskeeDS does not capture
-  keystrokes or run an event loop. The consumer wires interaction to
-  their runtime.
-- **Animation playback.** Components like `spinner.loading` declare
-  frames, but cycling through them at runtime is the consumer's
-  responsibility.
-- **Pixel graphics, images, or GPU rendering.** AskeeDS is pure
-  text/ASCII. No bitmaps, no shaders, no terminal graphics protocols.
-- **Networking or multiplayer.** No server communication, no
-  synchronization. If your game is multiplayer, the engine manages that.
-- **Audio or sound.** No sound effects, no music. Pair AskeeDS with a
-  separate audio library if needed.
-- **Persistence or save/load.** AskeeDS does not read or write save
-  files. The engine owns data storage.
-- **Content generation.** AskeeDS does not generate levels, stories,
-  items, or NPCs. It provides the UI components to *display* them.
+| AskeeDS handles (the look) | Your engine handles (the logic) |
+|---|---|
+| Defining UI components (menus, HUDs, cards, sheets) as YAML | Managing game state (HP, inventory, turn order, quest progress) |
+| Rendering ASCII output from data you pass in | Deciding *what* data to show and *when* to show it |
+| Declaring interaction specs (focusable, key bindings) | Capturing keystrokes and running your event loop |
+| Declaring animation frames (e.g. spinner) | Cycling through frames at the speed you choose |
+| Pure text/ASCII rendering | Any pixel graphics, images, or GPU rendering you want |
+| Laying out screens from component definitions | Networking, multiplayer sync, or server communication |
+| Providing color roles and border styles | Audio, sound effects, or music |
+| Defining component structure and validation | Save/load, persistence, and file storage |
+| Offering 56 ready-made UI components | Generating levels, stories, items, NPCs, or any content |
+
+**In short:** AskeeDS is a design system. You define what things look
+like. Your engine decides what happens.
 
 ---
 
@@ -188,7 +182,7 @@ framework turns definition + props + theme into ASCII output.
 World > Dungeon > Level 3
 ```
 
-Run `askee-ds list` to see all 58 components, `askee-ds preview <name>`
+Run `askee-ds list` to see all 56 components, `askee-ds preview <name>`
 to render any of them, or `python examples/all_components.py` to see
 every renderable component at once.
 

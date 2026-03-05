@@ -44,7 +44,7 @@ Each prop in a component's `props` block has these fields:
 | `type` | Yes | string | The data type (see table below). |
 | `required` | Yes | boolean | Whether the prop must be provided. |
 | `element` | No | dict | Shape of each item in an array (field names and types). |
-| `element_type` | No | string | Shorthand for arrays of simple values (e.g. `string`). |
+| `element_type` | No | string | For array props: specifies the type of array elements when they aren't objects (e.g. `element_type: string` for string arrays). |
 
 ### Valid prop types
 
@@ -138,6 +138,8 @@ Bordered rectangle with structured sections inside.
 | `height` | Fixed height, `fill`, or `content`. |
 | `min_height` | Never shorter than this. |
 | `max_height` | Never taller than this. |
+
+Eight components use `width: fill` with `min_width`/`max_width` constraints.
 
 **Example:**
 
