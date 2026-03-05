@@ -6,6 +6,7 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **Framework tests** (`tests/test_framework.py`): 25 tests covering Loader, Renderer, Theme, and Validator — including a test that renders every non-reference component to catch regressions.
 - **Schema validator** (`askee_ds/validator.py`): Validates all 63 YAML component definitions against `components/_schema.yaml`. Checks required fields, status values, category prefixes, prop types, render types, border values, and section types.
 - **Unified CLI** (`askee-ds`): New `validate`, `preview`, and `list` subcommands using the YAML pipeline. Legacy commands (`askee-ds-validate`, `askee-ds-export`, `askee-ds-demo`) kept for backward compatibility.
 - **Validate-on-load**: `Loader(schema_path=...)` optionally runs schema validation when loading components, emitting warnings to stderr.
@@ -36,6 +37,11 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Changed
 
+- **Old format archived**: `components.txt`, `format-spec.md`, `prop_shapes.yaml`, `askee_ds_tokens.yaml`, `manifest.yaml`, and related files moved to `_archive/design-ascii/`. Maps, decorations, and box-drawing remain in `design/ascii/` (not yet migrated).
+- **Retired tools archived**: Visual test TUI, migration scripts, and manifest updater moved to `_archive/tools/`. Legacy parsers (`parse_components.py`, `parse_maps.py`, `parse_decorations.py`) kept for now.
+- **Archive READMEs**: Each archive folder documents what was archived, why, and when it is safe to delete.
+- **CI updated**: Primary validation uses `askee-ds validate` (YAML pipeline). Added render-all step. Removed old component validation. Path triggers updated.
+- **npm removed**: `package.json` deleted; all scripts covered by Python CLI.
 - **Component status reset**: 53 non-approved components reset from `in-review` to `ideated`. 10 approved components unchanged. Components re-enter the lifecycle from the earliest state.
 - **POC archived**: `poc_renderer.py` moved to `_archive/`; the real `askee_ds` package now covers all its functionality.
 - **CLI rewritten**: `askee_ds/cli.py` now has a unified `askee-ds` entry point alongside the legacy commands.

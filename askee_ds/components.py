@@ -200,8 +200,14 @@ def load_default_components() -> list[dict]:
     This helper assumes the process is running from a checkout of the AskeeDS
     repo. Callers outside that context should pass in their own paths and use
     parse_components() directly.
+
+    Legacy: the old components.txt has been archived to _archive/design-ascii/.
+    This function checks both the original and archive paths.
     """
-    path = repo_root() / "design" / "ascii" / "components.txt"
+    root = repo_root()
+    path = root / "design" / "ascii" / "components.txt"
+    if not path.exists():
+        path = root / "_archive" / "design-ascii" / "components.txt"
     content = path.read_text(encoding="utf-8")
     return parse_components(content)
 

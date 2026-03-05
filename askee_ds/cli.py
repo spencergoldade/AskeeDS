@@ -328,6 +328,8 @@ def demo_main(argv: list[str] | None = None) -> int:
 
     root = _default_root()
     path = root / "design" / "ascii" / "components.txt"
+    if not path.exists():
+        path = root / "_archive" / "design-ascii" / "components.txt"
     content = path.read_text(encoding="utf-8")
     comps = comp_mod.parse_components(content)
     index = {c["name"]: c for c in comps}

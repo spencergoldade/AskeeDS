@@ -4,18 +4,22 @@ on:
   push:
     paths:
       - "askee_ds/**"
+      - "components/**"
+      - "tokens/**"
       - "examples/**"
       - "tools/**"
       - "design/**"
-      - "package.json"
+      - "tests/**"
       - ".github/workflows/tests.yml"
   pull_request:
     paths:
       - "askee_ds/**"
+      - "components/**"
+      - "tokens/**"
       - "examples/**"
       - "tools/**"
       - "design/**"
-      - "package.json"
+      - "tests/**"
       - ".github/workflows/tests.yml"
 
 jobs:
@@ -31,14 +35,31 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install Python test dependencies
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install pyyaml
-          pip install -e ".[visual-test]"
+          pip install -e .
 
-      - name: Validate design (components)
-        run: python tools/parse_components.py --validate design/ascii/components.txt
+      - name: Validate YAML components (new pipeline)
+        run: python -m askee_ds.cli validate
+
+      - name: Render all components with render specs
+        run: |
+          python -c "
+          from askee_ds import Loader, Theme, Renderer
+          loader = Loader()
+          components = loader.load_components_dir('components/')
+          tokens = loader.load_tokens_dir('tokens/')
+          theme = Theme(tokens)
+          renderer = Renderer(theme)
+          rendered = 0
+          for name, comp in sorted(components.items()):
+              if comp.render.get('type', 'reference') != 'reference':
+                  renderer.render(comp, {})
+                  rendered += 1
+          print(f'{rendered}/{len(components)} components rendered without error')
+          "
 
       - name: Validate design (maps)
         run: python tools/parse_maps.py --validate
@@ -46,11 +67,8 @@ jobs:
       - name: Validate design (decorations)
         run: python tools/parse_decorations.py --validate
 
-      - name: Run Python tests
-        run: |
-          python -m unittest discover -s tools
+      - name: Run framework tests
+        run: python -m unittest discover -s tests -v
 
-      - name: Run package tests
-        run: |
-          python -m unittest discover -s tests -v
-
+      - name: Run legacy tools tests
+        run: python -m unittest discover -s tools

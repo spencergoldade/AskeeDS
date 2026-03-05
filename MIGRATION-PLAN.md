@@ -73,30 +73,31 @@ tools/migrate.py                # one-time migration tool (can be archived)
 MIGRATION-PLAN.md               # this file
 ```
 
-**Old files still in place (to be archived in Phase 5):**
+**Files not yet migrated (still in design/ascii/):**
 ```
-design/ascii/components.txt     # 2257-line monolith (U+241F format)
-design/ascii/format-spec.md     # grammar for the old format
-design/ascii/prop_shapes.yaml   # old separate prop shapes file
-design/ascii/askee_ds_tokens.yaml  # old tokens (replaced by tokens/)
-design/ascii/manifest.yaml      # old manifest (replaced by YAML structure)
-design/ascii/box-drawing.yaml   # old box-drawing (replaced by tokens/)
-design/ascii/decoration-catalog.txt
-design/ascii/maps/              # maps (still valid, not migrated yet)
-tools/component_visual_test.py  # 2317-line retired TUI
-tools/parse_components.py       # old parser CLI (delegates to askee_ds/)
-tools/parse_decorations.py      # old decoration CLI
-tools/parse_maps.py             # old map CLI
-tools/render_demo.py            # old demo renderer
-tools/update_manifest.py        # old manifest updater
-tools/update_readme_examples.py # old README example updater
-tools/add_component_status.py   # one-off migration script
-tools/merge_intent_into_components.py  # one-off migration script
+design/ascii/maps/              # map layouts and index (not migrated yet)
+design/ascii/map-tiles.yaml     # tileset definitions (not migrated yet)
+design/ascii/box-drawing.yaml   # legacy box-drawing (askee_ds/box_drawing.py uses it)
+design/ascii/decoration-catalog.txt  # decorations (not migrated yet)
 ```
 
-**Already archived:**
+**Legacy tools still active:**
 ```
+tools/parse_components.py       # old parser CLI (legacy, not in CI)
+tools/parse_decorations.py      # decoration CLI (still in CI)
+tools/parse_maps.py             # map CLI (still in CI)
+tools/render_demo.py            # old demo renderer (functional)
+tools/test_parse_*.py           # tests for legacy parsers
+```
+
+**Archived:**
+```
+_archive/README.md              # archive index
 _archive/poc_renderer.py        # POC (replaced by askee_ds package)
+_archive/design-ascii/          # old U+241F format files (components.txt, etc.)
+_archive/design-ascii/README.md # context: what, why, when to delete
+_archive/tools/                 # retired tools (visual test, migration scripts)
+_archive/tools/README.md        # context: what, why, when to delete
 ```
 
 **How to verify things work:**
@@ -221,50 +222,44 @@ The user has NOT yet identified which specific components to keep vs archive.
       kept in place (not archived) with status reset to `ideated`. They
       remain in the same YAML files and will progress through the status
       lifecycle as they are individually designed and proven.
-- [ ] **Archive old format files**: Move `design/ascii/components.txt`,
-      `design/ascii/format-spec.md`, `design/ascii/prop_shapes.yaml`,
-      `design/ascii/askee_ds_tokens.yaml`, and `design/ascii/manifest.yaml`
-      to `_archive/design-ascii/`. Keep `design/ascii/README.md` temporarily
-      (update it to redirect to the new structure, or remove it).
-      Keep `design/ascii/maps/` in place (maps are not migrated yet).
-      Keep `design/ascii/box-drawing.yaml` in place temporarily (old tools
-      may still reference it, and `askee_ds/box_drawing.py` loads from it).
-      Keep `design/ascii/decoration-catalog.txt` in place (decorations are
-      not migrated yet).
-- [ ] **Archive retired tools**: Move to `_archive/tools/`:
-      `component_visual_test.py`, `add_component_status.py`,
+- [x] **Archive old format files**: Moved `components.txt`, `format-spec.md`,
+      `prop_shapes.yaml`, `askee_ds_tokens.yaml`, `manifest.yaml`,
+      `PROP-INTENT-AND-TEST-DATA-PLAN.md`, `version.txt`, and old `README.md`
+      to `_archive/design-ascii/`. Kept `maps/`, `map-tiles.yaml`,
+      `box-drawing.yaml`, and `decoration-catalog.txt` in place (not yet
+      migrated). Updated `design/ascii/README.md` as a redirect. Legacy
+      parser (`askee_ds/components.py`) falls back to archive path.
+      Each archive folder has a README explaining context, rationale,
+      and safe-to-delete conditions.
+- [x] **Archive retired tools**: Moved `component_visual_test.py` (+tcss,
+      +tests), `migrate.py`, `add_component_status.py`,
       `merge_intent_into_components.py`, `update_manifest.py`,
-      `update_readme_examples.py`. Keep `parse_components.py`,
-      `parse_decorations.py`, `parse_maps.py`, `render_demo.py` for now
-      (they still work and CI uses them).
+      `update_readme_examples.py`, and `figlet_approved_fonts.txt` to
+      `_archive/tools/`. Kept `parse_components.py`, `parse_decorations.py`,
+      `parse_maps.py`, `render_demo.py` and their tests (still functional).
 
-## Phase 6 — Update tooling and CI
+## Phase 6 — Update tooling and CI (done)
 
-- [ ] **Update CI** (`.github/workflows/tests.yml`):
-      - Add a step that validates YAML component files (either via the new
-        schema validator or just loading them all via Loader and checking
-        for errors).
-      - Add a step that renders all components with render specs and checks
-        for runtime errors.
-      - Keep old validation steps until old format files are archived.
-      - Remove `docs/**` from the workflow path trigger (docs/ is gitignored).
-- [ ] **Update or replace validators**: Once the schema validator exists,
-      the old `parse_components.py --validate` can be replaced or kept as
-      legacy. The new CLI should be the primary validation path.
-- [ ] **Update tests** (`tests/test_package.py`):
-      - Add tests for Loader (load_components_dir, load_tokens_dir).
-      - Add tests for Renderer (render each section type, edge cases).
-      - Add tests for Theme (color resolution, border resolution).
-      - Add a test that loads all 63 components and renders those with
-        render specs, asserting no exceptions.
-      - Keep old tests working until old format is fully retired.
-- [ ] **Add `tools/test_framework.py`**: Unit tests for the new framework
-      modules (loader, renderer, theme, validator).
-- [ ] **Remove npm dependency**: Drop `package.json` if all scripts are
-      covered by Python CLI commands. The npm scripts were only convenience
-      wrappers (`update:manifest`, `update:readme-examples`, `test`). If
-      `update_manifest.py` is archived and the test command is just
-      `python3 -m unittest discover`, package.json is no longer needed.
+- [x] **Update CI** (`.github/workflows/tests.yml`): Primary validation now
+      uses `askee-ds validate` (YAML pipeline). Added a render-all step that
+      renders every component with a render spec, checking for exceptions.
+      Path triggers updated to include `components/`, `tokens/`, `tests/`.
+      Removed old component validation step (`parse_components.py --validate
+      design/ascii/components.txt`). Kept map and decoration validation.
+- [x] **Update or replace validators**: `askee-ds validate` is the primary
+      validation path. Legacy `parse_components.py` kept but no longer in CI.
+- [x] **Framework tests** (`tests/test_framework.py`): 25 tests covering
+      Loader (load_components_dir, load_tokens_dir, from-string, schema
+      skip, validate-on-load), Renderer (inline, join, box, list, bars,
+      checked_list, reference fallback, render-all-non-reference), Theme
+      (color roles, color resolution, neutral fallback, border styles,
+      border resolution, bar chars), Validator (validate-all, bad status,
+      bad category, bad render type, bad section type).
+- [x] **Old tests updated**: `test_parse_components.py` falls back to
+      archive path. `test_package.py` (legacy) still passes. 49 total
+      tests (30 framework+package + 19 legacy tools).
+- [x] **Remove npm dependency**: `package.json` deleted. All scripts it
+      wrapped are either archived or covered by Python CLI commands.
 
 ## Phase 7 — README and documentation
 

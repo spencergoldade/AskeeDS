@@ -7,12 +7,14 @@ from pathlib import Path
 # Allow running from repo root or from tools/
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
-COMPONENTS_PATH = ROOT / "design" / "ascii" / "components.txt"
+_PRIMARY = ROOT / "design" / "ascii" / "components.txt"
+_ARCHIVE = ROOT / "_archive" / "design-ascii" / "components.txt"
+COMPONENTS_PATH = _PRIMARY if _PRIMARY.exists() else _ARCHIVE
 
 
 class TestParseComponents(unittest.TestCase):
     def test_components_file_exists(self):
-        self.assertTrue(COMPONENTS_PATH.exists(), "design/ascii/components.txt must exist")
+        self.assertTrue(COMPONENTS_PATH.exists(), "components.txt must exist (original or archive)")
 
     def test_parse_components(self):
         from parse_components import parse_components

@@ -1,88 +1,24 @@
-# AskeeDS — ASCII design folder
+# design/ascii/
 
-This folder is the **source of truth** for the AskeeDS ASCII-based design system: box-drawing characters, map tiles, component manifest, and the component library.
+Most of the original files in this folder have been archived to
+`_archive/design-ascii/`. The component library now lives in `components/`
+as structured YAML, and design tokens live in `tokens/`.
 
-## Contents
+## What remains here
 
-| File | Purpose |
-|------|---------|
-| **askee_ds_tokens.yaml** | AskeeDS project token source: color role ids and default palette (TUI). Canonical source for the repo; values may be copied from local design token files to keep alignment. Used by the component visual test and implementers. |
-| **box-drawing.yaml** | Approved border characters (light/heavy/double). Load in code; do not hardcode in component art. |
-| **map-tiles.yaml** | Character/role sets for minimap, grid, and world/encounter maps (empty, wall, door, river, player, etc.), plus metadata and adjacency hints for procedural generation. |
-| **manifest.yaml** | List of component names for tooling and discovery; points to the component library file. |
-| **components.txt** | Component library: consumer/author directions, PROP SHAPES, and all components with meta + ASCII art. |
-| **maps/** | Optional ASCII map layouts (`*.txt`) and index/metadata (`index.yaml`) for world maps, dungeons, encounters, and engine-only layouts. |
+| File / Folder | Status |
+|---------------|--------|
+| **maps/** | Active. Map layouts and index. Not yet migrated. |
+| **map-tiles.yaml** | Active. Tileset definitions for maps. |
+| **box-drawing.yaml** | Legacy. Still loaded by `askee_ds/box_drawing.py`. Replaced by `tokens/box-drawing.yaml` for the new framework. |
+| **decoration-catalog.txt** | Active. Decoration definitions. Not yet migrated. |
 
-## How to parse the component library
+## Where things moved
 
-- **Component start:** Line beginning with three U+241F (␟) then `COMPONENT: ` followed by the component name (e.g. `layout.app.shell`, `room-card.default`).
-- **Meta:** Lines beginning with one ␟ then a key and value (e.g. `␟ props: ...`, `␟ description: ...`). Meta applies to the component that follows the previous component boundary.
-- **ASCII art:** Everything after the meta block, until the next `␟␟␟` line, is the component's ASCII art.
-- **Constraint:** Do not use the character ␟ (U+241F) inside ASCII art. Parsers split on ␟ to find boundaries and meta.
-
-Formal grammar: component boundary = line starting with `␟␟␟ COMPONENT: <name>`; meta = lines starting with `␟ <key>: <value>`; art = everything after the meta block until the next `␟␟␟` or EOF. See [format-spec.md](format-spec.md) for the full format spec.
-
-## How to add components
-
-1. Open **components.txt** and find the right section (atoms, molecules, game — menus, etc.).
-2. Add a new block: `␟␟␟ COMPONENT: category.variant`, then meta lines (`␟ description:`, `␟ props:`, etc.), then the ASCII art. Use only characters from **box-drawing.yaml** for borders (or the documented exception for decoration.placeholder).
-3. Add the component name to **manifest.yaml**.
-4. If you introduce new list/object shapes, add them to the PROP SHAPES section in components.txt (and any `␟ shape:` on the component).
-
-### Authoring checklist (for designers)
-
-When you add or change a component:
-
-1. **Name and section**
-   - Pick a clear name in dot notation (for example `room-card.debug`, `screen.tutorial`).
-   - Place it in the appropriate section of `components.txt` (atoms, game — menus, etc.).
-2. **Meta**
-   - Add `␟ description:` with a short, plain-language summary.
-   - Add `␟ props:` listing required props (and `_optional` suffixes or `[]` for lists).
-   - Optionally add `␟ shape:`, `␟ variant:`, `␟ color-hint:`, or `␟ pattern:` if needed.
-3. **ASCII art**
-   - Draw the structure using only characters from `box-drawing.yaml` for borders.
-   - Keep lines ≤ 80 characters; aim for 60–70 for readability.
-   - Do **not** use the `␟` delimiter character anywhere in the art.
-4. **Sync and validate**
-   - Add the component name to `manifest.yaml`.
-   - Run `python tools/parse_components.py --validate` (or `askee-ds-validate --kind components`) to catch formatting and prop issues.
-5. **Preview**
-   - Optionally run `python tools/render_demo.py` or `askee-ds-demo` to see a few key components rendered in your terminal.
-
-## Maps: tilesets, layouts, and systems
-
-ASCII maps in AskeeDS are split into three concepts:
-
-- **Map tilesets** (`map-tiles.yaml`): Define what each symbol or role id means (for example floor, wall, river, door, player), plus metadata such as walkability, visibility, tags, and adjacency hints for procedural generation.
-- **Map layouts** (`maps/*.txt`): Plain-text grids of characters authored by designers. Each file is a rectangular grid that references symbols from one tileset and can be used as a playable area, world overview, encounter template, or engine-only configuration.
-- **Map systems** (implementation-side): Code that consumes tilesets and layouts to handle movement, visibility, pathfinding, fog-of-war, and procedural generation. The design folder defines contracts and examples; engines implement behavior.
-
-Recommended file structure for maps:
-
-- `design/ascii/map-tiles.yaml` — canonical tilesets and symbol metadata.
-- `design/ascii/maps/` — folder for map layouts and metadata:
-  - `design/ascii/maps/index.yaml` — optional index mapping map ids to filenames, tilesets, and usage (`engine_only`, `ui_minimap`, `world_map`, and so on).
-  - `design/ascii/maps/*.txt` — ASCII map layouts (80×N or smaller). Lines are raw grid data; avoid using the ␟ delimiter in map bodies.
-
-Engines are encouraged to:
-
-- Validate that every character in a layout has a corresponding tile definition in `map-tiles.yaml`.
-- Treat map files as **data**, not code: parse into a 2D array plus metadata that can be consumed from any language.
-- Optionally use the adjacency hints from `map-tiles.yaml` to drive procedural generation or validation (for example ensure rivers connect and walls are contiguous).
-
-## Overrides and project-specific components
-
-- Treat `components.txt` as the **core, upstream AskeeDS file**. Avoid editing it directly in consumer projects.
-- Put project-specific components and overrides in a separate file (for example `design/ascii/overrides.txt` or `design/ascii/project-components.txt`).
-- When parsing or validating, load core first and overrides second so overrides win for duplicate names (for example: `python tools/parse_components.py --validate design/ascii/components.txt design/ascii/overrides.txt`).
-
-In the future, `manifest.yaml` and tooling can list multiple sources (for example `sources: [components.txt, project-components.txt]`) to formalize this layering pattern.
-
-
-## Related docs
-
-- [format-spec.md](format-spec.md) — Full component format spec.
-- [tools/parse_components.py](../../tools/parse_components.py) — Parser/validator and JSON export (`python tools/parse_components.py --validate` or `--json`).
-- [tools/render_demo.py](../../tools/render_demo.py) — Minimal reference renderer (prints a few components to stdout).
-- [tools/test_parse_components.py](../../tools/test_parse_components.py) — Parser tests (`python tools/test_parse_components.py`).
+| Old location | New location |
+|-------------|-------------|
+| `components.txt` | `components/core/*.yaml` + `components/game/*.yaml` |
+| `askee_ds_tokens.yaml` | `tokens/colors.yaml`, `tokens/box-drawing.yaml`, `tokens/typography.yaml` |
+| `manifest.yaml` | No longer needed; use `askee-ds list` |
+| `format-spec.md` | `components/_schema.yaml` (machine-enforced) |
+| `prop_shapes.yaml` | Inline `props:` in each component YAML |
