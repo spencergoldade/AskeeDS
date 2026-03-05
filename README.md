@@ -52,7 +52,7 @@ components/                 YAML component definitions (the product)
   game/                     38 components: HUD, inventory, character, exploration, conversation, etc.
 tokens/                     design tokens
   colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
-  box-drawing.yaml          3 border character sets (single, heavy, double)
+  borders.yaml              3 border character sets (single, heavy, double)
   typography.yaml           Figlet font conventions, line width rules
   sizing.yaml               terminal defaults for adaptive width/height
 screens/                    YAML screen definitions (full-screen layouts)
@@ -79,6 +79,34 @@ examples/
 58 components total. 10 are approved (proven core); 48 are ideated
 (defined but not yet individually proven). All 58 render from
 declarative specs.
+
+---
+
+## What AskeeDS does not do
+
+AskeeDS is focused on **defining and rendering game UI**. These are
+explicitly outside its scope:
+
+- **Game logic or state management.** AskeeDS produces ASCII output from
+  data you provide. It does not manage HP, inventory, turn order, or
+  any game state — that is the engine's job.
+- **Input handling or event loops.** Components can declare interaction
+  specs (focusable, keyboard bindings), but AskeeDS does not capture
+  keystrokes or run an event loop. The consumer wires interaction to
+  their runtime.
+- **Animation playback.** Components like `spinner.loading` declare
+  frames, but cycling through them at runtime is the consumer's
+  responsibility.
+- **Pixel graphics, images, or GPU rendering.** AskeeDS is pure
+  text/ASCII. No bitmaps, no shaders, no terminal graphics protocols.
+- **Networking or multiplayer.** No server communication, no
+  synchronization. If your game is multiplayer, the engine manages that.
+- **Audio or sound.** No sound effects, no music. Pair AskeeDS with a
+  separate audio library if needed.
+- **Persistence or save/load.** AskeeDS does not read or write save
+  files. The engine owns data storage.
+- **Content generation.** AskeeDS does not generate levels, stories,
+  items, or NPCs. It provides the UI components to *display* them.
 
 ---
 
