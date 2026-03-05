@@ -1,52 +1,6 @@
 # AskeeDS — core/layouts
-# Layouts components.
+# Layout components for composing screens from child components.
 
-
-layout.app.shell:
-  category: core/layouts
-  description: "Main app shell with header, sidebar, and content area"
-  status: ideated
-  props:
-    color_role:
-      type: string
-      required: false
-  render:
-    type: reference
-  art: |2
-    +------------------------------------------------+
-    | App Title                 [user] [settings]    |
-    +------------+-----------------------------------+
-    | nav item 1 | content area                      |
-    | nav item 2 |                                   |
-    +------------+-----------------------------------+
-  notes: >-
-    Use as the top-level frame for the whole TUI, wrapping nav and main
-    content.
-
-layout.two-column:
-  category: core/layouts
-  description: Left/right panes; no header (use with header.banner if needed).
-  status: ideated
-  props:
-    left_content:
-      type: string
-      required: true
-    right_content:
-      type: string
-      required: true
-    color_role:
-      type: string
-      required: false
-  render:
-    type: reference
-  art: |2
-    +------------------+-----------------------------+
-    | left pane        | right pane                  |
-    |                  |                             |
-    +------------------+-----------------------------+
-  notes: >-
-    Split the screen between navigation/secondary content and a main
-    detail pane.
 
 layout.stack:
   category: core/layouts
@@ -61,7 +15,9 @@ layout.stack:
       type: string
       required: false
   render:
-    type: reference
+    type: stack
+    prop: blocks
+    border: single
   art: |2
     +------------------------------------------------+
     | block 1 (e.g. status bar)                      |
@@ -73,4 +29,77 @@ layout.stack:
     +------------------------------------------------+
   notes: >-
     Compose vertical flows like status bar, log, and input stacked top to
-    bottom.
+    bottom. The Composer renders child components and passes their output
+    as the blocks array.
+
+layout.two-column:
+  category: core/layouts
+  description: Left/right panes; no header (use with header.banner if needed).
+  status: ideated
+  props:
+    left_content:
+      type: string
+      required: true
+    right_content:
+      type: string
+      required: true
+    left_width:
+      type: integer
+      required: false
+    color_role:
+      type: string
+      required: false
+  render:
+    type: columns
+    left_prop: left_content
+    right_prop: right_content
+    width_prop: left_width
+    border: single
+  art: |2
+    +------------------+-----------------------------+
+    | left pane        | right pane                  |
+    |                  |                             |
+    +------------------+-----------------------------+
+  notes: >-
+    Split the screen between navigation/secondary content and a main
+    detail pane. left_width sets the left pane character width; defaults
+    to 20.
+
+layout.app.shell:
+  category: core/layouts
+  description: "Main app shell with header, sidebar, and content area."
+  status: ideated
+  props:
+    header:
+      type: string
+      required: true
+    sidebar:
+      type: string
+      required: true
+    content:
+      type: string
+      required: true
+    sidebar_width:
+      type: integer
+      required: false
+    color_role:
+      type: string
+      required: false
+  render:
+    type: shell
+    header_prop: header
+    sidebar_prop: sidebar
+    content_prop: content
+    width_prop: sidebar_width
+    border: single
+  art: |2
+    +------------------------------------------------+
+    | App Title                 [user] [settings]    |
+    +------------+-----------------------------------+
+    | nav item 1 | content area                      |
+    | nav item 2 |                                   |
+    +------------+-----------------------------------+
+  notes: >-
+    Use as the top-level frame for the whole TUI, wrapping nav and main
+    content. The Composer renders header, sidebar, and content children,
+    then the shell arranges them.

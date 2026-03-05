@@ -345,6 +345,96 @@ class TestRenderer(unittest.TestCase):
         })
         self.assertIn("Hero", output)
 
+    def test_render_stack(self):
+        comp = self.components["layout.stack"]
+        output = self.renderer.render(comp, {
+            "blocks": ["line one", "line two\nline three"],
+        })
+        self.assertIn("line one", output)
+        self.assertIn("line three", output)
+        self.assertIn("+", output)
+
+    def test_render_columns(self):
+        comp = self.components["layout.two-column"]
+        output = self.renderer.render(comp, {
+            "left_content": "left\nstuff",
+            "right_content": "right\ncontent",
+            "left_width": 10,
+        })
+        self.assertIn("left", output)
+        self.assertIn("right", output)
+        lines = output.splitlines()
+        self.assertTrue(len(lines) >= 3)
+
+    def test_render_shell(self):
+        comp = self.components["layout.app.shell"]
+        output = self.renderer.render(comp, {
+            "header": "My App",
+            "sidebar": "Nav 1\nNav 2",
+            "content": "Main content\nhere",
+            "sidebar_width": 10,
+        })
+        self.assertIn("My App", output)
+        self.assertIn("Nav 1", output)
+        self.assertIn("Main content", output)
+
+
+class TestComposer(unittest.TestCase):
+
+    def setUp(self):
+        from askee_ds import Loader, Theme, Renderer, Composer
+        loader = Loader()
+        self.components = loader.load_components_dir(COMPONENTS_DIR)
+        tokens = loader.load_tokens_dir(TOKENS_DIR)
+        theme = Theme(tokens)
+        renderer = Renderer(theme)
+        self.composer = Composer(renderer, self.components)
+
+    def test_compose_stack_with_children(self):
+        output = self.composer.compose("layout.stack", {
+            "blocks": [
+                ("status-bar.default", {
+                    "hp_current": 10, "hp_max": 10,
+                    "location": "Test", "turn_count": 1,
+                }),
+                "plain string block",
+            ],
+        })
+        self.assertIn("HP: 10/10", output)
+        self.assertIn("plain string block", output)
+
+    def test_compose_columns_with_children(self):
+        output = self.composer.compose("layout.two-column", {
+            "left_content": ("breadcrumb.inline", {
+                "segments": [{"label": "A"}, {"label": "B"}],
+            }),
+            "right_content": "static text",
+            "left_width": 15,
+        })
+        self.assertIn("A", output)
+        self.assertIn("static text", output)
+
+    def test_compose_shell_with_children(self):
+        output = self.composer.compose("layout.app.shell", {
+            "header": ("header.banner", {"title": "Test App"}),
+            "sidebar": "Nav",
+            "content": "Content",
+            "sidebar_width": 10,
+        })
+        self.assertIn("Test App", output)
+        self.assertIn("Nav", output)
+        self.assertIn("Content", output)
+
+    def test_compose_unknown_component_raises(self):
+        with self.assertRaises(ValueError):
+            self.composer.compose("nonexistent.layout", {})
+
+    def test_compose_unknown_child_raises(self):
+        with self.assertRaises(ValueError):
+            self.composer.compose("layout.stack", {
+                "blocks": [("nonexistent.child", {})],
+            })
+
 
 class TestValidator(unittest.TestCase):
 

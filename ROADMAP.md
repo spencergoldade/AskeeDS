@@ -40,9 +40,8 @@ system package is `askee_ds` to avoid collision.
   general-purpose templating.
 - The custom `Validator` reads `_schema.yaml` directly. Do not add
   jsonschema as a dependency.
-- 59 of 63 components have declarative render specs (94%). The remaining
-  4 are reference-only: 3 layout components (Composer, section 2) + 1
-  intentional (`quick-select.radial`).
+- 62 of 63 components have declarative render specs (98%). The remaining
+  1 is intentionally reference-only (`quick-select.radial`).
 - 10 components are `approved` (proven core). 53 are `ideated` (defined
   but not yet individually proven). All remain in the same YAML files.
 
@@ -73,6 +72,7 @@ askee_ds/                       # Python package
   theme.py                      # resolves tokens to concrete values
   validator.py                  # validates components against _schema.yaml
   cli.py                        # unified CLI (validate, preview, list) + legacy
+  composer.py                   # composes layout components from child trees
   banner.py                     # Figlet banner rendering (used by typography.banner)
   components.py                 # LEGACY: U+241F parser (falls back to archive)
   decorations.py                # LEGACY: decoration parser
@@ -80,7 +80,7 @@ askee_ds/                       # Python package
   box_drawing.py                # LEGACY: loads design/ascii/box-drawing.yaml
   _paths.py                     # repo root helper
 tests/
-  test_framework.py             # 39 tests: Loader, Renderer, Theme, Validator
+  test_framework.py             # 47 tests: Loader, Renderer, Theme, Validator, Composer
   test_package.py               # 5 legacy tests: components, decorations, maps
 tools/
   parse_components.py           # LEGACY: parser CLI (not in CI)
@@ -187,11 +187,11 @@ Read them before starting work.
 ## Current state (numbers)
 
 - **63 components** in YAML (10 approved, 53 ideated).
-- **59 renderable** (94%) via declarative render specs (inline, join, box,
+- **62 renderable** (98%) via declarative render specs (inline, join, box,
   clock, stage_track, banner, frames, table, bubble, tree, grid, charmap,
-  art_lookup + active_list section).
-- **4 reference-only** — 3 layout components (Composer) + 1 intentional.
-- **44 framework + package tests** (39 framework, 5 package), 19 legacy tool tests.
+  art_lookup, stack, columns, shell + active_list section).
+- **1 reference-only** — `quick-select.radial` (intentional).
+- **52 framework + package tests** (47 framework, 5 package), 19 legacy tool tests.
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
 
@@ -251,23 +251,21 @@ Each requires updating `_schema.yaml` with the new type and adding tests.
 
 ---
 
-## 2. Component composition (`askee_ds/composer.py`)
+## 2. Component composition (`askee_ds/composer.py`) (done)
 
-The three layout components (`layout.app.shell`, `layout.two-column`,
-`layout.stack`) are **compositional** — they take other rendered components
-as slot content. The Composer renders children bottom-up, passes the
-resulting strings as props to the layout, and the layout's render spec
-arranges them. This is what turns AskeeDS into a "framework."
+The three layout components are now compositional — the Composer renders
+children bottom-up, passes the resulting strings as props to the layout,
+and the layout's render spec arranges them.
 
-- [ ] `layout.stack` — `stack` render type: concatenate `blocks` vertically
-- [ ] `layout.two-column` — `columns` render type: side-by-side with border column
-- [ ] `layout.app.shell` — `shell` render type: header row + two-column body
-- [ ] `askee_ds/composer.py` — Composer class with `compose()` method
-- [ ] Export `Composer` from `askee_ds/__init__.py`
-- [ ] CLI `compose` subcommand (takes JSON tree description)
-- [ ] Tests for Composer and layout render types
+- [x] `layout.stack` — `stack` render type: concatenate `blocks` vertically
+- [x] `layout.two-column` — `columns` render type: side-by-side with border column
+- [x] `layout.app.shell` — `shell` render type: header row + two-column body
+- [x] `askee_ds/composer.py` — Composer class with `compose()` method
+- [x] Export `Composer` from `askee_ds/__init__.py`
+- [ ] CLI `compose` subcommand (takes JSON tree description) — deferred to section 6
+- [x] Tests for Composer and layout render types (8 tests)
 
-**Depends on**: Batch B (child components need to render).
+**Result**: 62/63 components renderable (98%). Only `quick-select.radial` remains reference.
 
 <details><summary>Proposed API</summary>
 
@@ -410,7 +408,7 @@ cleanup that makes the project fully "v2."
 - [x] **2. Examples: `quick_start.py` and `all_components.py`** — done
 - [x] **3. Batch B specialized renderers** — done (59/63, 94%)
 - [x] **4. Maps and decorations migration** — done (maps relocated, decorations YAML, box-drawing consolidated, design/ascii/ removed)
-- [ ] **5. Composer** — depends on Batch B layout render specs
+- [x] **5. Composer** — done (3 layout render types, Composer class, 62/63 renderable)
 - [ ] **6. Rich adapter** — depends on Renderer mostly complete
 - [ ] **7. Textual adapter + `textual_app.py`** — depends on Rich adapter
 - [ ] **8. `full_screen.py` example** — depends on Composer

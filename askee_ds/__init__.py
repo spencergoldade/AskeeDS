@@ -1,23 +1,24 @@
 """
 AskeeDS — ASCII design system and component framework for TUI games.
 
-Framework API (new):
-    from askee_ds import Loader, Theme, Renderer, Validator
+Framework API:
+    from askee_ds import Loader, Theme, Renderer, Composer
 
     loader = Loader()
     components = loader.load_components_dir("components/")
     tokens = loader.load_tokens_dir("tokens/")
     theme = Theme(tokens)
     renderer = Renderer(theme)
-    print(renderer.render(components["room-card.default"], {...}))
+    composer = Composer(renderer, components)
 
-    validator = Validator.from_schema_file("components/_schema.yaml")
-    errors = validator.validate_all(components)
+    print(renderer.render(components["room-card.default"], {...}))
+    print(composer.compose("layout.stack", {"blocks": [...]}))
 
 Legacy parsers (still available):
     from askee_ds import components, decorations, maps, box_drawing
 """
 
+from .composer import Composer
 from .loader import Component, Loader, PropDef
 from .renderer import Renderer
 from .theme import Theme
@@ -27,6 +28,7 @@ from .validator import Validator
 from . import box_drawing, components, decorations, maps  # noqa: F401
 
 __all__ = [
+    "Composer",
     "Component",
     "Loader",
     "PropDef",

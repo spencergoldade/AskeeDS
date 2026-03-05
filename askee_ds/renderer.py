@@ -60,6 +60,12 @@ class Renderer:
             return self._render_charmap(spec, props)
         if rtype == "art_lookup":
             return self._render_art_lookup(spec, props, component)
+        if rtype == "stack":
+            return self._render_stack(spec, props)
+        if rtype == "columns":
+            return self._render_columns(spec, props)
+        if rtype == "shell":
+            return self._render_shell(spec, props)
         return component.art.rstrip("\n")
 
     # -- inline ---------------------------------------------------------
@@ -413,6 +419,90 @@ class Renderer:
         if height and len(lines) < height:
             pad = width if width else (max(len(ln) for ln in lines) if lines else 0)
             lines.extend([" " * pad] * (height - len(lines)))
+        return "\n".join(lines)
+
+    # -- layout: stack --------------------------------------------------
+
+    def _render_stack(self, spec: dict, props: dict) -> str:
+        prop_name = spec.get("prop", "blocks")
+        blocks = props.get(prop_name, [])
+        if not blocks or not isinstance(blocks, list):
+            return ""
+        bd = self.theme.border(spec.get("border", "single"))
+        width = max(
+            (max(len(ln) for ln in str(b).splitlines()) if str(b).strip() else 0)
+            for b in blocks
+        )
+        width = max(width, 10)
+        lines: list[str] = []
+        for i, block in enumerate(blocks):
+            block_str = str(block)
+            if i == 0:
+                lines.append(bd["tl"] + bd["h"] * width + bd["tr"])
+            else:
+                lines.append(bd["tl"] + bd["h"] * width + bd["tr"])
+            for bl in block_str.splitlines():
+                lines.append(bd["v"] + bl.ljust(width)[:width] + bd["v"])
+            lines.append(bd["bl"] + bd["h"] * width + bd["br"])
+        return "\n".join(lines)
+
+    # -- layout: columns ------------------------------------------------
+
+    def _render_columns(self, spec: dict, props: dict) -> str:
+        left_str = str(props.get(spec.get("left_prop", "left_content"), ""))
+        right_str = str(props.get(spec.get("right_prop", "right_content"), ""))
+        left_w = int(props.get(spec.get("width_prop", "left_width"), 0)) or 20
+        bd = self.theme.border(spec.get("border", "single"))
+        left_lines = left_str.splitlines() if left_str.strip() else [""]
+        right_lines = right_str.splitlines() if right_str.strip() else [""]
+        height = max(len(left_lines), len(right_lines))
+        while len(left_lines) < height:
+            left_lines.append("")
+        while len(right_lines) < height:
+            right_lines.append("")
+        right_w = max((len(ln) for ln in right_lines), default=20)
+        right_w = max(right_w, 10)
+        lines: list[str] = []
+        lines.append(bd["tl"] + bd["h"] * left_w + bd["tl"] + bd["h"] * right_w + bd["tr"])
+        for ll, rl in zip(left_lines, right_lines):
+            lines.append(
+                bd["v"] + ll.ljust(left_w)[:left_w]
+                + bd["v"] + rl.ljust(right_w)[:right_w]
+                + bd["v"]
+            )
+        lines.append(bd["bl"] + bd["h"] * left_w + bd["bl"] + bd["h"] * right_w + bd["br"])
+        return "\n".join(lines)
+
+    # -- layout: shell --------------------------------------------------
+
+    def _render_shell(self, spec: dict, props: dict) -> str:
+        header_str = str(props.get(spec.get("header_prop", "header"), ""))
+        sidebar_str = str(props.get(spec.get("sidebar_prop", "sidebar"), ""))
+        content_str = str(props.get(spec.get("content_prop", "content"), ""))
+        sidebar_w = int(props.get(spec.get("width_prop", "sidebar_width"), 0)) or 20
+        bd = self.theme.border(spec.get("border", "single"))
+        sb_lines = sidebar_str.splitlines() if sidebar_str.strip() else [""]
+        ct_lines = content_str.splitlines() if content_str.strip() else [""]
+        body_h = max(len(sb_lines), len(ct_lines))
+        while len(sb_lines) < body_h:
+            sb_lines.append("")
+        while len(ct_lines) < body_h:
+            ct_lines.append("")
+        content_w = max((len(ln) for ln in ct_lines), default=30)
+        content_w = max(content_w, 10)
+        total_inner = sidebar_w + 1 + content_w
+        lines: list[str] = []
+        lines.append(bd["tl"] + bd["h"] * total_inner + bd["tr"])
+        for hl in (header_str.splitlines() or [""]):
+            lines.append(bd["v"] + hl.ljust(total_inner)[:total_inner] + bd["v"])
+        lines.append(bd["tl"] + bd["h"] * sidebar_w + bd["tl"] + bd["h"] * content_w + bd["tr"])
+        for sl, cl in zip(sb_lines, ct_lines):
+            lines.append(
+                bd["v"] + sl.ljust(sidebar_w)[:sidebar_w]
+                + bd["v"] + cl.ljust(content_w)[:content_w]
+                + bd["v"]
+            )
+        lines.append(bd["bl"] + bd["h"] * sidebar_w + bd["bl"] + bd["h"] * content_w + bd["br"])
         return "\n".join(lines)
 
     # -- helpers --------------------------------------------------------

@@ -61,6 +61,9 @@ render:
     - grid
     - charmap
     - art_lookup
+    - stack
+    - columns
+    - shell
     - reference
 
   inline_fields:

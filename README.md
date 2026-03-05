@@ -61,7 +61,8 @@ maps/                       ASCII map definitions
 decorations/                decorative ASCII art catalog
   catalog.yaml              23 named decorations keyed by id
 askee_ds/                   Python package
-  loader.py                 loads YAML components, tokens, and decorations
+  loader.py                 loads YAML components, tokens, decorations
+  composer.py               composes layout components from child trees
   renderer.py               renders components from definitions
   theme.py                  resolves tokens to concrete values
   validator.py              validates components against _schema.yaml
@@ -73,8 +74,8 @@ examples/
 ```
 
 63 components total. 10 are approved (proven core); 53 are ideated
-(defined but not yet individually proven). 59 render from declarative
-specs; 4 fall back to reference art (3 layout shells + 1 radial menu).
+(defined but not yet individually proven). 62 render from declarative
+specs; 1 is intentionally reference-only (`quick-select.radial`).
 
 ---
 
@@ -135,6 +136,32 @@ print(output)
 # +------------------------------------------------+
 # | HP: 85/100  |  The Clearing  |  Turn 12        |
 # +------------------------------------------------+
+```
+
+### Compose full screens
+
+```python
+from askee_ds import Loader, Theme, Renderer, Composer
+
+loader = Loader()
+components = loader.load_components_dir("components/")
+tokens = loader.load_tokens_dir("tokens/")
+theme = Theme(tokens)
+renderer = Renderer(theme)
+composer = Composer(renderer, components)
+
+output = composer.compose("layout.stack", {
+    "blocks": [
+        ("status-bar.default", {"hp_current": 85, "hp_max": 100,
+                                "location": "Cavern", "turn_count": 5}),
+        ("room-card.default",  {"title": "Cavern",
+                                "description_text": "A dark cave.",
+                                "items": [], "npcs": [],
+                                "exits": [{"id": "n", "label": "north"}]}),
+        ("command-input.default", {"prompt": ">"}),
+    ],
+})
+print(output)
 ```
 
 ### Validate on load (optional)
@@ -258,7 +285,10 @@ Components progress through these statuses:
 | `grid` | Bordered cell grid from a slots array. | Inventory grids. |
 | `charmap` | 2D character grid with optional legend. | Minimaps. |
 | `art_lookup` | Decoration art lookup (falls back to reference art). | Decorative ASCII art. |
-| `reference` | Falls back to the reference ASCII art. | Layout shells, radial menus. |
+| `stack` | Vertically stacked bordered blocks. | Full-screen layouts. |
+| `columns` | Side-by-side panes with border column. | Two-column layouts. |
+| `shell` | Header + sidebar + content area. | App shell. |
+| `reference` | Falls back to the reference ASCII art. | Radial menus. |
 
 ---
 

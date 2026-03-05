@@ -13,6 +13,10 @@ All notable changes to AskeeDS will be documented in this file.
 - **`examples/quick_start.py`**: Minimal hello-world demonstrating the YAML-first framework (Loader → Theme → Renderer).
 - **`examples/all_components.py`**: Visual catalog rendering all 59 non-reference components with auto-generated sample props.
 
+- **Composer** (`askee_ds/composer.py`): New `Composer` class renders child components bottom-up and passes the results as props to layout components. Supports string pass-through, `(component_name, props)` tuples, and lists of either. Exported from `askee_ds`.
+- **Layout render types**: 3 new render types — `stack` (vertically stacked bordered blocks), `columns` (side-by-side panes with border), `shell` (header + sidebar + content). All 3 layout components now renderable; 62/63 components render from declarative specs (98%).
+- **8 new tests** for layout render types and Composer (5 Composer, 3 renderer); 52 total tests.
+
 ### Changed
 
 - **Maps relocated**: `design/ascii/maps/` moved to top-level `maps/`; `design/ascii/map-tiles.yaml` moved to `maps/tiles.yaml`. The maps parser, CLI tool, and example all use the new paths with legacy fallback.
