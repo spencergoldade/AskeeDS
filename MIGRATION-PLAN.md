@@ -30,21 +30,19 @@ framework architecture. Check items off as they are completed.
       and progress section types to the renderer. 46/63 components (73%) now
       have working render specs.
 
-## Phase 3 — Package extraction
+## Phase 3 — Package extraction (done)
 
-- [ ] **Extract `askee_ds/loader.py`**: Move the Loader class from the POC into
-      the real package so `from askee_ds import Loader` works.
-- [ ] **Extract `askee_ds/renderer.py`**: Move the Renderer class into the
-      package.
-- [ ] **Extract `askee_ds/theme.py`**: Move the Theme class into the package.
-- [ ] **Extract `askee_ds/layout.py`**: Box-drawing, text flow, alignment,
-      padding utilities used by the renderer.
-- [ ] **Update `askee_ds/cli.py`**: Point CLI commands (validate, export, demo)
-      at the new YAML-based loader and renderer.
-- [ ] **Update `pyproject.toml`**: Ensure entry points and dependencies reflect
-      the new package structure.
-- [ ] **Remove or archive `poc_renderer.py`**: The POC is replaced by the real
-      package.
+- [x] **Extract `askee_ds/loader.py`**: Loader class with load_components,
+      load_components_dir, load_tokens, load_tokens_dir.
+- [x] **Extract `askee_ds/renderer.py`**: Renderer class with all section types
+      (header, text, wrap, list, bars, progress, numbered_list, checked_list,
+      plus inline and join render types).
+- [x] **Extract `askee_ds/theme.py`**: Theme class with colors, border,
+      bar_chars, and introspection properties.
+- [x] **Update `askee_ds/__init__.py`**: Exports Loader, Theme, Renderer,
+      Component, PropDef. Legacy parser modules kept for backward compat.
+- [ ] **Update `askee_ds/cli.py`**: Point CLI commands at new YAML loader.
+- [ ] **Remove or archive `poc_renderer.py`**: Replaced by the real package.
 
 ## Phase 4 — Schema and validation
 

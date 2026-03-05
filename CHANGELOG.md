@@ -12,6 +12,7 @@ All notable changes to AskeeDS will be documented in this file.
 - **Migration tool** (`tools/migrate.py`): Converts `components.txt` (U+241F format) to category-split YAML files. Supports dry run, per-component preview, and write modes.
 - **Render specs for 46/63 components**: Declarative render specs covering inline, box, join, numbered_list, checked_list, bars, and progress section types. Components render from definition + props + theme without hardcoded branches.
 - **New renderer section types**: `join` (inline array join with separator), `numbered_list` (1. 2. 3. prefixes), `checked_list` ([x]/[ ] prefixes), `progress` (single progress bar).
+- **Framework package** (`askee_ds/`): Extracted Loader, Theme, and Renderer into the real package. `from askee_ds import Loader, Theme, Renderer` works end-to-end. Legacy parser modules kept for backward compatibility.
 
 - **Renderer audit**: Explicit renderers for 20+ previously unrendered components (notifications, screens, speech bubbles, trackers, panels, grid, radial, nav, header, status icons, spinner, divider, icon placeholder). All now respond to prop edits and randomization in the visual test.
 - Intent metadata (purpose, default-view, randomized-view, prop-types, edge-cases) for 6 components that were missing it: `status-icon.row`, `cooldown.badge`, `cooldown.row`, `notification.achievement`, `notification.loot`, `feedback.mixed`.
