@@ -73,6 +73,7 @@ askee_ds/                       # Python package
   validator.py                  # validates components against _schema.yaml
   cli.py                        # unified CLI (validate, preview, list) + legacy
   composer.py                   # composes layout components from child trees
+  adapters/rich.py              # Rich adapter: ANSI-colored output
   banner.py                     # Figlet banner rendering (used by typography.banner)
   components.py                 # LEGACY: U+241F parser (falls back to archive)
   decorations.py                # LEGACY: decoration parser
@@ -80,7 +81,7 @@ askee_ds/                       # Python package
   box_drawing.py                # LEGACY: loads design/ascii/box-drawing.yaml
   _paths.py                     # repo root helper
 tests/
-  test_framework.py             # 47 tests: Loader, Renderer, Theme, Validator, Composer
+  test_framework.py             # 51 tests: Loader, Renderer, Theme, Validator, Composer, Rich adapter
   test_package.py               # 5 legacy tests: components, decorations, maps
 tools/
   parse_components.py           # LEGACY: parser CLI (not in CI)
@@ -91,6 +92,7 @@ tools/
 examples/
   quick_start.py                # minimal hello-world (new framework)
   all_components.py             # visual catalog of all renderable components
+  full_screen.py                # composed game screen using Composer
   map_preview.py                # uses legacy askee_ds.maps API
 _archive/                       # archived files (see README in each folder)
   poc_renderer.py, design-ascii/, tools/
@@ -191,7 +193,7 @@ Read them before starting work.
   clock, stage_track, banner, frames, table, bubble, tree, grid, charmap,
   art_lookup, stack, columns, shell + active_list section).
 - **1 reference-only** — `quick-select.radial` (intentional).
-- **52 framework + package tests** (47 framework, 5 package), 19 legacy tool tests.
+- **56 framework + package tests** (51 framework, 5 package), 19 legacy tool tests.
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
 
@@ -301,7 +303,7 @@ print(output)
 Adapters translate AskeeDS output into runtime-native widgets. Optional,
 live under `askee_ds/adapters/`.
 
-- [ ] `askee_ds/adapters/rich.py` — Rich `Renderable` applying Theme color roles as ANSI markup
+- [x] `askee_ds/adapters/rich.py` — Rich adapter: colorizes ASCII output with Theme color roles (fg, border, accent)
 - [ ] `askee_ds/adapters/textual.py` — Textual `Widget` wrapping the Rich adapter with CSS layout
 - [ ] `askee-ds export --format json` — CLI command for engines that prefer JSON over YAML
 - [ ] Document game-engine integration pattern (load YAML, resolve props, render via engine)
@@ -353,7 +355,7 @@ Maps, decorations, and box-drawing have been migrated out of
 - [x] `examples/all_components.py` — visual catalog of all renderable components
 - [ ] `examples/map_preview.py` — archive when maps are migrated (section 4)
 - [ ] `examples/textual_app.py` — Textual app using AskeeDS (depends on section 3)
-- [ ] `examples/full_screen.py` — composed layout tree (depends on section 2)
+- [x] `examples/full_screen.py` — composed game screen using Composer
 
 ---
 
@@ -409,8 +411,8 @@ cleanup that makes the project fully "v2."
 - [x] **3. Batch B specialized renderers** — done (59/63, 94%)
 - [x] **4. Maps and decorations migration** — done (maps relocated, decorations YAML, box-drawing consolidated, design/ascii/ removed)
 - [x] **5. Composer** — done (3 layout render types, Composer class, 62/63 renderable)
-- [ ] **6. Rich adapter** — depends on Renderer mostly complete
+- [x] **6. Rich adapter** — done (colorizes output with Theme color roles, optional dependency)
 - [ ] **7. Textual adapter + `textual_app.py`** — depends on Rich adapter
-- [ ] **8. `full_screen.py` example** — depends on Composer
+- [x] **8. `full_screen.py` example** — done
 - [ ] **9. Packaging and release** (`0.2.0`) — when framework is stable
 - [ ] **10. Legacy retirement** — archive remaining legacy after maps/decorations migrated

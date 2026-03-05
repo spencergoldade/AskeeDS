@@ -16,6 +16,9 @@ All notable changes to AskeeDS will be documented in this file.
 - **Composer** (`askee_ds/composer.py`): New `Composer` class renders child components bottom-up and passes the results as props to layout components. Supports string pass-through, `(component_name, props)` tuples, and lists of either. Exported from `askee_ds`.
 - **Layout render types**: 3 new render types — `stack` (vertically stacked bordered blocks), `columns` (side-by-side panes with border), `shell` (header + sidebar + content). All 3 layout components now renderable; 62/63 components render from declarative specs (98%).
 - **8 new tests** for layout render types and Composer (5 Composer, 3 renderer); 52 total tests.
+- **Rich adapter** (`askee_ds/adapters/rich.py`): Colorizes rendered ASCII output using Theme color roles. Box-drawing chars get border color, content text gets foreground color, highlighted tokens (HP:, Exits:, checkboxes) get accent color. Optional dependency: `pip install askee-ds[rich]`.
+- **`examples/full_screen.py`**: Composed full-screen game UI using the Composer — demonstrates `layout.app.shell` and `layout.stack` with nested child components.
+- **4 new tests** for Rich adapter; 56 total tests.
 
 ### Changed
 

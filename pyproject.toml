@@ -13,6 +13,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+rich = ["rich>=13.0.0"]
 visual-test = ["textual>=0.47.0", "pyfiglet>=0.8.0"]
 banner = ["pyfiglet>=0.8.0"]
 
@@ -23,5 +24,5 @@ askee-ds-export = "askee_ds.cli:export_main"
 askee-ds-demo = "askee_ds.cli:demo_main"
 
 [tool.setuptools]
-packages = ["askee_ds"]
+packages = ["askee_ds", "askee_ds.adapters"]
 

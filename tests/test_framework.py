@@ -436,6 +436,49 @@ class TestComposer(unittest.TestCase):
             })
 
 
+class TestRichAdapter(unittest.TestCase):
+
+    def setUp(self):
+        from askee_ds import Loader, Theme, Renderer
+        from askee_ds.adapters.rich import RichAdapter
+        loader = Loader()
+        self.components = loader.load_components_dir(COMPONENTS_DIR)
+        tokens = loader.load_tokens_dir(TOKENS_DIR)
+        self.theme = Theme(tokens)
+        self.renderer = Renderer(self.theme)
+        self.adapter = RichAdapter(self.theme)
+
+    def test_colorize_returns_rich_text(self):
+        from rich.text import Text
+        output = self.renderer.render(self.components["button.text"], {
+            "label": "Click",
+        })
+        result = self.adapter.colorize(output, "neutral")
+        self.assertIsInstance(result, Text)
+        self.assertIn("Click", result.plain)
+
+    def test_colorize_with_different_roles(self):
+        output = "+---+\n| A |\n+---+"
+        for role in ("neutral", "danger", "dungeon", "arcane"):
+            result = self.adapter.colorize(output, role)
+            self.assertEqual(result.plain, output)
+
+    def test_render_component_shortcut(self):
+        from rich.text import Text
+        comp = self.components["status-bar.default"]
+        result = self.adapter.render_component(self.renderer, comp, {
+            "hp_current": 5, "hp_max": 10,
+            "location": "Test", "turn_count": 1,
+        })
+        self.assertIsInstance(result, Text)
+        self.assertIn("HP:", result.plain)
+
+    def test_colorize_preserves_all_characters(self):
+        original = "+-|\n| x |\n+-+"
+        result = self.adapter.colorize(original, "neutral")
+        self.assertEqual(result.plain, original)
+
+
 class TestValidator(unittest.TestCase):
 
     def setUp(self):
