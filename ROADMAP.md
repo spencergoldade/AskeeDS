@@ -5,22 +5,142 @@ framework. The v2 migration (YAML format, package extraction, validator,
 CI, tests, README) is complete — see `MIGRATION-PLAN.md` for that history.
 
 For full context on past decisions and trade-offs, refer to the chats:
-- [AskeeDS v2 restructure](a32bb85b-95ca-4c2f-8e46-8e7ddc56dc0a)
-- [AskeeDS v2 continuation](9a993808-7acd-40f4-818e-d6cb7d3888a5)
+- [AskeeDS v2 restructure](a32bb85b-95ca-4c2f-8e46-8e7ddc56dc0a) —
+  original Phase 1 assessment, user Q&A, and architectural decisions.
+- [AskeeDS v2 continuation](9a993808-7acd-40f4-818e-d6cb7d3888a5) —
+  Phase 4 schema work, framework buildout plan, and post-migration roadmap.
+- [AskeeDS v2 completion](3dac5a38-9c27-49e3-a37d-5e62b0f8fa31) —
+  Phases 3–7 completion, archive work, CI rewrite, and this roadmap.
 
 ---
 
-## Current state
+## Context for new agents
+
+**What is AskeeDS?** An ASCII-based design system and component framework
+for TUI/text-based games. It defines game UI components (menus, HUD,
+inventory, character sheets, exploration screens, etc.) as structured YAML
+with typed props and reference ASCII art. A Python framework (the `askee_ds`
+package) loads these definitions, resolves a theme, and renders real ASCII
+output.
+
+**What is Askee?** A separate game engine (not in this repo) that will
+consume AskeeDS. The name "Askee" is reserved for the engine; the design
+system package is `askee_ds` to avoid collision.
+
+**Key decisions made (do not revisit):**
+- Components are YAML definitions under `components/`, split by category
+  into `components/core/` (6 files, 25 components) and `components/game/`
+  (9 files, 38 components).
+- Design tokens live in `tokens/` (colors.yaml, box-drawing.yaml,
+  typography.yaml).
+- The framework has four core classes: `Loader`, `Theme`, `Renderer`,
+  `Validator`. Import via `from askee_ds import Loader, Theme, Renderer`.
+- The `{prop}` interpolation with regex is intentionally simple. Do not
+  add Jinja2 — ASCII art templates need alignment-aware rendering, not
+  general-purpose templating.
+- The custom `Validator` reads `_schema.yaml` directly. Do not add
+  jsonschema as a dependency.
+- 46 of 63 components have declarative render specs. The 17 reference-only
+  components need specialized renderers (see section 1 below).
+- 10 components are `approved` (proven core). 53 are `ideated` (defined
+  but not yet individually proven). All remain in the same YAML files.
+
+**Current file structure:**
+```
+components/                     # YAML component definitions (the product)
+  _schema.yaml                  # meta-schema, enforced by Validator
+  core/                         # 6 files, 25 components
+    buttons.yaml, display.yaml, feedback.yaml,
+    inputs.yaml, layouts.yaml, navigation.yaml
+  game/                         # 9 files, 38 components
+    character.yaml, conversation.yaml, exploration.yaml,
+    hud.yaml, inventory.yaml, menus.yaml,
+    notifications.yaml, screens.yaml, trackers.yaml
+tokens/                         # design tokens
+  colors.yaml                   # 10 semantic color roles
+  box-drawing.yaml              # 3 border character sets
+  typography.yaml               # font conventions, approved Figlet fonts
+askee_ds/                       # Python package
+  __init__.py                   # exports Loader, Theme, Renderer, Validator + legacy
+  loader.py                     # loads YAML components and tokens (opt. validation)
+  renderer.py                   # renders components from definitions
+  theme.py                      # resolves tokens to concrete values
+  validator.py                  # validates components against _schema.yaml
+  cli.py                        # unified CLI (validate, preview, list) + legacy
+  banner.py                     # Figlet banner rendering (used by typography.banner)
+  components.py                 # LEGACY: U+241F parser (falls back to archive)
+  decorations.py                # LEGACY: decoration parser
+  maps.py                       # LEGACY: map parser
+  box_drawing.py                # LEGACY: loads design/ascii/box-drawing.yaml
+  _paths.py                     # repo root helper
+tests/
+  test_framework.py             # 25 tests: Loader, Renderer, Theme, Validator
+  test_package.py               # 5 legacy tests: components, decorations, maps
+tools/
+  parse_components.py           # LEGACY: parser CLI (not in CI)
+  parse_decorations.py          # LEGACY: decoration CLI (in CI)
+  parse_maps.py                 # LEGACY: map CLI (in CI)
+  render_demo.py                # LEGACY: demo renderer (functional)
+  test_parse_*.py               # LEGACY: parser tests (19 tests)
+examples/
+  map_preview.py                # uses old askee_ds.maps API (needs replacing)
+_archive/                       # archived files (see README in each folder)
+  poc_renderer.py, design-ascii/, tools/
+```
+
+**Files not yet migrated (still in design/ascii/):**
+```
+design/ascii/maps/              # map layouts and index
+design/ascii/map-tiles.yaml     # tileset definitions
+design/ascii/box-drawing.yaml   # legacy box-drawing (askee_ds/box_drawing.py)
+design/ascii/decoration-catalog.txt  # U+241F format decorations
+```
+
+**How to verify things work:**
+```bash
+askee-ds validate                          # schema validation
+askee-ds preview room-card.default --props '{"title":"Test","description_text":"A test.","items":[],"npcs":[],"exits":[{"id":"n","label":"north"}]}'
+askee-ds list --status approved            # list approved components
+python3 -m unittest discover -s tests -v   # framework + package tests
+python3 -m unittest discover -s tools      # legacy parser tests
+```
+
+**Workspace rules to follow:**
+- Always update `CHANGELOG.md` before committing.
+- Commit after major changes; let the user control when to push.
+- Never reference `.cursor/`, `.mdc`, or gitignored paths from shipped
+  files.
+- Use `command git commit` for commits.
+
+## Current state (numbers)
 
 - **63 components** in YAML (10 approved, 53 ideated).
 - **46 renderable** via declarative render specs (inline, join, box).
-- **17 reference-only** — fall back to displaying their `art:` block because
-  they need rendering logic that doesn't exist yet.
-- **Framework classes**: `Loader`, `Theme`, `Renderer`, `Validator`.
-- **CLI**: `askee-ds validate`, `askee-ds preview`, `askee-ds list`.
-- **Tests**: 30 framework + package tests, 19 legacy tools tests.
+- **17 reference-only** — fall back to displaying their `art:` block.
+- **49 tests** (30 framework + package, 19 legacy tools).
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
+
+---
+
+## Principles
+
+- **Designer-friendly first**: AskeeDS is for game designers as much as
+  developers. Changes should make authoring easier, not just coding easier.
+- **Prove before promoting**: Components start as `ideated` and earn their
+  way to `approved` through design, implementation, and testing. Do not
+  bulk-approve.
+- **Declarative over imperative**: Prefer render specs (data) over custom
+  code paths. New renderer capabilities should be general-purpose section
+  types, not one-off branches.
+- **Test everything that renders**: Every new section type or render type
+  needs tests. The `render-all-non-reference` test in CI catches
+  regressions.
+- **Schema is the contract**: `_schema.yaml` defines what is valid. Update
+  it first when adding new types, so the Validator enforces correctness
+  from the start.
+- **Archive, don't delete**: Retired files go to `_archive/` with a README
+  explaining what, why, and when to delete. Nothing is silently removed.
 
 ---
 
@@ -350,6 +470,54 @@ Several updates are needed now that the migration is complete:
 
 ---
 
+## 7. Legacy retirement
+
+Once maps and decorations are migrated (section 4), everything below can
+be archived or removed. This is the final cleanup that makes the project
+fully "v2."
+
+### Legacy modules to archive
+
+| Module | Why it still exists | When to archive |
+|--------|--------------------|-----------------| 
+| `askee_ds/components.py` | Falls back to `_archive/design-ascii/components.txt`. Old `test_package.py` and `tools/test_parse_components.py` still call `load_default_components()`. | When those tests are removed or rewritten. |
+| `askee_ds/decorations.py` | Loads `design/ascii/decoration-catalog.txt`. CI runs `parse_decorations.py --validate`. | When decorations are migrated to YAML (section 4). |
+| `askee_ds/maps.py` | Loads `design/ascii/maps/`. CI runs `parse_maps.py --validate`. | When maps are relocated (section 4). |
+| `askee_ds/box_drawing.py` | Loads `design/ascii/box-drawing.yaml`. | When box-drawing is consolidated (section 4). |
+| `askee_ds/_paths.py` | Used by legacy modules. | When legacy modules are archived. |
+
+### Legacy tools to archive
+
+| Tool | When to archive |
+|------|-----------------| 
+| `tools/parse_components.py` | Already out of CI. Archive when `askee_ds/components.py` is archived. |
+| `tools/parse_decorations.py` | When decorations are migrated. |
+| `tools/parse_maps.py` | When maps are relocated. |
+| `tools/render_demo.py` | When replaced by examples or CLI preview. |
+| `tools/test_parse_components.py` | When `parse_components.py` is archived. |
+| `tools/test_parse_decorations.py` | When `parse_decorations.py` is archived. |
+| `tools/test_parse_maps.py` | When `parse_maps.py` is archived. |
+
+### Legacy CLI entries to remove
+
+`pyproject.toml` still defines `askee-ds-validate`, `askee-ds-export`,
+and `askee-ds-demo` pointing at the legacy `validate_main`, `export_main`,
+and `demo_main` in `cli.py`. Remove these entries (and the functions) when
+the legacy modules are archived.
+
+### Other files to clean up
+
+| File | Action |
+|------|--------|
+| `design/readme-examples.json` | Orphaned — was generated by the archived `update_readme_examples.py`. Delete. |
+| `design/ascii/README.md` | Currently a redirect. Remove when `design/ascii/` is empty. |
+| `design/ascii/` | Remove the directory entirely once maps, decorations, and box-drawing are migrated out. |
+| `examples/map_preview.py` | Replace with `quick_start.py` (section 5). Archive or delete the old map preview. |
+| `tests/test_package.py` | Legacy tests for old parsers. Remove when those parsers are archived. |
+| `VERSION` | Consider whether to keep as a file or rely solely on `pyproject.toml` for versioning. |
+
+---
+
 ## Suggested build order
 
 The features above have dependencies. Suggested sequence:
@@ -370,4 +538,4 @@ The features above have dependencies. Suggested sequence:
 9. **Packaging and release** (`0.2.0`) — do last, when the framework is
    stable.
 10. **Legacy retirement** — archive remaining legacy modules and tools
-    once maps/decorations are migrated.
+    once maps/decorations are migrated (section 7).

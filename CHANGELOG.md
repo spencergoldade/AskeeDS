@@ -6,7 +6,7 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
-- **Framework roadmap** (`ROADMAP.md`): Feature plan for specialized renderers, component composition, runtime adapters, maps/decorations migration, examples, and packaging.
+- **Framework roadmap** (`ROADMAP.md`): Feature plan with full agent context, principles, file structure, verification commands, and workspace rules. Covers specialized renderers (batches A/B/C), component composition, runtime adapters, maps/decorations migration, examples, packaging, and legacy retirement.
 - **README rewritten**: Fresh README for the YAML-first framework. Covers getting started (CLI + Python API), rendered component examples, how to add components, render types, status lifecycle, and adoption patterns. All references to the old format removed.
 - **Framework tests** (`tests/test_framework.py`): 25 tests covering Loader, Renderer, Theme, and Validator — including a test that renders every non-reference component to catch regressions.
 - **Schema validator** (`askee_ds/validator.py`): Validates all 63 YAML component definitions against `components/_schema.yaml`. Checks required fields, status values, category prefixes, prop types, render types, border values, and section types.
