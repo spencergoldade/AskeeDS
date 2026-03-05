@@ -149,51 +149,34 @@ python3 -m unittest discover -s tools      # legacy parser tests
 
 ## 1. Specialized renderers for the 17 reference-only components
 
-46/63 components render from their declarative specs. The remaining 17 need
-new section types, render types, or custom logic in the Renderer. Each
-requires updating `_schema.yaml` with the new type and adding tests.
+Each requires updating `_schema.yaml` with the new type and adding tests.
 
 ### Batch A — Low-hanging fruit (done)
 
-Five new render/section types added to the Renderer and schema. Each
-component's YAML updated from `reference` to its new type. 6 tests added.
-
-| Component | New type | Status |
-|-----------|----------|--------|
-| `nav.vertical` | `active_list` section | Done — box with `>` marker on active item |
-| `tracker.clock` | `clock` render type | Done — `●`/`○` segment display |
-| `tracker.front` | `stage_track` render type | Done — `[ label ]─[ label ]` with `^` marker |
-| `typography.banner` | `banner` render type | Done — pyfiglet with art fallback |
-| `spinner.loading` | `frames` render type | Done — returns first frame |
+- [x] `nav.vertical` — `active_list` section (box with `>` marker)
+- [x] `tracker.clock` — `clock` render type (`●`/`○` segments)
+- [x] `tracker.front` — `stage_track` render type (`[ label ]─[ label ]` + `^`)
+- [x] `typography.banner` — `banner` render type (pyfiglet with art fallback)
+- [x] `spinner.loading` — `frames` render type (returns first frame)
+- [x] Schema + 6 tests
 
 **Result**: 51/63 components renderable (81%).
 
 ### Batch B — New layout primitives
 
-These need more involved rendering logic but are still self-contained
-within the Renderer.
-
-| Component | New type | What to build |
-|-----------|----------|---------------|
-| `table.fourcolumn` | `table` section | Column headers + data rows. Accept `columns` (array of header labels) and `rows` (array of arrays or array of objects). Auto-calculate column widths from content, pad cells, draw header separator. Support left/right alignment per column. |
-| `speech-bubble.left`, `speech-bubble.right` | `bubble` render type | Wrap text into a bordered bubble shape and add a directional tail (`<` on left, `>` on right). The tail side is a parameter on the render spec, not two separate render types. Bubble width adapts to text length up to a max. |
-| `tree.compact`, `tree.relationships` | `tree` section | Recursive rendering with indentation. Walk a nested `children` array, prefixing each level with `├── `, `└── `, and `│   ` connectors. The tree data comes from a prop (e.g. `nodes`); each node has `label` and optional `children`. |
-| `inventory.grid` | `grid` section | Arrange `slots[]` into rows of `columns` width. Each cell is a bordered mini-box `[ label ]`. Empty slots render as `[     ]`. The grid width is `columns * cell_width`. |
-| `minimap.default` | `charmap` section | Render a 2D `grid` (array of arrays of single characters) directly. Add an optional `legend` (list of `{char, label}` pairs) rendered below the grid. |
-| `decoration.placeholder` | `art_lookup` render type | Look up art from the decoration catalog by `art_id`, crop or center it to `width × height`. Requires the decoration catalog to be loadable (see section 4 below). Until decorations are migrated, this can fall back to the reference art. |
+- [ ] `table.fourcolumn` — `table` section: column headers + data rows, auto-width, header separator
+- [ ] `speech-bubble.left` + `speech-bubble.right` — `bubble` render type: bordered bubble with directional tail (`<`/`>`), adaptive width
+- [ ] `tree.compact` + `tree.relationships` — `tree` section: recursive `├──`/`└──`/`│` connectors from nested `nodes` prop
+- [ ] `inventory.grid` — `grid` section: `slots[]` in rows of `columns` width, bordered mini-boxes
+- [ ] `minimap.default` — `charmap` section: 2D character grid + optional legend
+- [ ] `decoration.placeholder` — `art_lookup` render type: look up art by `art_id` (falls back to reference art until decorations are migrated)
+- [ ] Schema updates + tests for all Batch B types
 
 **After Batch B**: 62/63 components renderable (98%).
 
-### Batch C — Likely stays reference
+### Batch C — Stays reference (no work needed)
 
-| Component | Reasoning |
-|-----------|-----------|
-| `quick-select.radial` | Spatial compass-rose layout is hard to generalize into a reusable section type. Consumers who need this will build custom rendering. It can stay as `reference` — the art block shows the intended shape, and a consumer implements it in their runtime. |
-
-**Schema updates**: Each new section type or render type must be added to
-`components/_schema.yaml` under `render.section_types` or
-`render.type_values` so validation passes. Update tests to cover the new
-types.
+- [x] `quick-select.radial` — intentionally `reference`; spatial compass-rose layout is consumer-implemented
 
 ---
 
@@ -201,23 +184,21 @@ types.
 
 The three layout components (`layout.app.shell`, `layout.two-column`,
 `layout.stack`) are **compositional** — they take other rendered components
-as slot content. Without composition, consumers have to manually stitch
-rendered strings together. With it, they describe a tree of components and
-the framework produces the final output.
+as slot content. The Composer renders children bottom-up, passes the
+resulting strings as props to the layout, and the layout's render spec
+arranges them. This is what turns AskeeDS into a "framework."
 
-This is what turns AskeeDS from a "component library" into a "framework."
+- [ ] `layout.stack` — `stack` render type: concatenate `blocks` vertically
+- [ ] `layout.two-column` — `columns` render type: side-by-side with border column
+- [ ] `layout.app.shell` — `shell` render type: header row + two-column body
+- [ ] `askee_ds/composer.py` — Composer class with `compose()` method
+- [ ] Export `Composer` from `askee_ds/__init__.py`
+- [ ] CLI `compose` subcommand (takes JSON tree description)
+- [ ] Tests for Composer and layout render types
 
-### How it works
+**Depends on**: Batch B (child components need to render).
 
-1. The consumer describes a tree: a layout component with child components
-   as slot values.
-2. The Composer renders children first (bottom-up), producing strings.
-3. Those strings are passed as props to the layout component.
-4. The layout's render spec arranges them (stack = vertical concatenation,
-   two-column = side-by-side with padding, app.shell = header + sidebar +
-   content grid).
-
-### Proposed API
+<details><summary>Proposed API</summary>
 
 ```python
 from askee_ds import Loader, Theme, Renderer, Composer
@@ -242,276 +223,125 @@ output = composer.compose("layout.stack", {
 print(output)
 ```
 
-### Layout render specs
-
-The layout components currently have `render: { type: reference }`. They
-need actual render specs that the Composer can execute. Proposed:
-
-- **`layout.stack`**: New `stack` render type. Takes a `blocks` prop (list
-  of pre-rendered strings). Concatenates vertically with no gap.
-- **`layout.two-column`**: New `columns` render type. Takes `left_content`
-  and `right_content` (pre-rendered strings). Places side-by-side, padding
-  shorter column to match height, separated by a border column.
-- **`layout.app.shell`**: New `shell` render type. Takes `header`, `nav`,
-  and `content` (pre-rendered strings). Arranges as a header row spanning
-  full width, then a two-column body (nav on left, content on right).
-
-### Dependencies
-
-- Requires **Batch B** specialized renderers to be useful (so child
-  components like `nav.vertical` can render).
-- Should be built after the Renderer extensions are stable.
-
-### What to export
-
-- `from askee_ds import Composer`
-- Add `compose` subcommand to the CLI (takes a JSON tree description).
+</details>
 
 ---
 
 ## 3. Runtime adapters
 
-Adapters translate AskeeDS output into runtime-native widgets. These are
-optional and live under `askee_ds/adapters/`.
+Adapters translate AskeeDS output into runtime-native widgets. Optional,
+live under `askee_ds/adapters/`.
 
-### `askee_ds/adapters/rich.py`
+- [ ] `askee_ds/adapters/rich.py` — Rich `Renderable` applying Theme color roles as ANSI markup
+- [ ] `askee_ds/adapters/textual.py` — Textual `Widget` wrapping the Rich adapter with CSS layout
+- [ ] `askee-ds export --format json` — CLI command for engines that prefer JSON over YAML
+- [ ] Document game-engine integration pattern (load YAML, resolve props, render via engine)
 
-A Rich `Renderable` that produces styled Rich output from AskeeDS
-components. Applies the Theme's color roles as Rich markup (foreground,
-background, bold), and uses Rich's built-in box-drawing for borders.
-
-This is the simplest adapter because Rich is a string-level library —
-it adds ANSI styling to the same text the Renderer already produces.
-
-**When to build**: After the Renderer extensions are done (so the adapter
-has complete output to style).
-
-### `askee_ds/adapters/textual.py`
-
-A Textual `Widget` subclass that renders AskeeDS components inside a
-Textual app. Uses the Rich adapter internally for text styling, and adds
-Textual CSS for layout, scrolling, and interactivity.
-
-The old visual test TUI (archived at `_archive/tools/component_visual_test.py`)
-was a 2317-line Textual app. The adapter should be much simpler — a single
-widget that takes a Component + props + Theme and renders it. A new example
-app (`examples/textual_app.py`) would demonstrate using it to build a
-game-like TUI.
-
-**When to build**: After the Rich adapter exists.
-
-### Game engine adapters
-
-Not in this repo. The Askee engine (separate project) will consume
-AskeeDS's YAML definitions and JSON exports directly. Document the
-expected integration pattern:
-
-1. Load `components/*.yaml` and `tokens/*.yaml` with the engine's YAML
-   parser.
-2. Resolve props from game state.
-3. Render using the engine's own text/UI system, following the render specs
-   as a contract.
-
-A JSON export command (`askee-ds export --format json`) would help engines
-that prefer JSON over YAML. This could be added to the CLI as part of this
-work.
+**Depends on**: Renderer extensions (Batch B) mostly complete.
+Rich adapter first, then Textual adapter.
 
 ---
 
 ## 4. Maps and decorations migration
 
 Maps and decorations are still in `design/ascii/` in their original
-formats. The legacy parsers (`askee_ds/maps.py`, `askee_ds/decorations.py`)
-and their CLI tools (`tools/parse_maps.py`, `tools/parse_decorations.py`)
-are still active and in CI.
+formats. Legacy parsers and CLI tools are still active and in CI.
 
-### Maps
+### Maps (relocation, not format conversion)
 
-Maps are already YAML/text and need relocation, not format conversion:
+- [ ] Move `design/ascii/maps/` → `maps/` (top level)
+- [ ] Move `design/ascii/map-tiles.yaml` → `maps/` or `tokens/map-tiles.yaml`
+- [ ] Update `askee_ds/maps.py` to use new path (with fallback)
+- [ ] Update CI to validate maps from new path
+- [ ] Archive `design/ascii/maps/` once confirmed
 
-- Move `design/ascii/maps/` to `maps/` (top level, alongside `components/`
-  and `tokens/`).
-- Move `design/ascii/map-tiles.yaml` into `maps/` (or into `tokens/` as
-  `tokens/map-tiles.yaml` — tilesets are arguably tokens).
-- Update `askee_ds/maps.py` to look in the new location (with fallback to
-  `design/ascii/maps/` during transition).
-- Update CI to validate maps from the new path.
-- Archive `design/ascii/maps/` once the move is confirmed.
+### Decorations (U+241F → YAML conversion)
 
-### Decorations
-
-The decoration catalog (`design/ascii/decoration-catalog.txt`) uses the
-same U+241F delimiter format that was just retired for components. It
-contains approximately 20 named art entries with metadata (title, tags,
-source, license, notes).
-
-Migration plan:
-- Convert to YAML. Each art entry becomes a keyed block in
-  `decorations/catalog.yaml` (or `decorations/*.yaml` if splitting by
-  theme/tag makes sense). Structure:
-
-```yaml
-decoration.skull.small:
-  title: Small skull
-  tags: [skull, spooky]
-  source: "https://commons.wikimedia.org/wiki/..."
-  license: public-domain
-  notes: "Approx 9x5; fits inside card.simple"
-  art: |2
-    ...ASCII art...
-```
-
-- Add a `DecorationLoader` to `askee_ds/loader.py` (or a small
-  `askee_ds/decoration_loader.py`) that loads decoration YAML.
-- Wire `decoration.placeholder` component's `art_lookup` render type to
-  use the loaded catalog.
-- Update `askee_ds/decorations.py` (legacy) to fall back to archive path.
-- Archive `design/ascii/decoration-catalog.txt` to
-  `_archive/design-ascii/`.
-- Update CI.
+- [ ] Convert `decoration-catalog.txt` → `decorations/catalog.yaml`
+- [ ] Add `DecorationLoader` to `askee_ds/loader.py`
+- [ ] Wire `decoration.placeholder` `art_lookup` render type to loaded catalog
+- [ ] Update `askee_ds/decorations.py` (legacy) to fall back to archive
+- [ ] Archive `design/ascii/decoration-catalog.txt` → `_archive/design-ascii/`
+- [ ] Update CI
 
 ### Box-drawing consolidation
 
-`design/ascii/box-drawing.yaml` is still in place because
-`askee_ds/box_drawing.py` (legacy) loads from it. The new framework uses
-`tokens/box-drawing.yaml`. Once the legacy `box_drawing.py` module is no
-longer referenced by any active code:
+- [ ] Archive `design/ascii/box-drawing.yaml` → `_archive/design-ascii/`
+- [ ] Remove or deprecate `askee_ds/box_drawing.py`
 
-- Archive `design/ascii/box-drawing.yaml` to `_archive/design-ascii/`.
-- Remove or deprecate `askee_ds/box_drawing.py`.
+### After migration (unlocked when above are done)
 
-### After migration
-
-Once maps, decorations, and box-drawing are migrated:
-- `design/ascii/` will be empty (or can be removed entirely).
-- The legacy modules (`askee_ds/components.py`, `askee_ds/decorations.py`,
-  `askee_ds/maps.py`, `askee_ds/box_drawing.py`) can be archived.
-- Legacy CLI commands (`askee-ds-validate`, `askee-ds-export`,
-  `askee-ds-demo`) can be removed from `pyproject.toml`.
-- Legacy tools (`tools/parse_components.py`, `tools/parse_decorations.py`,
-  `tools/parse_maps.py`, `tools/render_demo.py` and their tests) can be
-  archived.
+- [ ] Remove `design/ascii/` directory entirely
+- [ ] Archive legacy modules (`components.py`, `decorations.py`, `maps.py`, `box_drawing.py`, `_paths.py`)
+- [ ] Remove legacy CLI entries from `pyproject.toml`
+- [ ] Archive legacy tools and their tests
 
 ---
 
 ## 5. Examples
 
-### Done
-
-- **`examples/quick_start.py`**: Minimal hello-world — load a component,
-  render it, print it. Primary introductory example.
-- **`examples/all_components.py`**: Visual catalog — auto-generates sample
-  props from each component's prop definitions and renders all 51
-  non-reference components. Useful as a smoke test and design review tool.
-
-### Remaining
-
-- **`examples/map_preview.py`**: Uses legacy `askee_ds.maps` API. Archive
-  when maps are migrated (section 4).
-- **`examples/textual_app.py`**: A small Textual app using AskeeDS
-  components for a game-like TUI. Depends on the Textual adapter
-  (section 3).
-- **`examples/full_screen.py`**: Uses the Composer (section 2) to build
-  a full game screen from a composed layout tree.
+- [x] `examples/quick_start.py` — minimal hello-world
+- [x] `examples/all_components.py` — visual catalog of all renderable components
+- [ ] `examples/map_preview.py` — archive when maps are migrated (section 4)
+- [ ] `examples/textual_app.py` — Textual app using AskeeDS (depends on section 3)
+- [ ] `examples/full_screen.py` — composed layout tree (depends on section 2)
 
 ---
 
 ## 6. Packaging and release
 
-### pyproject.toml updates
+- [ ] Update `pyproject.toml` description to reflect the framework
+- [ ] Bump version to `0.2.0`
+- [ ] Remove `visual-test` optional dependency group (archived)
+- [ ] Add `dev` extra with `pytest`; convert unittest → pytest
+- [ ] Remove legacy CLI entries after legacy retirement (section 7)
 
-Several updates are needed now that the migration is complete:
-
-- **Description**: Change from `"AskeeDS ASCII design system tools and
-  parsers."` to something like `"AskeeDS — ASCII design system and
-  component framework for TUI games."`.
-- **Version**: Bump to `0.2.0`. The format change is significant (YAML
-  replaces U+241F, new framework classes, new CLI).
-- **Remove `visual-test` extra**: The visual test TUI has been archived.
-  The `visual-test` optional dependency group
-  (`textual>=0.47.0, pyfiglet>=0.8.0`) is no longer needed.
-- **Add `dev` extra**: `pytest` for testing. Convert existing unittest
-  tests to pytest when ready.
-- **Legacy CLI entries**: Keep `askee-ds-validate`, `askee-ds-export`,
-  `askee-ds-demo` until the legacy modules are fully retired (section 4
-  above), then remove them.
-
-### Dependency decisions (already made)
-
-- **jsonschema**: Not needed. The custom `Validator` is simpler and has no
-  external dependency.
-- **Jinja2**: Not adding. The `{prop}` interpolation with regex is simple
-  and sufficient. Jinja2 would add complexity without benefit — ASCII art
-  templates need alignment-aware rendering, not general-purpose templating.
-- **pytest**: Recommended but not yet added. When added, convert existing
-  `unittest.TestCase` classes to plain pytest functions with fixtures.
+**Dependency decisions (already made — do not revisit):**
+jsonschema not needed, Jinja2 not adding, pytest recommended.
 
 ---
 
 ## 7. Legacy retirement
 
-Once maps and decorations are migrated (section 4), everything below can
-be archived or removed. This is the final cleanup that makes the project
-fully "v2."
+Unlocked once maps and decorations are migrated (section 4). Final
+cleanup that makes the project fully "v2."
 
-### Legacy modules to archive
+### Legacy modules
 
-| Module | Why it still exists | When to archive |
-|--------|--------------------|-----------------| 
-| `askee_ds/components.py` | Falls back to `_archive/design-ascii/components.txt`. Old `test_package.py` and `tools/test_parse_components.py` still call `load_default_components()`. | When those tests are removed or rewritten. |
-| `askee_ds/decorations.py` | Loads `design/ascii/decoration-catalog.txt`. CI runs `parse_decorations.py --validate`. | When decorations are migrated to YAML (section 4). |
-| `askee_ds/maps.py` | Loads `design/ascii/maps/`. CI runs `parse_maps.py --validate`. | When maps are relocated (section 4). |
-| `askee_ds/box_drawing.py` | Loads `design/ascii/box-drawing.yaml`. | When box-drawing is consolidated (section 4). |
-| `askee_ds/_paths.py` | Used by legacy modules. | When legacy modules are archived. |
+- [ ] Archive `askee_ds/components.py` (after tests rewritten)
+- [ ] Archive `askee_ds/decorations.py` (after decorations migrated)
+- [ ] Archive `askee_ds/maps.py` (after maps relocated)
+- [ ] Archive `askee_ds/box_drawing.py` (after box-drawing consolidated)
+- [ ] Archive `askee_ds/_paths.py` (after all legacy modules archived)
 
-### Legacy tools to archive
 
-| Tool | When to archive |
-|------|-----------------| 
-| `tools/parse_components.py` | Already out of CI. Archive when `askee_ds/components.py` is archived. |
-| `tools/parse_decorations.py` | When decorations are migrated. |
-| `tools/parse_maps.py` | When maps are relocated. |
-| `tools/render_demo.py` | When replaced by examples or CLI preview. |
-| `tools/test_parse_components.py` | When `parse_components.py` is archived. |
-| `tools/test_parse_decorations.py` | When `parse_decorations.py` is archived. |
-| `tools/test_parse_maps.py` | When `parse_maps.py` is archived. |
+### Legacy tools
 
-### Legacy CLI entries to remove
+- [ ] Archive `tools/parse_components.py` + `tools/test_parse_components.py`
+- [ ] Archive `tools/parse_decorations.py` + `tools/test_parse_decorations.py`
+- [ ] Archive `tools/parse_maps.py` + `tools/test_parse_maps.py`
+- [ ] Archive `tools/render_demo.py`
 
-`pyproject.toml` still defines `askee-ds-validate`, `askee-ds-export`,
-and `askee-ds-demo` pointing at the legacy `validate_main`, `export_main`,
-and `demo_main` in `cli.py`. Remove these entries (and the functions) when
-the legacy modules are archived.
+### Legacy CLI + other cleanup
 
-### Other files to clean up
-
-| File | Action |
-|------|--------|
-| `design/readme-examples.json` | Orphaned — was generated by the archived `update_readme_examples.py`. Delete. |
-| `design/ascii/README.md` | Currently a redirect. Remove when `design/ascii/` is empty. |
-| `design/ascii/` | Remove the directory entirely once maps, decorations, and box-drawing are migrated out. |
-| `examples/map_preview.py` | Replace with `quick_start.py` (section 5). Archive or delete the old map preview. |
-| `tests/test_package.py` | Legacy tests for old parsers. Remove when those parsers are archived. |
-| `VERSION` | Consider whether to keep as a file or rely solely on `pyproject.toml` for versioning. |
+- [ ] Remove `askee-ds-validate`, `askee-ds-export`, `askee-ds-demo` from `pyproject.toml`
+- [ ] Delete `design/readme-examples.json` (orphaned)
+- [ ] Remove `design/ascii/README.md` + `design/ascii/` directory
+- [ ] Archive `examples/map_preview.py`
+- [ ] Remove `tests/test_package.py` (legacy parser tests)
+- [ ] Decide on `VERSION` file vs `pyproject.toml`-only versioning
 
 ---
 
 ## Suggested build order
 
-The features above have dependencies. Suggested sequence:
-
-1. ~~**Batch A specialized renderers**~~ — done (51/63 renderable).
-2. ~~**Examples: `quick_start.py` and `all_components.py`**~~ — done.
-3. **Batch B specialized renderers** — more complex but still
-   self-contained (11 more components).
-4. **Maps and decorations migration** — unblocks `decoration.placeholder`
-   rendering and clears out `design/ascii/`.
-5. **Composer** — depends on layout render specs from Batch B.
-6. **Rich adapter** — depends on the Renderer being mostly complete.
-7. **Textual adapter + `textual_app.py` example** — depends on the Rich
-   adapter.
-8. **`full_screen.py` example** — depends on the Composer.
-9. **Packaging and release** (`0.2.0`) — do last, when the framework is
-   stable.
-10. **Legacy retirement** — archive remaining legacy modules and tools
-    once maps/decorations are migrated (section 7).
+- [x] **1. Batch A specialized renderers** — done (51/63 renderable)
+- [x] **2. Examples: `quick_start.py` and `all_components.py`** — done
+- [ ] **3. Batch B specialized renderers** — 11 more components (98%)
+- [ ] **4. Maps and decorations migration** — unblocks `decoration.placeholder`, clears `design/ascii/`
+- [ ] **5. Composer** — depends on Batch B layout render specs
+- [ ] **6. Rich adapter** — depends on Renderer mostly complete
+- [ ] **7. Textual adapter + `textual_app.py`** — depends on Rich adapter
+- [ ] **8. `full_screen.py` example** — depends on Composer
+- [ ] **9. Packaging and release** (`0.2.0`) — when framework is stable
+- [ ] **10. Legacy retirement** — archive remaining legacy after maps/decorations migrated
