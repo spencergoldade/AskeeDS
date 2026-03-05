@@ -40,8 +40,9 @@ system package is `askee_ds` to avoid collision.
   general-purpose templating.
 - The custom `Validator` reads `_schema.yaml` directly. Do not add
   jsonschema as a dependency.
-- 46 of 63 components have declarative render specs. The 17 reference-only
-  components need specialized renderers (see section 1 below).
+- 59 of 63 components have declarative render specs (94%). The remaining
+  4 are reference-only: 3 layout components (Composer, section 2) + 1
+  intentional (`quick-select.radial`).
 - 10 components are `approved` (proven core). 53 are `ideated` (defined
   but not yet individually proven). All remain in the same YAML files.
 
@@ -74,7 +75,7 @@ askee_ds/                       # Python package
   box_drawing.py                # LEGACY: loads design/ascii/box-drawing.yaml
   _paths.py                     # repo root helper
 tests/
-  test_framework.py             # 25 tests: Loader, Renderer, Theme, Validator
+  test_framework.py             # 38 tests: Loader, Renderer, Theme, Validator
   test_package.py               # 5 legacy tests: components, decorations, maps
 tools/
   parse_components.py           # LEGACY: parser CLI (not in CI)
@@ -114,6 +115,67 @@ python3 -m unittest discover -s tools      # legacy parser tests
 - Never reference `.cursor/`, `.mdc`, or gitignored paths from shipped
   files.
 - Use `command git commit` for commits.
+
+### Practical lessons (from prior agent sessions)
+
+These are things that bit us or that we discovered through trial and error.
+Read them before starting work.
+
+**Tooling gotchas:**
+- **`command git commit -m "..."`** — always use `command git commit`, not
+  plain `git commit`. There is a local config issue. Heredoc-style commit
+  messages (`$(cat <<'EOF' ... EOF)`) also fail on this git version; use a
+  simple `-m "single line"` instead.
+- **`StrReplace` and Markdown tables** — the tool often fails to match
+  content containing pipe (`|`) characters in Markdown tables. When
+  editing table-heavy sections, consider using `Write` to overwrite the
+  whole file or splitting the edit to avoid the table rows.
+- **`Delete` tool vs `git rm`** — `Delete` can silently abort on tracked
+  files. Use `git rm <file>` for any tracked file you want to remove.
+- **`.cursor/` is gitignored** — rule files live there but cannot be
+  staged. If you edit a rule, it is local-only and won't appear in diffs
+  or commits.
+
+**Framework workflow:**
+- **Schema first** — when adding a new render type or section type, update
+  `components/_schema.yaml` *before* updating any component YAML or
+  `renderer.py`. The validator enforces correctness and will reject
+  components that use types not in the schema.
+- **Render pipeline**: `Loader` → components dict + tokens dict →
+  `Theme(tokens)` → `Renderer(theme)` → `renderer.render(component, props)`.
+  That's the entire call chain. No global state.
+- **`all_components.py` is a visual smoke test** — run
+  `python examples/all_components.py` after any renderer change. It renders
+  every non-reference component with auto-generated sample props. If it
+  crashes, something broke.
+- **`test_render_all_non_reference_components`** in `test_framework.py` is
+  the CI safety net. It loops through every component whose render type is
+  not `reference` and verifies it produces output without exceptions.
+- **Props auto-generation** — `all_components.py`'s `_sample_props()`
+  inspects each component's `props` dict and generates sample data based on
+  `type`, `element`, and `element_type`. When adding new components with
+  unusual prop shapes (e.g. `table.fourcolumn`'s `columns`/`rows` arrays),
+  you may need to add a special case there.
+- **`banner` render type** uses `pyfiglet` (optional dependency). The
+  renderer falls back to the component's reference `art` field if pyfiglet
+  is not installed. Always test both paths.
+
+**Design philosophy reminders:**
+- Spencer cares about clean working directories and incremental progress.
+  Commit often, keep the tree green, and don't leave dangling files.
+- The project serves game designers first. YAML readability matters more
+  than Python cleverness. If a render spec is hard to read in the YAML,
+  rethink the approach.
+- "Archive, don't delete" — retired files go to `_archive/` with a README.
+  The user may want to reference them later.
+- Components earn `approved` status through real use, not through batch
+  promotion. Do not change component statuses unless the user asks.
+
+**Chat history for full context:**
+- [AskeeDS v2 restructure](a32bb85b-95ca-4c2f-8e46-8e7ddc56dc0a)
+- [AskeeDS v2 continuation](9a993808-7acd-40f4-818e-d6cb7d3888a5)
+- [AskeeDS v2 completion](3dac5a38-9c27-49e3-a37d-5e62b0f8fa31)
+- [Batch A/B renderers & docs](1f4d55b9-ba53-4309-be7a-888f0989d8fb)
 
 ## Current state (numbers)
 
