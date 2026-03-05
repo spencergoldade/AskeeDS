@@ -329,11 +329,8 @@ migration notes between versions.
 # Validate all YAML components against the schema
 askee-ds validate
 
-# Run framework tests (Loader, Renderer, Theme, Validator)
+# Run framework tests (Loader, Renderer, Theme, Validator, Composer, adapters)
 python3 -m unittest discover -s tests -v
-
-# Run legacy tools tests (maps, decorations)
-python3 -m unittest discover -s tools
 ```
 
 The schema (`components/_schema.yaml`) enforces:

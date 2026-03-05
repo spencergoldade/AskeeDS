@@ -1,7 +1,7 @@
 [project]
 name = "askee-ds"
-version = "0.1.0"
-description = "AskeeDS ASCII design system tools and parsers."
+version = "0.2.0"
+description = "ASCII design system and component framework for TUI games."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -15,15 +15,11 @@ dependencies = [
 [project.optional-dependencies]
 rich = ["rich>=13.0.0"]
 textual = ["textual>=0.47.0", "rich>=13.0.0"]
-visual-test = ["textual>=0.47.0", "pyfiglet>=0.8.0"]
 banner = ["pyfiglet>=0.8.0"]
+dev = ["pytest>=7.0.0"]
 
 [project.scripts]
 askee-ds = "askee_ds.cli:main"
-askee-ds-validate = "askee_ds.cli:validate_main"
-askee-ds-export = "askee_ds.cli:export_main"
-askee-ds-demo = "askee_ds.cli:demo_main"
 
 [tool.setuptools]
 packages = ["askee_ds", "askee_ds.adapters"]
-

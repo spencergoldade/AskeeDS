@@ -76,28 +76,16 @@ askee_ds/                       # Python package
   adapters/rich.py              # Rich adapter: ANSI-colored output
   adapters/textual.py           # Textual adapter: AskeeWidget for TUI apps
   banner.py                     # Figlet banner rendering (used by typography.banner)
-  components.py                 # LEGACY: U+241F parser (falls back to archive)
-  decorations.py                # LEGACY: decoration parser
-  maps.py                       # LEGACY: map parser
-  box_drawing.py                # LEGACY: loads design/ascii/box-drawing.yaml
-  _paths.py                     # repo root helper
 tests/
   test_framework.py             # 53 tests: Loader, Renderer, Theme, Validator, Composer, adapters
-  test_package.py               # 5 legacy tests: components, decorations, maps
-tools/
-  parse_components.py           # LEGACY: parser CLI (not in CI)
-  parse_decorations.py          # LEGACY: decoration CLI (in CI)
-  parse_maps.py                 # LEGACY: map CLI (in CI)
-  render_demo.py                # LEGACY: demo renderer (functional)
   test_parse_*.py               # LEGACY: parser tests (19 tests)
 examples/
   quick_start.py                # minimal hello-world (new framework)
   all_components.py             # visual catalog of all renderable components
   full_screen.py                # composed game screen using Composer
   textual_app.py                # live TUI demo with themed AskeeDS widgets
-  map_preview.py                # uses legacy askee_ds.maps API
 _archive/                       # archived files (see README in each folder)
-  poc_renderer.py, design-ascii/, tools/
+  poc_renderer.py, design-ascii/, tools/, legacy-modules/
 ```
 
 **Migrated asset locations (design/ascii/ no longer exists):**
@@ -195,7 +183,7 @@ Read them before starting work.
   clock, stage_track, banner, frames, table, bubble, tree, grid, charmap,
   art_lookup, stack, columns, shell + active_list section).
 - **1 reference-only** — `quick-select.radial` (intentional).
-- **58 framework + package tests** (53 framework, 5 package), 19 legacy tool tests.
+- **53 framework tests** covering Loader, Renderer, Theme, Validator, Composer, and both adapters.
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
 
@@ -345,9 +333,9 @@ Maps, decorations, and box-drawing have been migrated out of
 ### After migration
 
 - [x] Remove `design/ascii/` directory entirely
-- [ ] Archive legacy modules (`components.py`, `decorations.py`, `maps.py`, `box_drawing.py`, `_paths.py`) — section 7
-- [ ] Remove legacy CLI entries from `pyproject.toml` — section 7
-- [ ] Archive legacy tools and their tests — section 7
+- [x] Archive legacy modules — completed in section 7
+- [x] Remove legacy CLI entries — completed in section 7
+- [x] Archive legacy tools and their tests — completed in section 7
 
 ---
 
@@ -355,54 +343,54 @@ Maps, decorations, and box-drawing have been migrated out of
 
 - [x] `examples/quick_start.py` — minimal hello-world
 - [x] `examples/all_components.py` — visual catalog of all renderable components
-- [ ] `examples/map_preview.py` — archive when maps are migrated (section 4)
+- [x] `examples/map_preview.py` — archived to `_archive/tools/`
 - [x] `examples/textual_app.py` — live TUI demo with themed AskeeDS widgets
 - [x] `examples/full_screen.py` — composed game screen using Composer
 
 ---
 
-## 6. Packaging and release
+## 6. Packaging and release (done)
 
-- [ ] Update `pyproject.toml` description to reflect the framework
-- [ ] Bump version to `0.2.0`
-- [ ] Remove `visual-test` optional dependency group (archived)
-- [ ] Add `dev` extra with `pytest`; convert unittest → pytest
-- [ ] Remove legacy CLI entries after legacy retirement (section 7)
+- [x] Update `pyproject.toml` description to reflect the framework
+- [x] Bump version to `0.2.0`
+- [x] Remove `visual-test` optional dependency group (archived)
+- [x] Add `dev` extra with `pytest`
+- [x] Remove legacy CLI entries after legacy retirement (section 7)
+- [ ] Convert unittest → pytest (deferred; unittest works fine for now)
 
 **Dependency decisions (already made — do not revisit):**
 jsonschema not needed, Jinja2 not adding, pytest recommended.
 
 ---
 
-## 7. Legacy retirement
+## 7. Legacy retirement (done)
 
-Unlocked once maps and decorations are migrated (section 4). Final
-cleanup that makes the project fully "v2."
+All legacy code has been archived. The project is fully v2.
 
 ### Legacy modules
 
-- [ ] Archive `askee_ds/components.py` (after tests rewritten)
-- [ ] Archive `askee_ds/decorations.py` (after decorations migrated)
-- [ ] Archive `askee_ds/maps.py` (after maps relocated)
-- [ ] Archive `askee_ds/box_drawing.py` (after box-drawing consolidated)
-- [ ] Archive `askee_ds/_paths.py` (after all legacy modules archived)
-
+- [x] Archive `askee_ds/components.py` → `_archive/legacy-modules/`
+- [x] Archive `askee_ds/decorations.py` → `_archive/legacy-modules/`
+- [x] Archive `askee_ds/maps.py` → `_archive/legacy-modules/`
+- [x] Archive `askee_ds/box_drawing.py` → `_archive/legacy-modules/`
+- [x] Archive `askee_ds/_paths.py` → `_archive/legacy-modules/`
 
 ### Legacy tools
 
-- [ ] Archive `tools/parse_components.py` + `tools/test_parse_components.py`
-- [ ] Archive `tools/parse_decorations.py` + `tools/test_parse_decorations.py`
-- [ ] Archive `tools/parse_maps.py` + `tools/test_parse_maps.py`
-- [ ] Archive `tools/render_demo.py`
+- [x] Archive `tools/parse_components.py` + `tools/test_parse_components.py` → `_archive/tools/`
+- [x] Archive `tools/parse_decorations.py` + `tools/test_parse_decorations.py` → `_archive/tools/`
+- [x] Archive `tools/parse_maps.py` + `tools/test_parse_maps.py` → `_archive/tools/`
+- [x] Archive `tools/render_demo.py` → `_archive/tools/`
+- [x] Archive `examples/map_preview.py` → `_archive/tools/`
 
 ### Legacy CLI + other cleanup
 
-- [ ] Remove `askee-ds-validate`, `askee-ds-export`, `askee-ds-demo` from `pyproject.toml`
-- [ ] Delete `design/readme-examples.json` (orphaned)
-- [ ] Remove `design/ascii/README.md` + `design/ascii/` directory
-- [ ] Archive `examples/map_preview.py`
-- [ ] Remove `tests/test_package.py` (legacy parser tests)
-- [ ] Decide on `VERSION` file vs `pyproject.toml`-only versioning
+- [x] Remove `askee-ds-validate`, `askee-ds-export`, `askee-ds-demo` from `pyproject.toml`
+- [x] Delete `design/readme-examples.json` (orphaned)
+- [x] `design/ascii/` directory removed (done in section 4)
+- [x] Remove `tests/test_package.py` (legacy parser tests)
+- [x] Remove legacy imports from `__init__.py`
+- [ ] Decide on `VERSION` file vs `pyproject.toml`-only versioning (keeping both for now)
 
 ---
 
@@ -416,5 +404,5 @@ cleanup that makes the project fully "v2."
 - [x] **6. Rich adapter** — done (colorizes output with Theme color roles, optional dependency)
 - [x] **7. Textual adapter + `textual_app.py`** — done (AskeeWidget, live TUI demo)
 - [x] **8. `full_screen.py` example** — done
-- [ ] **9. Packaging and release** (`0.2.0`) — when framework is stable
-- [ ] **10. Legacy retirement** — archive remaining legacy after maps/decorations migrated
+- [x] **9. Packaging and release** — done (0.2.0, clean deps, dev extra)
+- [x] **10. Legacy retirement** — done (all legacy archived, v2 only)

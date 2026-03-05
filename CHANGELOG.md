@@ -2,7 +2,7 @@
 
 All notable changes to AskeeDS will be documented in this file.
 
-## [Unreleased]
+## [0.2.0] — 2026-03-05
 
 ### Added
 
@@ -24,6 +24,8 @@ All notable changes to AskeeDS will be documented in this file.
 - **2 new tests** for Textual adapter; 58 total tests.
 
 ### Changed
+
+- **Version 0.2.0**: Bumped from 0.1.0 to 0.2.0 — the framework is now the primary API.
 
 - **Maps relocated**: `design/ascii/maps/` moved to top-level `maps/`; `design/ascii/map-tiles.yaml` moved to `maps/tiles.yaml`. The maps parser, CLI tool, and example all use the new paths with legacy fallback.
 - **Decorations converted to YAML**: `design/ascii/decoration-catalog.txt` (U+241F format, 23 decorations) converted to `decorations/catalog.yaml`. New `Loader.load_decorations()` method loads the catalog. The `art_lookup` render type now looks up art by `art_id` from the catalog with width/height cropping.
@@ -69,6 +71,14 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Removed
 
+- **Legacy modules archived**: `askee_ds/components.py`, `askee_ds/decorations.py`, `askee_ds/maps.py`, `askee_ds/box_drawing.py`, `askee_ds/_paths.py` moved to `_archive/legacy-modules/`. The framework API (`Loader`, `Renderer`, `Theme`, `Composer`) replaces all of these.
+- **Legacy tools archived**: `tools/parse_components.py`, `tools/parse_decorations.py`, `tools/parse_maps.py`, `tools/render_demo.py`, and their tests moved to `_archive/tools/`. The `tools/` directory removed.
+- **Legacy CLI entries removed**: `askee-ds-validate`, `askee-ds-export`, `askee-ds-demo` removed from `pyproject.toml`. Only `askee-ds` CLI remains.
+- **Legacy imports removed**: `__init__.py` no longer re-exports `components`, `decorations`, `maps`, `box_drawing`.
+- **`tests/test_package.py` removed**: Legacy parser tests; framework tests in `test_framework.py` cover all current functionality.
+- **`design/readme-examples.json` deleted**: Orphaned file from the old format.
+- **`visual-test` optional dependency group removed**: Archived with the visual test TUI.
+- **`examples/map_preview.py` archived**: Used the legacy maps API; moved to `_archive/tools/`.
 - **Migration plan deleted**: `MIGRATION-PLAN.md` removed — all 7 phases complete, context preserved in `ROADMAP.md` and git history.
 
 ### Changed
