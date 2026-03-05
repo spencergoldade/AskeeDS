@@ -83,7 +83,9 @@ tools/
   render_demo.py                # LEGACY: demo renderer (functional)
   test_parse_*.py               # LEGACY: parser tests (19 tests)
 examples/
-  map_preview.py                # uses old askee_ds.maps API (needs replacing)
+  quick_start.py                # minimal hello-world (new framework)
+  all_components.py             # visual catalog of all renderable components
+  map_preview.py                # uses legacy askee_ds.maps API
 _archive/                       # archived files (see README in each folder)
   poc_renderer.py, design-ascii/, tools/
 ```
@@ -394,48 +396,23 @@ Once maps, decorations, and box-drawing are migrated:
 
 ## 5. Examples
 
-The `examples/` directory currently contains only `map_preview.py`, which
-uses the old `askee_ds.maps` API. It still works but doesn't demonstrate
-the new framework.
+### Done
 
-### `examples/quick_start.py`
+- **`examples/quick_start.py`**: Minimal hello-world — load a component,
+  render it, print it. Primary introductory example.
+- **`examples/all_components.py`**: Visual catalog — auto-generates sample
+  props from each component's prop definitions and renders all 51
+  non-reference components. Useful as a smoke test and design review tool.
 
-Minimal "hello world" — load one component, render it, print it. 10–15
-lines. Replace `map_preview.py` with this as the primary example.
+### Remaining
 
-```python
-from askee_ds import Loader, Theme, Renderer
-
-loader = Loader()
-components = loader.load_components_dir("components/")
-tokens = loader.load_tokens_dir("tokens/")
-theme = Theme(tokens)
-renderer = Renderer(theme)
-
-print(renderer.render(components["room-card.default"], {
-    "title": "The Clearing",
-    "description_text": "Sunlight filters through the canopy.",
-    "items": [{"label": "old map"}],
-    "npcs": [],
-    "exits": [{"id": "n", "label": "north"}, {"id": "e", "label": "east"}],
-}))
-```
-
-### `examples/textual_app.py`
-
-A small Textual app that uses AskeeDS components to build a game-like TUI
-(status bar + room card + input). Depends on the Textual adapter (section
-3 above).
-
-### `examples/full_screen.py`
-
-Uses the Composer (section 2 above) to build a full game screen from a
-composed layout tree. Depends on the Composer and at least `layout.stack`.
-
-### `examples/all_components.py`
-
-Renders every non-reference component with sample props and prints them
-all. Useful as a visual catalog and a smoke test.
+- **`examples/map_preview.py`**: Uses legacy `askee_ds.maps` API. Archive
+  when maps are migrated (section 4).
+- **`examples/textual_app.py`**: A small Textual app using AskeeDS
+  components for a game-like TUI. Depends on the Textual adapter
+  (section 3).
+- **`examples/full_screen.py`**: Uses the Composer (section 2) to build
+  a full game screen from a composed layout tree.
 
 ---
 
@@ -523,10 +500,8 @@ the legacy modules are archived.
 
 The features above have dependencies. Suggested sequence:
 
-1. **Batch A specialized renderers** — no dependencies, immediate value
-   (5 more components renderable).
-2. **Examples: `quick_start.py` and `all_components.py`** — can be done
-   now with the current Renderer.
+1. ~~**Batch A specialized renderers**~~ — done (51/63 renderable).
+2. ~~**Examples: `quick_start.py` and `all_components.py`**~~ — done.
 3. **Batch B specialized renderers** — more complex but still
    self-contained (11 more components).
 4. **Maps and decorations migration** — unblocks `decoration.placeholder`
