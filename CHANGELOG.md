@@ -9,6 +9,10 @@ All notable changes to AskeeDS will be documented in this file.
 - **Registry-based renderer**: Refactored the monolithic 520-line `renderer.py` into a thin dispatcher backed by a pluggable render type registry (`askee_ds/render_types/`). Each of the 16 render types is now a standalone module. Consumers can register custom render types via `Renderer.register_type()` or `from askee_ds.render_types import register` without modifying framework source. Zero regressions — all 62 renderable components produce identical output.
 - **Pytest test suite**: Migrated from unittest to pytest. Split the monolithic 574-line `test_framework.py` into 7 focused modules (`test_loader`, `test_theme`, `test_renderer`, `test_composer`, `test_validator`, `test_adapters`, `test_cli`). Added `conftest.py` with session-scoped fixtures. 62 tests (9 new CLI tests), runs in ~0.6s. CI updated to use pytest.
 
+### Removed
+
+- **Maps and decorations evicted**: `maps/` and `decorations/` archived to `_archive/` — these are game content, not design system primitives. The render capabilities (`charmap`, `art_lookup`) remain and accept any data passed at runtime. `load_decorations()` removed from Loader. CI path triggers updated.
+
 ---
 
 ## [0.2.0] — 2026-03-05

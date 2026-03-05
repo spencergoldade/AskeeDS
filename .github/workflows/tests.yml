@@ -7,8 +7,6 @@ on:
       - "components/**"
       - "tokens/**"
       - "examples/**"
-      - "maps/**"
-      - "decorations/**"
       - "tests/**"
       - ".github/workflows/tests.yml"
   pull_request:
@@ -17,8 +15,6 @@ on:
       - "components/**"
       - "tokens/**"
       - "examples/**"
-      - "maps/**"
-      - "decorations/**"
       - "tests/**"
       - ".github/workflows/tests.yml"
 

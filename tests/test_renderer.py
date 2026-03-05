@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+from askee_ds import Loader
+
 ROOT = Path(__file__).resolve().parent.parent
 TOKENS_DIR = ROOT / "tokens"
 
@@ -233,19 +235,24 @@ def test_render_art_lookup_fallback(renderer, components):
     assert len(output) > 0
 
 
-def test_render_art_lookup_with_catalog(components):
-    from askee_ds import Loader, Theme, Renderer
+def test_render_art_lookup_with_decorations_dict(components):
+    from askee_ds import Theme, Renderer
 
-    root = Path(__file__).resolve().parent.parent
-    loader = Loader()
-    decos = loader.load_decorations(root / "decorations" / "catalog.yaml")
-    tokens = loader.load_tokens_dir(TOKENS_DIR)
-    r = Renderer(Theme(tokens), decorations=decos)
+    decos = {
+        "test.art": {
+            "art": ".-====-.\n|      |\n'------'",
+        },
+    }
+    tokens_data = Path(TOKENS_DIR).parent / "tokens"
+    r = Renderer(
+        Theme(Loader().load_tokens_dir(TOKENS_DIR)),
+        decorations=decos,
+    )
     output = r.render(
         components["decoration.placeholder"],
-        {"art_id": "decoration.skull.small", "width": 20, "height": 6},
+        {"art_id": "test.art", "width": 20, "height": 6},
     )
-    assert ".-" in output
+    assert ".-====-." in output
     lines = output.splitlines()
     assert len(lines) == 6
     assert all(len(ln) == 20 for ln in lines)

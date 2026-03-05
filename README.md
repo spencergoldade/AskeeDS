@@ -54,15 +54,10 @@ tokens/                     design tokens
   colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
   box-drawing.yaml          3 border character sets (single, heavy, double)
   typography.yaml           Figlet font conventions, line width rules
-maps/                       ASCII map definitions
-  tiles.yaml                tileset definitions (chars → tile roles)
-  index.yaml                map index with metadata
-  *.txt                     map layout files (ASCII grids)
-decorations/                decorative ASCII art catalog
-  catalog.yaml              23 named decorations keyed by id
 askee_ds/                   Python package
-  loader.py                 loads YAML components, tokens, decorations
+  loader.py                 loads YAML components and tokens
   composer.py               composes layout components from child trees
+  render_types/             modular render type registry (16 built-in types)
   adapters/rich.py          Rich adapter: ANSI-colored output
   adapters/textual.py       Textual adapter: AskeeWidget for TUI apps
   renderer.py               renders components from definitions
