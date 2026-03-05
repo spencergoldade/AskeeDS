@@ -1,5 +1,5 @@
 # AskeeDS — game/inventory
-# Inventory components.
+# Inventory and item management components.
 
 
 inventory.grid:
@@ -46,7 +46,16 @@ inventory.list:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 30
+    border: single
+    sections:
+      - type: header
+        text: "Inventory"
+      - type: divider
+      - type: list
+        over: items
+        template: "  {label}"
   art: |2
     - rusty sword (1)
     - brass lamp (1)

@@ -1,5 +1,5 @@
 # AskeeDS — core/inputs
-# Inputs components.
+# User input components.
 
 
 command-input.default:
@@ -20,7 +20,8 @@ command-input.default:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "{prompt} {placeholder}"
   art: |2
     > go north
     [Tab: complete] [Up/Down: history]
@@ -46,7 +47,8 @@ input.text:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "{prompt} {placeholder}"
   art: |2
     > _______________
   notes: >-
@@ -71,7 +73,14 @@ form.single-field:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 38
+    border: single
+    sections:
+      - type: text
+        text: " {label}: {placeholder}"
+      - type: text
+        text: " ({hint})"
   art: |2
     +----------------------------------+
     | Name: _____________________      |

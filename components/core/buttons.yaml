@@ -1,5 +1,5 @@
 # AskeeDS — core/buttons
-# Buttons components.
+# Button components for actions and commands.
 
 
 button.icon:
@@ -17,7 +17,8 @@ button.icon:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "[{icon}] {label}"
   art: |2
     [☆] Star this
   notes: >-
@@ -27,7 +28,7 @@ button.icon:
 button.text:
   category: core/buttons
   description: Text-only button; no icon.
-  status: in-review
+  status: approved
   props:
     label:
       type: string

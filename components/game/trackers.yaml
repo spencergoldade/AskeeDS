@@ -1,5 +1,5 @@
 # AskeeDS — game/trackers
-# Trackers components.
+# Objective, time, and threat tracking components.
 
 
 tracker.objective:
@@ -18,7 +18,14 @@ tracker.objective:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 32
+    border: single
+    sections:
+      - type: checked_list
+        over: objectives
+        check_prop: checked
+        template: "{label}"
   art: |2
     [ ] Find the key
     [x] Talk to the guard
@@ -38,7 +45,7 @@ tracker.clock:
       type: string
       required: true
     segments:
-      type: string
+      type: integer
       required: true
     filled:
       type: integer

@@ -1,5 +1,5 @@
 # AskeeDS — game/screens
-# Screens components.
+# Full-screen state components.
 
 
 screen.loading:
@@ -12,12 +12,21 @@ screen.loading:
       required: true
     tip:
       type: string
-      required: true
+      required: false
     color_role:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 44
+    border: single
+    sections:
+      - type: blank
+      - type: text
+        text: "            {message}"
+      - type: text
+        text: "     {tip}"
+      - type: blank
   art: |2
     +------------------------------------------+
     |                                          |
@@ -58,7 +67,20 @@ screen.crafting:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 44
+    border: single
+    sections:
+      - type: header
+        text: "Crafting Bench"
+      - type: divider
+      - type: list
+        label: "Inputs"
+        over: inputs
+        template: "  [ {item_name} ]"
+      - type: blank
+      - type: text
+        text: " Output: {output_preview}"
   art: |2
     +------------------------------------------+
     |           Crafting bench                 |
@@ -77,7 +99,7 @@ screen.crafting:
 
 screen.death:
   category: game/screens
-  description: Death screen; title + message + actions.
+  description: Death screen with title, message, and actions.
   status: in-review
   props:
     message:
@@ -93,7 +115,17 @@ screen.death:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 44
+    border: single
+    sections:
+      - type: header
+        text: "You have died."
+      - type: blank
+      - type: wrap
+        text: "{message}"
+        indent: 1
+      - type: blank
   art: |2
     +------------------------------------------+
     |         You have died.                   |
@@ -108,7 +140,7 @@ screen.death:
 
 screen.tutorial:
   category: game/screens
-  description: Small bordered hint; Tutorial or Hint label.
+  description: Small bordered hint with title, body, and dismiss button.
   status: in-review
   props:
     title:
@@ -124,7 +156,16 @@ screen.tutorial:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 36
+    border: single
+    sections:
+      - type: header
+        text: "{title}"
+      - type: divider
+      - type: wrap
+        text: "{body}"
+        indent: 1
   art: |2
     +-- Hint -------------------------+
     |  Type "go north" to move.       |
@@ -135,10 +176,8 @@ screen.tutorial:
 decoration.placeholder:
   category: game/screens
   description: >-
-    Slot for public-domain or project-owned ASCII art (fish, skull). width
-    and height define slot size in character cells; art is supplied
-    elsewhere and cropped or centered to fit. Use ASCII-only characters
-    (no Unicode) per AskeeDS box-drawing/decoration policy.
+    Slot for decorative ASCII art. Width and height define slot size;
+    art is supplied from a catalog and cropped or centered to fit.
   status: in-review
   props:
     art_id:

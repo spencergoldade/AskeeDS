@@ -1,5 +1,5 @@
 # AskeeDS — core/display
-# Display components.
+# Text, data, and content display components.
 
 
 tooltip.default:
@@ -10,8 +10,17 @@ tooltip.default:
     text:
       type: string
       required: true
+    color_role:
+      type: string
+      required: false
   render:
-    type: reference
+    type: box
+    width: 34
+    border: single
+    sections:
+      - type: wrap
+        text: "{text}"
+        indent: 1
   art: |2
     +-------------------------------+
     |  Additional information for   |
@@ -58,11 +67,15 @@ divider.horizontal:
     style_hint:
       type: string
       required: false
+    width:
+      type: integer
+      required: false
     color_role:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "------------------------------------------"
   art: |2
     ------------------------------------------
   notes: >-
@@ -84,7 +97,8 @@ label.inline:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "{label}: {value}"
   art: |2
     HP: 85
   notes: "Pair with numbers or short values in HUDs, sheets, and summary rows."
@@ -104,7 +118,8 @@ icon.placeholder:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "[{symbol}]"
   art: |2
     [?]
   notes: Reserve space for an icon when you do not yet know the final symbol.
@@ -124,7 +139,16 @@ card.simple:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 40
+    border: single
+    sections:
+      - type: header
+        text: "{title}"
+      - type: divider
+      - type: wrap
+        text: "{body_text}"
+        indent: 1
   art: |2
     +-- Card title ------------------------+
     | Body text goes here and may wrap     |
@@ -144,7 +168,7 @@ header.banner:
       required: true
     controls:
       type: array
-      required: true
+      required: false
       element:
         id: string
         label: string
@@ -152,7 +176,12 @@ header.banner:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 50
+    border: single
+    sections:
+      - type: text
+        text: " {title}"
   art: |2
     +------------------------------------------------+
     | AskeeDS                   [user] [settings]     |
@@ -171,7 +200,7 @@ typography.banner:
       required: true
     style_hint:
       type: string
-      required: true
+      required: false
     font:
       type: string
       required: false
@@ -186,5 +215,5 @@ typography.banner:
     / _  / /_/ /    /_/ /_/ 
     /____/\____/_/|_/___/___ 
   notes: >-
-    Use on splash screens or major transitions to emphasize titles or
-    chapter breaks.
+    Use on splash screens or major transitions. Rendering requires Figlet
+    or equivalent.

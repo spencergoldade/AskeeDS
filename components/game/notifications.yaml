@@ -1,5 +1,5 @@
 # AskeeDS — game/notifications
-# Notifications components.
+# Achievement and loot notification components.
 
 
 notification.achievement:
@@ -14,7 +14,12 @@ notification.achievement:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 44
+    border: single
+    sections:
+      - type: text
+        text: "  Achievement: {message}"
   art: |2
     +------------------------------------------+
     |  Achievement: First Steps                |
@@ -35,7 +40,12 @@ notification.loot:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 44
+    border: single
+    sections:
+      - type: text
+        text: "  Loot: {message}"
   art: |2
     +------------------------------------------+
     |  Loot: rusty sword                       |

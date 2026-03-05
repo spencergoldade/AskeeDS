@@ -1,11 +1,11 @@
 # AskeeDS — game/hud
-# Hud components.
+# Heads-up display components.
 
 
 status-bar.default:
   category: game/hud
-  description: "Single-line HUD; HP, location, turn. Top or bottom of screen."
-  status: in-review
+  description: Single-line HUD showing HP, location, and turn.
+  status: approved
   props:
     hp_current:
       type: integer
@@ -13,7 +13,7 @@ status-bar.default:
     hp_max:
       type: integer
       required: true
-    location_name:
+    location:
       type: string
       required: true
     turn_count:
@@ -38,7 +38,7 @@ status-bar.default:
 
 status-bar.risk:
   category: game/hud
-  description: Single-line HUD with risk and luck bands in addition to core status.
+  description: Single-line HUD with risk and luck bands.
   status: in-review
   props:
     hp_current:
@@ -47,7 +47,7 @@ status-bar.risk:
     hp_max:
       type: integer
       required: true
-    location_name:
+    location:
       type: string
       required: true
     turn_count:
@@ -63,7 +63,8 @@ status-bar.risk:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "HP: {hp_current}/{hp_max}  |  {location}  |  Turn {turn_count}  |  Risk: {risk_level}"
   art: |2
     HP: 40/100  |  The Alley  |  Turn 27  |  Risk: Hunted  |  Luck: Fading
   color_hint: status.good/warning/danger
@@ -86,7 +87,11 @@ hint-bar.contextual:
       type: string
       required: false
   render:
-    type: reference
+    type: join
+    over: hints
+    separator: ", "
+    template: "{label}"
+    prefix: "Commands: "
   art: |2
     Commands: look, go <dir>, take <item>, i(nventory), ? for help
   notes: >-
@@ -110,7 +115,11 @@ hint-bar.interactions:
       type: string
       required: false
   render:
-    type: reference
+    type: join
+    over: interactions
+    separator: ", "
+    template: "{label}"
+    prefix: "You can: "
   art: |2
     You can: pet dog, talk to guard, inspect statue
   notes: >-
@@ -119,10 +128,10 @@ hint-bar.interactions:
 
 meter.resource:
   category: game/hud
-  description: "Horizontal bar + label; type = health | mana | stamina."
+  description: Horizontal bar + label for health, mana, stamina.
   status: in-review
   props:
-    type:
+    label:
       type: string
       required: true
     current:
@@ -135,7 +144,8 @@ meter.resource:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "{label}: {current}/{max}"
   art: |2
     HP:   [=========>                    ] 85/100
     Mana: [====                           ] 20/50
@@ -146,7 +156,7 @@ meter.resource:
 
 counter.ammo:
   category: game/hud
-  description: Ammo or similar resource count (current/max or bar).
+  description: Ammo or similar resource count (current/max).
   status: approved
   props:
     current:
@@ -162,7 +172,8 @@ counter.ammo:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "{label}: {current}/{max}"
   art: |2
     Ammo: 12/24
   notes: Use in combat or ranged-weapon HUDs to show current and max ammo.
@@ -182,7 +193,8 @@ counter.score:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "{label}: {value}"
   art: |2
     Score: 1,250
   notes: >-
@@ -191,7 +203,7 @@ counter.score:
 
 status-icon.row:
   category: game/hud
-  description: "Row of symbols (buffs, debuffs, alerts) with optional labels."
+  description: Row of symbols (buffs, debuffs, alerts) with optional labels.
   status: in-review
   props:
     icons:
@@ -200,17 +212,14 @@ status-icon.row:
       element:
         symbol: string
         label: string
-    labels:
-      type: array
-      required: true
-      element:
-        id: string
-        label: string
     color_role:
       type: string
       required: false
   render:
-    type: reference
+    type: join
+    over: icons
+    separator: " "
+    template: "[{symbol}]"
   art: |2
     [+] [*] [!]   buff  debuff  alert
   notes: >-
@@ -232,7 +241,8 @@ cooldown.badge:
       type: string
       required: false
   render:
-    type: reference
+    type: inline
+    template: "{label} [{turns_left}]"
   art: |2
     [3]
   notes: >-
@@ -254,7 +264,10 @@ cooldown.row:
       type: string
       required: false
   render:
-    type: reference
+    type: join
+    over: abilities
+    separator: "  "
+    template: "{label} [{turns_left}]"
   art: |2
     Strike [0]  Block [2]  Dash [1]
   color_hint: ui.muted

@@ -1,10 +1,10 @@
 # AskeeDS — game/character
-# Character components.
+# Character stats, conditions, and relationships.
 
 
 character-sheet.compact:
   category: game/character
-  description: "Name plus 2–3 rows (HP, mana, status); reuses meter/label."
+  description: Compact stat block with name header and resource bars.
   status: approved
   props:
     name:
@@ -58,7 +58,17 @@ panel.survival-status:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 40
+    border: single
+    sections:
+      - type: header
+        text: "Survival"
+      - type: divider
+      - type: bars
+        over: needs
+        bar_width: 12
+        template: " {label:<8} [{bar}] {current}/{max}"
   art: |2
     Survival
     Hunger:   [=====               ] 30/100
@@ -147,7 +157,21 @@ panel.consequence:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 44
+    border: single
+    sections:
+      - type: header
+        text: "Consequences"
+      - type: divider
+      - type: list
+        label: "Body"
+        over: body_conditions
+        template: "  - {label} ({severity})"
+      - type: list
+        label: "Mental"
+        over: mental_conditions
+        template: "  - {label} ({severity})"
   art: |2
     +------------------------------------------+
     | Consequences                             |

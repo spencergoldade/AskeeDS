@@ -1,11 +1,11 @@
 # AskeeDS — game/exploration
-# Exploration components.
+# Room, map, and narrative exploration components.
 
 
 room-card.default:
   category: game/exploration
-  description: "Room pane: title, body, then engine-generated \"You see\" and Exits."
-  status: in-review
+  description: Room overview with title, description, entities, and exits.
+  status: approved
   props:
     title:
       type: string
@@ -13,9 +13,15 @@ room-card.default:
     description_text:
       type: string
       required: true
-    entity_list:
+    items:
       type: array
-      required: true
+      required: false
+      element:
+        id: string
+        label: string
+    npcs:
+      type: array
+      required: false
       element:
         id: string
         label: string
@@ -41,18 +47,18 @@ room-card.default:
         indent: 1
       - type: blank
       - type: list
-        label: Items
+        label: "Items"
         over: items
         template: "  {label}"
         if_empty: hide
       - type: list
-        label: NPCs
+        label: "NPCs"
         over: npcs
         template: "  {label}"
         if_empty: hide
       - type: divider
       - type: list
-        label: Exits
+        label: "Exits"
         over: exits
         template: "  {label}"
   art: |2
@@ -70,7 +76,7 @@ room-card.default:
 
 entity-list.room:
   category: game/exploration
-  description: Scannable list of items and NPCs in current room (from content).
+  description: Scannable list of items and NPCs in current room.
   status: in-review
   props:
     items:
@@ -89,7 +95,20 @@ entity-list.room:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 30
+    border: single
+    sections:
+      - type: list
+        label: "Items"
+        over: items
+        template: "  * {label}"
+        if_empty: hide
+      - type: list
+        label: "NPCs"
+        over: npcs
+        template: "  * {label}"
+        if_empty: hide
   art: |2
     You see:
       * brass lamp
@@ -101,7 +120,7 @@ entity-list.room:
 
 exit-list.inline:
   category: game/exploration
-  description: Exits line derived from room frontmatter exits map.
+  description: Exits line derived from room exits.
   status: in-review
   props:
     directions:
@@ -114,7 +133,11 @@ exit-list.inline:
       type: string
       required: false
   render:
-    type: reference
+    type: join
+    over: directions
+    separator: "  "
+    template: "{label}"
+    prefix: "Exits: "
   art: |2
     Exits: north  south  east
   color_hint: entity.npc
@@ -124,7 +147,7 @@ exit-list.inline:
 
 minimap.default:
   category: game/exploration
-  description: Small ASCII grid (e.g. 10x10) with legend. Secondary pane.
+  description: Small ASCII grid (e.g. 10x10) with legend.
   status: in-review
   props:
     grid:
@@ -132,8 +155,11 @@ minimap.default:
       required: true
       element_type: array
     legend_entries:
-      type: string
-      required: true
+      type: array
+      required: false
+      element:
+        char: string
+        label: string
     player_position:
       type: string
       required: true
@@ -155,7 +181,7 @@ minimap.default:
 
 narrative-log.pane:
   category: game/exploration
-  description: Scrollable narrative output; primary focus area. Bordered pane.
+  description: Scrollable narrative output; primary focus area.
   status: in-review
   props:
     lines:
@@ -169,7 +195,16 @@ narrative-log.pane:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 52
+    border: single
+    sections:
+      - type: header
+        text: "Narrative log"
+      - type: divider
+      - type: list
+        over: lines
+        template: " {}"
   art: |2
     +-- Narrative log ---------------------------------+
     | You enter the clearing.                          |

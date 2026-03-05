@@ -1,5 +1,5 @@
 # AskeeDS — game/conversation
-# Conversation components.
+# Dialogue and choice components.
 
 
 speech-bubble.left:
@@ -62,7 +62,13 @@ choice-wheel.inline:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 30
+    border: single
+    sections:
+      - type: numbered_list
+        over: options
+        template: "{label}"
   art: |2
     1. Go north
     2. Talk to guard

@@ -1,10 +1,10 @@
 # AskeeDS — game/menus
-# Menus components.
+# Game menu and quick-select components.
 
 
 menu.main:
   category: game/menus
-  description: "Main menu; title + list (New game, Load, Options, Quit)."
+  description: Main menu with title and item list.
   status: in-review
   props:
     title:
@@ -20,7 +20,16 @@ menu.main:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 36
+    border: single
+    sections:
+      - type: header
+        text: "{title}"
+      - type: divider
+      - type: list
+        over: items
+        template: "  {label}"
   art: |2
     +-- AskeeDS ----------------------+
     |  New game                       |
@@ -49,7 +58,16 @@ menu.pause:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 36
+    border: single
+    sections:
+      - type: header
+        text: "{title}"
+      - type: divider
+      - type: list
+        over: items
+        template: "  {label}"
   art: |2
     +-- Paused -----------------------+
     |  Resume                         |
