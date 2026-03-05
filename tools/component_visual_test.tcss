@@ -27,10 +27,10 @@
   background: $surface;
 }
 
-/* Detail screen: reference art block — distinct card with inner spacing */
+/* Detail screen: reference art block — distinct card with inner spacing (2 cells for clear separation) */
 .section_reference {
   background: $surface-darken-1;
-  padding: 1 1 1 1;
+  padding: 2 2 2 2;
 }
 
 /* Props editing area */
@@ -39,15 +39,16 @@
   padding: 1 0 1 1;
 }
 
-/* Preview block — consistent with reference for visual grouping */
+/* Preview block — consistent with reference; extra margin above to separate from props list */
 .section_preview {
   background: $surface-darken-1;
-  padding: 1 1 1 1;
+  padding: 2 2 2 2;
+  margin-top: 1;
 }
 
-/* Left margin for component art so it is not flush against the terminal edge */
+/* Padding around component art on all sides so it is clearly separated from other UI */
 .art_block {
-  padding-left: 2;
+  padding: 2;
 }
 
 /* Figlet font browser: list left, preview right */

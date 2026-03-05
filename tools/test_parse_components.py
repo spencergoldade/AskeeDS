@@ -122,6 +122,32 @@ class TestParseComponents(unittest.TestCase):
         self.assertGreater(len(with_status), 0, "At least one component should have component-status in meta")
         self.assertEqual(with_status[0]["meta"].get("component-status"), "In Review")
 
+    def test_reference_art_button_text(self):
+        """Parser extracts correct reference art for button.text (no meta or next-component lines)."""
+        from parse_components import parse_components
+        content = COMPONENTS_PATH.read_text(encoding="utf-8")
+        components = parse_components(content)
+        by_name = {c["name"]: c for c in components}
+        self.assertIn("button.text", by_name, "button.text must be in library")
+        art = by_name["button.text"]["art"]
+        self.assertEqual(art.strip(), "[ Submit ]", f"button.text art should be '[ Submit ]', got: {art!r}")
+
+    def test_reference_art_character_sheet_compact(self):
+        """Parser extracts correct reference art for character-sheet.compact (no meta or next-component lines)."""
+        from parse_components import parse_components
+        content = COMPONENTS_PATH.read_text(encoding="utf-8")
+        components = parse_components(content)
+        by_name = {c["name"]: c for c in components}
+        self.assertIn("character-sheet.compact", by_name, "character-sheet.compact must be in library")
+        art = by_name["character-sheet.compact"]["art"]
+        art_stripped = art.strip()
+        self.assertIn("Hero", art_stripped, "character-sheet.compact art should contain 'Hero'")
+        self.assertIn("HP:", art_stripped, "character-sheet.compact art should contain 'HP:'")
+        self.assertIn("85/100", art_stripped, "character-sheet.compact art should contain '85/100'")
+        self.assertIn("Mana:", art_stripped, "character-sheet.compact art should contain 'Mana:'")
+        self.assertIn("20/50", art_stripped, "character-sheet.compact art should contain '20/50'")
+        self.assertNotIn("COMPONENT:", art_stripped, "Art must not include next component header")
+
 
 if __name__ == "__main__":
     unittest.main()

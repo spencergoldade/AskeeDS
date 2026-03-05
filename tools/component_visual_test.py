@@ -829,8 +829,8 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
                     lines.append("  > " + slab + (f" ({att})" if att else "") + tag_str)
             return "\n".join(lines)
         return "Allies\n  > Guard captain (friendly) [city, watch]\nRivals\n  > Thieves' Guild (hostile) [underworld]"
-    # Generic path: explicit branch or default-as-placeholder substitution.
-    # When parsed_props is provided, replace default values in art with current props.
+    # Generic path: default-as-placeholder substitution only. No [ Props: ... ] in preview.
+    # Only substitute simple values (str/int/float) or list labels; never dicts or JSON-like strings.
     else:
         substituted = False
         if parsed_props is not None:
@@ -840,6 +840,13 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
                 if default_val is None:
                     continue
                 current_val = props.get(key)
+                # Skip dicts and JSON-like strings so we never inject prop names/syntax into art.
+                if isinstance(current_val, dict):
+                    continue
+                if isinstance(current_val, str) and current_val.strip().startswith("{"):
+                    continue
+                if isinstance(default_val, dict):
+                    continue
                 if isinstance(default_val, (str, int, float)):
                     default_str = str(default_val)
                     current_str = str(current_val)
@@ -854,17 +861,13 @@ def apply_props_to_art(component_name: str, art: str, props: dict, parsed_props:
                     substituted = True
         if not substituted:
             for key, val in props.items():
+                if isinstance(val, dict):
+                    continue
+                if isinstance(val, str) and val.strip().startswith("{"):
+                    continue
                 if isinstance(val, (str, int, float)) and str(val) in out:
                     out = out.replace(str(val), str(val), 1)
                     break
-    # Fallback: when parsed_props was provided, append only if no substitution; else always append
-    if parsed_props is None or not substituted:
-        try:
-            props_preview = json.dumps({k: v for k, v in props.items()}, indent=0)[:200]
-        except Exception:
-            props_preview = str(props)[:200]
-        if "\n[ Props:" not in out:
-            out = out.rstrip() + "\n\n[ Props: " + props_preview + " ]"
     return out
 
 

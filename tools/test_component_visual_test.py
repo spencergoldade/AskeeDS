@@ -219,6 +219,36 @@ class TestComponentVisualTestHelpers(unittest.TestCase):
         self.assertNotIn("Label", preview)
         self.assertNotIn("[ Props:", preview)
 
+    def test_apply_props_to_art_tui_default_props_no_props_fallback(self) -> None:
+        """With same props as TUI (default_props_for_component), button.text and character-sheet.compact have no [ Props: in preview."""
+        content = cvt.COMPONENTS_PATH.read_text(encoding="utf-8")
+        components = parse_components(content)
+        by_name = {c["name"]: c for c in components}
+        for name in ("button.text", "character-sheet.compact"):
+            self.assertIn(name, by_name, f"{name} must be in library")
+            comp = by_name[name]
+            parsed_props = parse_props_meta(comp.get("meta", {}).get("props", "") or "")
+            props = cvt.default_props_for_component(name, parsed_props)
+            art = comp.get("art") or ""
+            preview = cvt.apply_props_to_art(name, art, props, parsed_props)
+            self.assertNotIn("[ Props:", preview, f"{name}: preview must not contain [ Props: fallback; got: {preview[:200]!r}")
+
+    def test_apply_props_to_art_components_without_explicit_branch_no_props_append(self) -> None:
+        """Components without an explicit branch (e.g. header.banner) never get [ Props: ... ] in preview."""
+        content = cvt.COMPONENTS_PATH.read_text(encoding="utf-8")
+        components = parse_components(content)
+        by_name = {c["name"]: c for c in components}
+        # header.banner has no explicit branch in apply_props_to_art; uses generic path.
+        name = "header.banner"
+        if name not in by_name:
+            self.skipTest(f"{name} not in library")
+        comp = by_name[name]
+        parsed_props = parse_props_meta(comp.get("meta", {}).get("props", "") or "")
+        props = cvt.default_props_for_component(name, parsed_props)
+        art = comp.get("art") or ""
+        preview = cvt.apply_props_to_art(name, art, props, parsed_props)
+        self.assertNotIn("[ Props:", preview, f"{name}: preview must not contain [ Props: ; got: {preview[:250]!r}")
+
     def test_append_session_note_writes_expected_line(self) -> None:
         """append_session_note writes a timestamped line into today's notes file."""
         original_notes_dir = cvt.NOTES_DIR
