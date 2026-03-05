@@ -47,6 +47,18 @@ class Renderer:
             return self._render_banner(spec, props, component)
         if rtype == "frames":
             return self._render_frames(spec, props)
+        if rtype == "table":
+            return self._render_table(spec, props)
+        if rtype == "bubble":
+            return self._render_bubble(spec, props)
+        if rtype == "tree":
+            return self._render_tree(spec, props)
+        if rtype == "grid":
+            return self._render_grid(spec, props)
+        if rtype == "charmap":
+            return self._render_charmap(spec, props)
+        if rtype == "art_lookup":
+            pass
         return component.art.rstrip("\n")
 
     # -- inline ---------------------------------------------------------
@@ -249,6 +261,136 @@ class Renderer:
         if frames:
             return str(frames[0])
         return ""
+
+    # -- table ----------------------------------------------------------
+
+    def _render_table(self, spec: dict, props: dict) -> str:
+        columns = props.get(spec.get("columns_prop", "columns"), [])
+        rows = props.get(spec.get("rows_prop", "rows"), [])
+        if not columns:
+            return ""
+
+        col_widths = [len(str(h)) for h in columns]
+        for row in rows:
+            for i, cell in enumerate(row if isinstance(row, list) else []):
+                if i < len(col_widths):
+                    col_widths[i] = max(col_widths[i], len(str(cell)))
+
+        def _sep() -> str:
+            return "+" + "+".join("-" * (w + 2) for w in col_widths) + "+"
+
+        def _data_row(cells: list) -> str:
+            parts: list[str] = []
+            for i, w in enumerate(col_widths):
+                val = str(cells[i]) if i < len(cells) else ""
+                parts.append(" " + val.ljust(w) + " ")
+            return "|" + "|".join(parts) + "|"
+
+        lines = [_sep(), _data_row(columns), _sep()]
+        for row in rows:
+            cells = row if isinstance(row, list) else []
+            lines.append(_data_row(cells))
+        lines.append(_sep())
+        return "\n".join(lines)
+
+    # -- bubble ---------------------------------------------------------
+
+    def _render_bubble(self, spec: dict, props: dict) -> str:
+        text = props.get("text", "")
+        tail = spec.get("tail", "left")
+        max_width = spec.get("max_width", 40)
+        inner = max_width - 4
+        wrapped = textwrap.wrap(
+            text, width=inner, break_long_words=False,
+        ) or [""]
+        content_w = max(len(line) for line in wrapped)
+        w = content_w + 2
+        sep = "+" + "-" * w + "+"
+
+        lines = [sep]
+        for i, wline in enumerate(wrapped):
+            padded = " " + wline.ljust(content_w) + " "
+            if tail == "left" and i == 0:
+                lines.append("/" + padded + "|")
+            elif tail == "right" and i == len(wrapped) - 1:
+                lines.append("|" + padded + "\\")
+            else:
+                lines.append("|" + padded + "|")
+        lines.append(sep)
+        return "\n".join(lines)
+
+    # -- tree -----------------------------------------------------------
+
+    def _render_tree(self, spec: dict, props: dict) -> str:
+        nodes = props.get(spec.get("prop", "nodes"), [])
+        tmpl = spec.get("template", "{label}")
+        lines: list[str] = []
+        self._tree_walk(nodes, tmpl, lines, "")
+        return "\n".join(lines)
+
+    def _tree_walk(
+        self,
+        nodes: list,
+        tmpl: str,
+        lines: list[str],
+        prefix: str,
+    ) -> None:
+        for i, node in enumerate(nodes):
+            is_last = i == len(nodes) - 1
+            connector = "\u2514\u2500\u2500 " if is_last else "\u251c\u2500\u2500 "
+            text = self._interpolate(tmpl, node)
+            lines.append(prefix + connector + text)
+            children = node.get("children", [])
+            if children:
+                ext = "    " if is_last else "\u2502   "
+                self._tree_walk(children, tmpl, lines, prefix + ext)
+
+    # -- grid -----------------------------------------------------------
+
+    def _render_grid(self, spec: dict, props: dict) -> str:
+        slots = list(props.get(spec.get("prop", "slots"), []))
+        columns = props.get(spec.get("columns_prop", "columns"), 3)
+        cell_width = spec.get("cell_width", 8)
+        if columns < 1:
+            return ""
+
+        while len(slots) % columns != 0:
+            slots.append(None)
+
+        sep = "+" + (("-" * cell_width + "+") * columns)
+        lines: list[str] = []
+        for start in range(0, len(slots), columns):
+            lines.append(sep)
+            row = slots[start : start + columns]
+            cells: list[str] = []
+            for slot in row:
+                if slot and isinstance(slot, dict) and slot.get("label"):
+                    cells.append((" " + slot["label"]).ljust(cell_width)[:cell_width])
+                else:
+                    cells.append(" " * cell_width)
+            lines.append("|" + "|".join(cells) + "|")
+        lines.append(sep)
+        return "\n".join(lines)
+
+    # -- charmap --------------------------------------------------------
+
+    def _render_charmap(self, spec: dict, props: dict) -> str:
+        grid = props.get(spec.get("prop", "grid"), [])
+        legend = props.get(spec.get("legend_prop", "legend_entries"), [])
+        if not grid:
+            return ""
+        width = max(len(row) for row in grid)
+        bd = self.theme.border(spec.get("border", "single"))
+        lines: list[str] = []
+        lines.append(bd["tl"] + bd["h"] * width + bd["tr"])
+        for row in grid:
+            row_str = "".join(str(c) for c in row).ljust(width)[:width]
+            lines.append(bd["v"] + row_str + bd["v"])
+        lines.append(bd["bl"] + bd["h"] * width + bd["br"])
+        if legend:
+            entries = [f"{e.get('char', '?')} {e.get('label', '')}" for e in legend]
+            lines.append("  " + "  ".join(entries))
+        return "\n".join(lines)
 
     # -- helpers --------------------------------------------------------
 

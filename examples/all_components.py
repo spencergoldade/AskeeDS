@@ -81,7 +81,14 @@ def _sample_props(component) -> dict:
                     a["checked"], b["checked"] = True, False
                 props[pname] = [a, b]
             elif element_type == "string":
-                props[pname] = ["|", "/", "-", "\\"]
+                if pname == "columns":
+                    props[pname] = ["Name", "Value", "Notes"]
+                elif pname == "frames":
+                    props[pname] = ["|", "/", "-", "\\"]
+                else:
+                    props[pname] = ["Alpha", "Beta"]
+            elif element_type == "array":
+                props[pname] = [["Row 1", "100", "OK"], ["Row 2", "200", "Good"]]
             else:
                 props[pname] = []
     return props

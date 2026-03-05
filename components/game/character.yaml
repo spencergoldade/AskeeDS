@@ -95,7 +95,9 @@ tree.compact:
       type: string
       required: false
   render:
-    type: reference
+    type: tree
+    prop: nodes
+    template: "{label}"
   art: |2
     Combat
       > Strike
@@ -126,7 +128,9 @@ tree.relationships:
       type: string
       required: false
   render:
-    type: reference
+    type: tree
+    prop: relations
+    template: "{name} ({attitude})"
   art: |2
     Allies
       > Guard captain (friendly) [city, watch]

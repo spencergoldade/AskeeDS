@@ -36,17 +36,19 @@ table.fourcolumn:
   description: Four-column bordered table; header row and data rows.
   status: ideated
   props:
-    label:
-      type: string
+    columns:
+      type: array
       required: true
-    content:
-      type: string
+      element_type: string
+    rows:
+      type: array
       required: true
+      element_type: array
     color_role:
       type: string
       required: false
   render:
-    type: reference
+    type: table
   art: |2
     +----------------------------------+---------+------------------------+----------------+
     |               Col1               |  Col2   |          Col3          | Numeric Column |

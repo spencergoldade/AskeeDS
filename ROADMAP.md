@@ -117,10 +117,11 @@ python3 -m unittest discover -s tools      # legacy parser tests
 ## Current state (numbers)
 
 - **63 components** in YAML (10 approved, 53 ideated).
-- **51 renderable** (81%) via declarative render specs (inline, join, box,
-  clock, stage_track, banner, frames + active_list section).
-- **12 reference-only** — fall back to displaying their `art:` block.
-- **36 framework + package tests**, 19 legacy tool tests.
+- **59 renderable** (94%) via declarative render specs (inline, join, box,
+  clock, stage_track, banner, frames, table, bubble, tree, grid, charmap,
+  art_lookup + active_list section).
+- **4 reference-only** — 3 layout components (Composer) + 1 intentional.
+- **43 framework + package tests**, 19 legacy tool tests.
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
 
@@ -162,17 +163,17 @@ Each requires updating `_schema.yaml` with the new type and adding tests.
 
 **Result**: 51/63 components renderable (81%).
 
-### Batch B — New layout primitives
+### Batch B — New layout primitives (done)
 
-- [ ] `table.fourcolumn` — `table` section: column headers + data rows, auto-width, header separator
-- [ ] `speech-bubble.left` + `speech-bubble.right` — `bubble` render type: bordered bubble with directional tail (`<`/`>`), adaptive width
-- [ ] `tree.compact` + `tree.relationships` — `tree` section: recursive `├──`/`└──`/`│` connectors from nested `nodes` prop
-- [ ] `inventory.grid` — `grid` section: `slots[]` in rows of `columns` width, bordered mini-boxes
-- [ ] `minimap.default` — `charmap` section: 2D character grid + optional legend
-- [ ] `decoration.placeholder` — `art_lookup` render type: look up art by `art_id` (falls back to reference art until decorations are migrated)
-- [ ] Schema updates + tests for all Batch B types
+- [x] `table.fourcolumn` — `table` render type: auto-width columns, header separator
+- [x] `speech-bubble.left` + `speech-bubble.right` — `bubble` render type: bordered bubble with `/`/`\` tail
+- [x] `tree.compact` + `tree.relationships` — `tree` render type: recursive `├──`/`└──`/`│` connectors
+- [x] `inventory.grid` — `grid` render type: bordered cell grid from `slots[]` + `columns`
+- [x] `minimap.default` — `charmap` render type: 2D character grid + legend
+- [x] `decoration.placeholder` — `art_lookup` render type: falls back to reference art
+- [x] Schema updates + 7 tests
 
-**After Batch B**: 62/63 components renderable (98%).
+**Result**: 59/63 components renderable (94%). Remaining 4: 3 layout components (Composer, section 2) + 1 intentionally reference.
 
 ### Batch C — Stays reference (no work needed)
 
@@ -337,7 +338,7 @@ cleanup that makes the project fully "v2."
 
 - [x] **1. Batch A specialized renderers** — done (51/63 renderable)
 - [x] **2. Examples: `quick_start.py` and `all_components.py`** — done
-- [ ] **3. Batch B specialized renderers** — 11 more components (98%)
+- [x] **3. Batch B specialized renderers** — done (59/63, 94%)
 - [ ] **4. Maps and decorations migration** — unblocks `decoration.placeholder`, clears `design/ascii/`
 - [ ] **5. Composer** — depends on Batch B layout render specs
 - [ ] **6. Rich adapter** — depends on Renderer mostly complete

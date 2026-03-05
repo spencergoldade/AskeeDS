@@ -249,6 +249,76 @@ class TestRenderer(unittest.TestCase):
         output = self.renderer.render(comp, {"frames": []})
         self.assertEqual(output, "")
 
+    def test_render_table(self):
+        comp = self.components["table.fourcolumn"]
+        output = self.renderer.render(comp, {
+            "columns": ["Name", "Level"],
+            "rows": [["Hero", "5"], ["Mage", "3"]],
+        })
+        self.assertIn("Name", output)
+        self.assertIn("Hero", output)
+        self.assertIn("+", output)
+        lines = output.strip().split("\n")
+        self.assertEqual(len(lines), 6)
+
+    def test_render_bubble_left(self):
+        comp = self.components["speech-bubble.left"]
+        output = self.renderer.render(comp, {
+            "text": "Hello there.",
+            "speaker_id": "npc",
+        })
+        self.assertIn("/", output)
+        self.assertIn("Hello there.", output)
+
+    def test_render_bubble_right(self):
+        comp = self.components["speech-bubble.right"]
+        output = self.renderer.render(comp, {"text": "Goodbye."})
+        self.assertIn("\\", output)
+        self.assertIn("Goodbye.", output)
+
+    def test_render_tree(self):
+        comp = self.components["tree.compact"]
+        output = self.renderer.render(comp, {
+            "nodes": [
+                {"id": "a", "label": "Root", "children": [
+                    {"id": "b", "label": "Child", "children": []},
+                ]},
+            ],
+        })
+        self.assertIn("Root", output)
+        self.assertIn("Child", output)
+        self.assertIn("\u2514", output)
+
+    def test_render_grid(self):
+        comp = self.components["inventory.grid"]
+        output = self.renderer.render(comp, {
+            "slots": [
+                {"id": "1", "label": "Sword"},
+                {"id": "2", "label": "Shield"},
+            ],
+            "columns": 2,
+        })
+        self.assertIn("Sword", output)
+        self.assertIn("Shield", output)
+        self.assertIn("+", output)
+
+    def test_render_charmap(self):
+        comp = self.components["minimap.default"]
+        output = self.renderer.render(comp, {
+            "grid": [list("..#"), list(".P.")],
+            "legend_entries": [{"char": ".", "label": "floor"}],
+            "player_position": "1,1",
+        })
+        self.assertIn("P", output)
+        self.assertIn(". floor", output)
+
+    def test_render_art_lookup_fallback(self):
+        comp = self.components["decoration.placeholder"]
+        output = self.renderer.render(comp, {
+            "art_id": "skull", "width": 10, "height": 5,
+        })
+        self.assertTrue(len(output) > 0)
+
     def test_render_bars(self):
         comp = self.components["character-sheet.compact"]
         output = self.renderer.render(comp, {

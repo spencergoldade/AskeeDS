@@ -8,8 +8,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 - **Batch A specialized renderers**: 5 new render/section types — `active_list` (nav with selection marker), `clock` (segment progress), `stage_track` (multi-stage horizontal track), `banner` (Figlet text with fallback), `frames` (static frame from animation sequence). 51/63 components (81%) now renderable.
 - **6 new framework tests** for the Batch A render types; 36 framework + package tests total.
+- **Batch B specialized renderers**: 6 new render types — `table` (auto-width columns), `bubble` (speech bubbles with directional tail), `tree` (recursive tree with `├──`/`└──`/`│` connectors), `grid` (bordered inventory cells), `charmap` (2D character grid + legend), `art_lookup` (decoration art fallback). 59/63 components (94%) now renderable.
+- **7 new framework tests** for Batch B render types; 43 framework + package tests total.
 - **`examples/quick_start.py`**: Minimal hello-world demonstrating the YAML-first framework (Loader → Theme → Renderer).
-- **`examples/all_components.py`**: Visual catalog rendering all 51 non-reference components with auto-generated sample props.
+- **`examples/all_components.py`**: Visual catalog rendering all 59 non-reference components with auto-generated sample props.
 
 - **Framework roadmap** (`ROADMAP.md`): Feature plan with full agent context, principles, file structure, verification commands, and workspace rules. Covers specialized renderers (batches A/B/C), component composition, runtime adapters, maps/decorations migration, examples, packaging, and legacy retirement.
 - **README rewritten**: Fresh README for the YAML-first framework. Covers getting started (CLI + Python API), rendered component examples, how to add components, render types, status lifecycle, and adoption patterns. All references to the old format removed.

@@ -167,7 +167,9 @@ minimap.default:
       type: string
       required: false
   render:
-    type: reference
+    type: charmap
+    prop: grid
+    legend_prop: legend_entries
   art: |2
     +----------+
     | ....#....|

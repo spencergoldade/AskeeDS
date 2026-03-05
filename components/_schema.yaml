@@ -55,6 +55,12 @@ render:
     - stage_track
     - banner
     - frames
+    - table
+    - bubble
+    - tree
+    - grid
+    - charmap
+    - art_lookup
     - reference
 
   inline_fields:

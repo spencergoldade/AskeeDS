@@ -193,12 +193,12 @@ decoration.placeholder:
       type: string
       required: false
   render:
-    type: reference
+    type: art_lookup
   art: |2
      .-~~~-.
     (  o   o  )
     (   ^   )
      \|_|_/
   notes: >-
-    Reserve a fixed-size area for decorative ASCII art such as logos,
-    monsters, or scenes.
+    Falls back to reference art until decorations are migrated to YAML.
+    Once migrated, looks up art by art_id from the decoration catalog.
