@@ -61,6 +61,11 @@ tokens/                         # design tokens
   colors.yaml                   # 10 semantic color roles
   box-drawing.yaml              # 3 border character sets
   typography.yaml               # font conventions, approved Figlet fonts
+maps/                           # ASCII map definitions
+  tiles.yaml                    # tileset definitions (chars → tile roles)
+  index.yaml                    # map index with metadata
+decorations/                    # decorative ASCII art catalog
+  catalog.yaml                  # 23 named decorations keyed by id
 askee_ds/                       # Python package
   __init__.py                   # exports Loader, Theme, Renderer, Validator + legacy
   loader.py                     # loads YAML components and tokens (opt. validation)
@@ -75,7 +80,7 @@ askee_ds/                       # Python package
   box_drawing.py                # LEGACY: loads design/ascii/box-drawing.yaml
   _paths.py                     # repo root helper
 tests/
-  test_framework.py             # 38 tests: Loader, Renderer, Theme, Validator
+  test_framework.py             # 39 tests: Loader, Renderer, Theme, Validator
   test_package.py               # 5 legacy tests: components, decorations, maps
 tools/
   parse_components.py           # LEGACY: parser CLI (not in CI)
@@ -91,12 +96,14 @@ _archive/                       # archived files (see README in each folder)
   poc_renderer.py, design-ascii/, tools/
 ```
 
-**Files not yet migrated (still in design/ascii/):**
+**Migrated asset locations (design/ascii/ no longer exists):**
 ```
-design/ascii/maps/              # map layouts and index
-design/ascii/map-tiles.yaml     # tileset definitions
-design/ascii/box-drawing.yaml   # legacy box-drawing (askee_ds/box_drawing.py)
-design/ascii/decoration-catalog.txt  # U+241F format decorations
+maps/                           # relocated from design/ascii/maps/
+  tiles.yaml                    # tileset definitions (was map-tiles.yaml)
+  index.yaml                    # map index
+  *.txt                         # map layout files
+decorations/                    # converted from U+241F to YAML
+  catalog.yaml                  # 23 named decorations keyed by id
 ```
 
 **How to verify things work:**
@@ -184,7 +191,7 @@ Read them before starting work.
   clock, stage_track, banner, frames, table, bubble, tree, grid, charmap,
   art_lookup + active_list section).
 - **4 reference-only** — 3 layout components (Composer) + 1 intentional.
-- **43 framework + package tests**, 19 legacy tool tests.
+- **44 framework + package tests** (39 framework, 5 package), 19 legacy tool tests.
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
 
@@ -306,39 +313,39 @@ Rich adapter first, then Textual adapter.
 
 ---
 
-## 4. Maps and decorations migration
+## 4. Maps and decorations migration (done)
 
-Maps and decorations are still in `design/ascii/` in their original
-formats. Legacy parsers and CLI tools are still active and in CI.
+Maps, decorations, and box-drawing have been migrated out of
+`design/ascii/`. The directory no longer exists.
 
 ### Maps (relocation, not format conversion)
 
-- [ ] Move `design/ascii/maps/` → `maps/` (top level)
-- [ ] Move `design/ascii/map-tiles.yaml` → `maps/` or `tokens/map-tiles.yaml`
-- [ ] Update `askee_ds/maps.py` to use new path (with fallback)
-- [ ] Update CI to validate maps from new path
-- [ ] Archive `design/ascii/maps/` once confirmed
+- [x] Move `design/ascii/maps/` → `maps/` (top level)
+- [x] Move `design/ascii/map-tiles.yaml` → `maps/tiles.yaml`
+- [x] Update `askee_ds/maps.py` to use new path (with fallback)
+- [x] Update CI to validate maps from new path
+- [x] Archive `design/ascii/maps/` (removed by git mv)
 
 ### Decorations (U+241F → YAML conversion)
 
-- [ ] Convert `decoration-catalog.txt` → `decorations/catalog.yaml`
-- [ ] Add `DecorationLoader` to `askee_ds/loader.py`
-- [ ] Wire `decoration.placeholder` `art_lookup` render type to loaded catalog
-- [ ] Update `askee_ds/decorations.py` (legacy) to fall back to archive
-- [ ] Archive `design/ascii/decoration-catalog.txt` → `_archive/design-ascii/`
-- [ ] Update CI
+- [x] Convert `decoration-catalog.txt` → `decorations/catalog.yaml` (23 decorations)
+- [x] Add `Loader.load_decorations()` to `askee_ds/loader.py`
+- [x] Wire `art_lookup` render type to decoration catalog (Renderer accepts `decorations` kwarg)
+- [x] Update `askee_ds/decorations.py` (legacy) to fall back to archive
+- [x] Archive `design/ascii/decoration-catalog.txt` → `_archive/design-ascii/`
+- [x] Update CI (added `maps/**` and `decorations/**` path triggers)
 
 ### Box-drawing consolidation
 
-- [ ] Archive `design/ascii/box-drawing.yaml` → `_archive/design-ascii/`
-- [ ] Remove or deprecate `askee_ds/box_drawing.py`
+- [x] Archive `design/ascii/box-drawing.yaml` → `_archive/design-ascii/`
+- [x] Update `askee_ds/box_drawing.py` to load from `tokens/` with archive fallback
 
-### After migration (unlocked when above are done)
+### After migration
 
-- [ ] Remove `design/ascii/` directory entirely
-- [ ] Archive legacy modules (`components.py`, `decorations.py`, `maps.py`, `box_drawing.py`, `_paths.py`)
-- [ ] Remove legacy CLI entries from `pyproject.toml`
-- [ ] Archive legacy tools and their tests
+- [x] Remove `design/ascii/` directory entirely
+- [ ] Archive legacy modules (`components.py`, `decorations.py`, `maps.py`, `box_drawing.py`, `_paths.py`) — section 7
+- [ ] Remove legacy CLI entries from `pyproject.toml` — section 7
+- [ ] Archive legacy tools and their tests — section 7
 
 ---
 
@@ -402,7 +409,7 @@ cleanup that makes the project fully "v2."
 - [x] **1. Batch A specialized renderers** — done (51/63 renderable)
 - [x] **2. Examples: `quick_start.py` and `all_components.py`** — done
 - [x] **3. Batch B specialized renderers** — done (59/63, 94%)
-- [ ] **4. Maps and decorations migration** — unblocks `decoration.placeholder`, clears `design/ascii/`
+- [x] **4. Maps and decorations migration** — done (maps relocated, decorations YAML, box-drawing consolidated, design/ascii/ removed)
 - [ ] **5. Composer** — depends on Batch B layout render specs
 - [ ] **6. Rich adapter** — depends on Renderer mostly complete
 - [ ] **7. Textual adapter + `textual_app.py`** — depends on Rich adapter

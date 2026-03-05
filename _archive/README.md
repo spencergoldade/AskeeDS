@@ -12,5 +12,5 @@ required at runtime. It exists purely as a historical reference.
 | Folder | What was archived |
 |--------|-------------------|
 | `poc_renderer.py` | Standalone proof-of-concept that preceded the `askee_ds` package. |
-| `design-ascii/` | The original U+241F delimiter format files (components.txt, format spec, tokens, manifest, prop shapes). |
+| `design-ascii/` | The original `design/ascii/` files: U+241F components, format spec, tokens, manifest, prop shapes, decoration catalog, box-drawing chars, and directory README. |
 | `tools/` | Retired CLI tools and migration scripts that operated on the old format. |

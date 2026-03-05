@@ -18,7 +18,7 @@ LINE_WIDTH = 60
 def main() -> int:
     errors, warnings, parsed_maps = maps_mod.load_and_validate_default_maps()
     root = Path(__file__).resolve().parent.parent
-    maps_path = root / "design" / "ascii" / "maps"
+    maps_path = root / "maps"
 
     # 1. Report title and status-first summary
     print("AskeeDS Map Preview")

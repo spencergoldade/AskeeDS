@@ -46,7 +46,10 @@ def main() -> int:
     if args.paths:
         paths = [Path(p) for p in args.paths]
     else:
-        paths = [ROOT / "design" / "ascii" / "decoration-catalog.txt"]
+        default = ROOT / "design" / "ascii" / "decoration-catalog.txt"
+        if not default.exists():
+            default = ROOT / "_archive" / "design-ascii" / "decoration-catalog.txt"
+        paths = [default]
 
     for path in paths:
         if not path.exists():

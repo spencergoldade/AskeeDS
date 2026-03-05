@@ -1,0 +1,309 @@
+# AskeeDS Decoration Catalog
+# Decorative ASCII art keyed by id. Used by the art_lookup render type.
+
+decoration.skull.small:
+  title: Small skull
+  tags:
+  - skull
+  - spooky
+  source: https://commons.wikimedia.org/wiki/File:SombraASCIISkull.svg (adapted)
+  license: public-domain
+  notes: Approx 9x5; fits inside card.simple or panel.consequence.
+  art: |2
+       .-\"\"-.
+      / .--. \
+      | |  | |
+      | '--' |
+       '----'
+decoration.tombstone.small:
+  title: Small tombstone
+  tags:
+  - tombstone
+  - grave
+  - spooky
+  source: original
+  license: original
+  notes: Approx 7x5; good for death screens or graveyards.
+  art: |2
+       _____
+      / RIP \
+      |     |
+      |     |
+      '-----'
+decoration.fish.small:
+  title: Small fish
+  tags:
+  - fish
+  - nature
+  - water
+  source: original
+  license: original
+  notes: Approx 11x3; use in coastal or river scenes.
+  art: |2
+        ><(((('>
+decoration.tree.small:
+  title: Small tree
+  tags:
+  - tree
+  - nature
+  - forest
+  source: original
+  license: original
+  notes: Approx 7x5; fits in side panels or cards.
+  art: "   /\\ \n  /**\\\n /****\\\n   || \n   || \n"
+decoration.key.simple:
+  title: Simple key
+  tags:
+  - key
+  - door
+  - lock
+  source: original
+  license: original
+  notes: Approx 11x3; pair with doors, chests, or puzzles.
+  art: |2
+      ___
+     / o \
+     \___/===
+decoration.door.simple:
+  title: Simple door
+  tags:
+  - door
+  - building
+  - utility
+  source: original
+  license: original
+  notes: Approx 7x6; use for entrances, exits, or locked rooms.
+  art: |2
+      _____
+     |   o|
+     |    |
+     |    |
+     |    |
+     '----'
+decoration.book.simple:
+  title: Open book
+  tags:
+  - book
+  - lore
+  - library
+  source: original
+  license: original
+  notes: Approx 13x4; good for lore entries and spellbooks.
+  art: |2
+      __...__
+     /__   _\
+     \_/|_| /
+        `-'
+decoration.crystal.simple:
+  title: Simple crystal
+  tags:
+  - crystal
+  - magic
+  - gem
+  source: original
+  license: original
+  notes: Approx 7x5; use for magical items or focal points.
+  art: |2
+       /\
+      /  \
+     / /\ \
+     \ \/ /
+      \  /
+       \/
+decoration.eye.simple:
+  title: Watching eye
+  tags:
+  - eye
+  - watching
+  - mystic
+  source: original
+  license: original
+  notes: Approx 9x4; fits in narrow sidebars.
+  art: |2
+       .---.
+      / 0  \
+      \___/
+decoration.heart.pixel:
+  title: Pixel heart
+  tags:
+  - heart
+  - life
+  - ui
+  source: original
+  license: original
+  notes: Approx 7x4; works as a life or affection icon.
+  art: "  _  _ \n / \\/ \\\n \\    /\n  \\__/ \n"
+decoration.campfire.simple:
+  title: Small campfire
+  tags:
+  - campfire
+  - fire
+  - rest
+  source: original
+  license: original
+  notes: Approx 9x5; use at rest spots or camps.
+  art: |2
+       (  )
+      (    )
+       )  (
+      /====\
+       /  \
+decoration.divider.flourish:
+  title: Simple flourish divider
+  tags:
+  - divider
+  - ui
+  - flourish
+  source: original
+  license: original
+  notes: Approx 27x1; use as a decorative horizontal rule.
+  art: |
+    ~*~*~*~*~*~*~*~*~*~*~*~*~*~
+decoration.sword.simple:
+  title: Simple sword
+  tags:
+  - sword
+  - weapon
+  - arms
+  source: original
+  license: original
+  notes: Approx 7x5; use near combat or weapon descriptions.
+  art: |2
+       /\
+       ||
+       ||
+      /==\
+       ||
+decoration.shield.simple:
+  title: Simple shield
+  tags:
+  - shield
+  - armor
+  - arms
+  source: original
+  license: original
+  notes: Approx 7x5; pair with defensive abilities or armor.
+  art: |2
+       ____
+      / __ \
+     | |  | |
+      \ \/ /
+       \__/
+decoration.potion.flask:
+  title: Potion flask
+  tags:
+  - potion
+  - flask
+  - alchemy
+  source: original
+  license: original
+  notes: Approx 7x5; use for alchemy, healing, or buffs.
+  art: "   __\n  /  \\\n  \\__/ \n  /  \\\n  \\__/ \n"
+decoration.coin.stack:
+  title: Coin stack
+  tags:
+  - coin
+  - gold
+  - currency
+  source: original
+  license: original
+  notes: Approx 9x4; use for treasure, shops, or rewards.
+  art: |2
+       .-.
+      (   )
+      (   )
+       `-'
+decoration.castle.silhouette:
+  title: Castle silhouette
+  tags:
+  - castle
+  - fortress
+  - structure
+  source: original
+  license: original
+  notes: Approx 13x5; good for region headers or major locations.
+  art: |2
+       _||_
+      | __ |
+      ||  ||
+      ||  ||
+     /_----_\
+decoration.mountain.range:
+  title: Mountain range
+  tags:
+  - mountain
+  - range
+  - landscape
+  source: original
+  license: original
+  notes: Approx 17x3; use for overland or world-map scenes.
+  art: |2
+       /\    /\
+      /  \  /  \
+     /____\/____\
+decoration.moon.crescent:
+  title: Crescent moon
+  tags:
+  - moon
+  - night
+  - sky
+  source: original
+  license: original
+  notes: Approx 7x4; use for night scenes or time-of-day cues.
+  art: |2
+       __
+      /  )
+     (  (
+      \__)
+decoration.starfield.small:
+  title: Small starfield
+  tags:
+  - stars
+  - sky
+  - space
+  source: original
+  license: original
+  notes: Approx 17x3; sprinkle around cosmic or dreamlike scenes.
+  art: |2
+      *   .    *    .
+         *   .    *
+     .   *      .   *
+decoration.sun.simple:
+  title: Simple sun
+  tags:
+  - sun
+  - day
+  - sky
+  source: original
+  license: original
+  notes: Approx 9x3; use for bright or daytime markers.
+  art: |2
+        \ | /
+      --  O  --
+        / | \
+decoration.vine.corner:
+  title: Corner vine
+  tags:
+  - vine
+  - corner
+  - border
+  source: original
+  license: original
+  notes: Approx 7x4; use in decorative corners of cards or panels.
+  art: |2
+      /
+     /)
+    //)
+    V )
+decoration.wave.border:
+  title: Wave border
+  tags:
+  - wave
+  - border
+  - water
+  source: original
+  license: original
+  notes: Approx 19x2; use near water-themed areas or UIs.
+  art: |2
+     ~~~~~  ~~~~~  ~~~~~
+      ~~~~~  ~~~~~  ~~~

@@ -9,6 +9,8 @@ on:
       - "examples/**"
       - "tools/**"
       - "design/**"
+      - "maps/**"
+      - "decorations/**"
       - "tests/**"
       - ".github/workflows/tests.yml"
   pull_request:
@@ -19,6 +21,8 @@ on:
       - "examples/**"
       - "tools/**"
       - "design/**"
+      - "maps/**"
+      - "decorations/**"
       - "tests/**"
       - ".github/workflows/tests.yml"
 

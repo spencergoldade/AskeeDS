@@ -27,8 +27,9 @@ from .theme import Theme
 
 class Renderer:
 
-    def __init__(self, theme: Theme):
+    def __init__(self, theme: Theme, decorations: dict[str, dict] | None = None):
         self.theme = theme
+        self._decorations = decorations or {}
 
     def render(self, component: Component, props: dict) -> str:
         spec = component.render
@@ -58,7 +59,7 @@ class Renderer:
         if rtype == "charmap":
             return self._render_charmap(spec, props)
         if rtype == "art_lookup":
-            pass
+            return self._render_art_lookup(spec, props, component)
         return component.art.rstrip("\n")
 
     # -- inline ---------------------------------------------------------
@@ -390,6 +391,28 @@ class Renderer:
         if legend:
             entries = [f"{e.get('char', '?')} {e.get('label', '')}" for e in legend]
             lines.append("  " + "  ".join(entries))
+        return "\n".join(lines)
+
+    # -- art_lookup -----------------------------------------------------
+
+    def _render_art_lookup(self, spec: dict, props: dict, component: Component) -> str:
+        art_id = str(props.get("art_id", ""))
+        entry = self._decorations.get(art_id)
+        art_text = entry.get("art", "").rstrip("\n") if entry else ""
+        if not art_text:
+            art_text = component.art.rstrip("\n")
+        width = int(props.get("width", 0))
+        height = int(props.get("height", 0))
+        if not width and not height:
+            return art_text
+        lines = art_text.splitlines()
+        if height and len(lines) > height:
+            lines = lines[:height]
+        if width:
+            lines = [ln[:width].ljust(width) for ln in lines]
+        if height and len(lines) < height:
+            pad = width if width else (max(len(ln) for ln in lines) if lines else 0)
+            lines.extend([" " * pad] * (height - len(lines)))
         return "\n".join(lines)
 
     # -- helpers --------------------------------------------------------

@@ -35,6 +35,8 @@ def load_box_drawing(root: Path | None = None) -> dict[str, Any]:
         )
     if root is None:
         root = repo_root()
-    path = root / "design" / "ascii" / "box-drawing.yaml"
+    path = root / "tokens" / "box-drawing.yaml"
+    if not path.exists():
+        path = root / "_archive" / "design-ascii" / "box-drawing.yaml"
     data = yaml.safe_load(path.read_text(encoding="utf-8"))  # type: ignore[arg-type]
     return data if isinstance(data, dict) else {}

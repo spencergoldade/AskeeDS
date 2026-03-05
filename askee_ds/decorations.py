@@ -126,7 +126,10 @@ def validate_decorations(decorations: list[dict]) -> tuple[list[str], list[str]]
 
 
 def load_default_decorations() -> list[dict]:
-    path = repo_root() / "design" / "ascii" / "decoration-catalog.txt"
+    root = repo_root()
+    path = root / "design" / "ascii" / "decoration-catalog.txt"
+    if not path.exists():
+        path = root / "_archive" / "design-ascii" / "decoration-catalog.txt"
     content = path.read_text(encoding="utf-8")
     return parse_decorations(content)
 

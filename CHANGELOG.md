@@ -13,6 +13,14 @@ All notable changes to AskeeDS will be documented in this file.
 - **`examples/quick_start.py`**: Minimal hello-world demonstrating the YAML-first framework (Loader → Theme → Renderer).
 - **`examples/all_components.py`**: Visual catalog rendering all 59 non-reference components with auto-generated sample props.
 
+### Changed
+
+- **Maps relocated**: `design/ascii/maps/` moved to top-level `maps/`; `design/ascii/map-tiles.yaml` moved to `maps/tiles.yaml`. The maps parser, CLI tool, and example all use the new paths with legacy fallback.
+- **Decorations converted to YAML**: `design/ascii/decoration-catalog.txt` (U+241F format, 23 decorations) converted to `decorations/catalog.yaml`. New `Loader.load_decorations()` method loads the catalog. The `art_lookup` render type now looks up art by `art_id` from the catalog with width/height cropping.
+- **Box-drawing consolidated**: `askee_ds/box_drawing.py` now loads from `tokens/box-drawing.yaml` instead of the archived legacy file.
+- **`design/ascii/` eliminated**: All three remaining files archived to `_archive/design-ascii/`; the directory no longer exists.
+- **Decoration catalog typo fixed**: `decoration.shield.simple` used U+27DF instead of U+241F for the notes line; fixed before conversion.
+
 ### Documentation
 
 - **README updated** to reflect current state: render types table expanded from 4 to 14 entries, component counts updated (59/63 renderable), examples directory added to file tree, `all_components.py` mentioned alongside CLI preview commands.

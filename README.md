@@ -54,8 +54,14 @@ tokens/                     design tokens
   colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
   box-drawing.yaml          3 border character sets (single, heavy, double)
   typography.yaml           Figlet font conventions, line width rules
+maps/                       ASCII map definitions
+  tiles.yaml                tileset definitions (chars → tile roles)
+  index.yaml                map index with metadata
+  *.txt                     map layout files (ASCII grids)
+decorations/                decorative ASCII art catalog
+  catalog.yaml              23 named decorations keyed by id
 askee_ds/                   Python package
-  loader.py                 loads YAML components and tokens
+  loader.py                 loads YAML components, tokens, and decorations
   renderer.py               renders components from definitions
   theme.py                  resolves tokens to concrete values
   validator.py              validates components against _schema.yaml

@@ -92,6 +92,16 @@ class Loader:
             all_components.update(self.load_components(f.read_text()))
         return all_components
 
+    def load_decorations(self, path: str | Path) -> dict[str, dict]:
+        """Load decoration catalog YAML. Returns {id: {title, tags, art, ...}}."""
+        p = Path(path)
+        if not p.exists():
+            return {}
+        data = yaml.safe_load(p.read_text())
+        if not data or not isinstance(data, dict):
+            return {}
+        return {k: v for k, v in data.items() if isinstance(v, dict)}
+
     def load_tokens(self, source: str) -> dict:
         """Parse a YAML string containing token definitions."""
         return yaml.safe_load(source) or {}

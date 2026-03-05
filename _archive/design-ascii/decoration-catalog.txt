@@ -191,7 +191,7 @@ Arms and artifacts
 ␟ tags: shield,armor,arms
 ␟ source: original
 ␟ license: original
-⟟ notes: Approx 7x5; pair with defensive abilities or armor.
+␟ notes: Approx 7x5; pair with defensive abilities or armor.
    ____
   / __ \
  | |  | |

@@ -38,8 +38,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    tiles_path = ROOT / "design" / "ascii" / "map-tiles.yaml"
-    index_path = ROOT / "design" / "ascii" / "maps" / "index.yaml"
+    tiles_path = ROOT / "maps" / "tiles.yaml"
+    index_path = ROOT / "maps" / "index.yaml"
     maps_dir = index_path.parent
 
     try:

@@ -220,8 +220,11 @@ def validate_maps(
 
 def load_and_validate_default_maps() -> tuple[list[str], list[str], list[dict]]:
     root = repo_root()
-    tiles_path = root / "design" / "ascii" / "map-tiles.yaml"
-    index_path = root / "design" / "ascii" / "maps" / "index.yaml"
+    tiles_path = root / "maps" / "tiles.yaml"
+    index_path = root / "maps" / "index.yaml"
+    if not tiles_path.exists():
+        tiles_path = root / "design" / "ascii" / "map-tiles.yaml"
+        index_path = root / "design" / "ascii" / "maps" / "index.yaml"
     maps_dir = index_path.parent
     tilesets = load_tilesets(tiles_path)
     maps = load_map_index(index_path, maps_dir)

@@ -315,9 +315,24 @@ class TestRenderer(unittest.TestCase):
     def test_render_art_lookup_fallback(self):
         comp = self.components["decoration.placeholder"]
         output = self.renderer.render(comp, {
-            "art_id": "skull", "width": 10, "height": 5,
+            "art_id": "nonexistent.thing", "width": 10, "height": 5,
         })
         self.assertTrue(len(output) > 0)
+
+    def test_render_art_lookup_with_catalog(self):
+        from askee_ds import Loader, Theme, Renderer
+        loader = Loader()
+        decos = loader.load_decorations(ROOT / "decorations" / "catalog.yaml")
+        tokens = loader.load_tokens_dir(TOKENS_DIR)
+        renderer = Renderer(Theme(tokens), decorations=decos)
+        comp = self.components["decoration.placeholder"]
+        output = renderer.render(comp, {
+            "art_id": "decoration.skull.small", "width": 20, "height": 6,
+        })
+        self.assertIn(".-", output)
+        lines = output.splitlines()
+        self.assertEqual(len(lines), 6)
+        self.assertTrue(all(len(ln) == 20 for ln in lines))
 
     def test_render_bars(self):
         comp = self.components["character-sheet.compact"]
