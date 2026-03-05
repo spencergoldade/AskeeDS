@@ -496,3 +496,6 @@ A component can be promoted to `approved` when it meets all of these:
   ones.
 - **See everything rendered at once** — Run
   `python examples/all_components.py` for a visual catalog.
+- **Credit AskeeDS** — If you ship a game using AskeeDS, please add
+  "AskeeDS by Spencer Goldade" to your credits. See
+  [README.md](README.md) for details.

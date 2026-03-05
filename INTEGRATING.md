@@ -193,7 +193,7 @@ Validate all YAML component definitions against the schema.
 
 ```bash
 askee-ds validate
-# OK — 58 components validated, 0 errors.
+# OK — 56 components validated, 0 errors.
 ```
 
 ### `askee-ds preview`
@@ -213,7 +213,7 @@ props.
 List components, optionally filtered.
 
 ```bash
-askee-ds list                       # All 58 components
+askee-ds list                       # All 56 components
 askee-ds list --status approved     # Only approved components
 askee-ds list --prefix status-bar   # Name prefix filter
 ```
@@ -387,3 +387,16 @@ adapters, CLI, sizing, interaction specs, and screen composition.
 | [pyfiglet](https://github.com/pwaller/pyfiglet) | Figlet banner text for `typography.banner`. | Optional (`pip install -e ".[banner]"`) |
 | [Rich](https://github.com/Textualize/rich) | ANSI-colored output via the Rich adapter. | Optional (`pip install -e ".[rich]"`) |
 | [Textual](https://github.com/Textualize/textual) | TUI widgets via the Textual adapter. | Optional (`pip install -e ".[textual]"`) |
+
+---
+
+## License and attribution
+
+AskeeDS is released under the [MIT License](LICENSE).
+
+If you ship a game, tool, or product that uses AskeeDS, please credit:
+
+> AskeeDS by Spencer Goldade
+
+Add this to your credits screen, README, or about page. See
+[README.md](README.md) for full details.

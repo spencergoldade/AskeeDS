@@ -24,6 +24,8 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Changed
 
+- **Registry-based renderer**: Refactored the monolithic 520-line `renderer.py` into a thin dispatcher backed by a pluggable render type registry (`askee_ds/render_types/`). Each of the 16 render types is now a standalone module. Consumers can register custom render types via `Renderer.register_type()` or `from askee_ds.render_types import register` without modifying framework source. Zero regressions — all 62 renderable components produce identical output.
+- **Pytest test suite**: Migrated from unittest to pytest. Split the monolithic 574-line `test_framework.py` into 7 focused modules (`test_loader`, `test_theme`, `test_renderer`, `test_composer`, `test_validator`, `test_adapters`, `test_cli`). Added `conftest.py` with session-scoped fixtures. 62 tests (9 new CLI tests), runs in ~0.6s. CI updated to use pytest.
 - **Layout render types are now responsive**: `render_stack`, `render_columns`, and `render_shell` use `ctx.available_width` via `resolve_width` instead of sizing from content. Layouts propagate available width to children for proper responsive behavior.
 - **8 components migrated to adaptive sizing**: `status-bar.default`, `room-card.default`, `narrative-log.pane`, `entity-list.room`, `modal.overlay`, `character-sheet.compact`, `menu.main`, `card.simple` now use `width: fill` with `min_width`/`max_width` constraints instead of fixed integers. They reflow to the available terminal width while staying within readable bounds.
 - **Consolidated `speech-bubble.left` + `speech-bubble.right`** into a single `speech-bubble` component with a `tail` prop (`left` or `right`, defaults to `left`). Bubble renderer reads tail from props first, spec as fallback.
@@ -32,20 +34,19 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Documentation
 
-- **README**: Replaced "What AskeeDS does not do" list with a designer-centric comparison table ("AskeeDS handles the look / Your engine handles the logic"). Updated component counts (56 total, 24 approved) and file tree (17 example screens).
-- **GUIDE.md**: Updated component counts, added adaptive sizing details for the 8 migrated components, and noted the 17 example screens across 6 gameplay contexts.
-- **REFERENCE.md**: Expanded `element_type` documentation and added adaptive sizing note.
-- **Private sizing guide**: Created `docs/sizing-guide.md` (gitignored) — a plain-language walkthrough for the designer explaining when and how to use `fill`, `content`, fixed widths, and min/max constraints.
-
-### Documentation
-
 - **Documentation restructured into audience-specific guides**: Split the monolithic README into four root-level files. `GUIDE.md` is a designer-first walkthrough (concepts, vocabulary, step-by-step tutorials — zero Python, YAML only). `REFERENCE.md` is a structured lookup for all 16 render types, 11 section types, 10 color roles, interaction fields, and every component/prop/screen field. `INTEGRATING.md` is the developer guide covering Python API, CLI reference, Rich and Textual adapters, render type extension, and project adoption patterns. `README.md` slimmed to a concise landing page with Quick Start links by role.
+- **README**: Replaced "What AskeeDS does not do" list with a designer-centric comparison table ("AskeeDS handles the look / Your engine handles the logic"). Updated component counts (56 total, 24 approved) and file tree (17 example screens). Added license, attribution, and contributing sections.
+- **GUIDE.md**: Updated component counts, added adaptive sizing details for the 8 migrated components, and noted the 17 example screens across 6 gameplay contexts. Added attribution reminder.
+- **REFERENCE.md**: Expanded `element_type` documentation and added adaptive sizing note.
+- **INTEGRATING.md**: Fixed stale component counts (58 → 56). Added license and attribution section.
+- **ROADMAP.md**: Full rewrite for v4 state — updated component counts, test counts, completed milestones (v3 + v4), and next steps.
+- **CHANGELOG.md**: Merged duplicate section headers in the Unreleased block.
+- **LICENSE**: Added MIT license (Spencer Goldade, 2026). Allows use, modification, and redistribution with attribution.
+- **Private sizing guide**: Created `docs/sizing-guide.md` (gitignored) — a plain-language walkthrough for the designer explaining when and how to use `fill`, `content`, fixed widths, and min/max constraints.
+- Deleted stale `docs/visual-test-mapping.md` (referenced archived tool).
 - Deleted stale `design/README.md` (referenced archived files).
 - Added "What AskeeDS does not do" section to README (8 explicit scope boundaries).
 - Rewrote ROADMAP.md for v3 direction: completed items summary and prioritized next steps.
-
-- **Registry-based renderer**: Refactored the monolithic 520-line `renderer.py` into a thin dispatcher backed by a pluggable render type registry (`askee_ds/render_types/`). Each of the 16 render types is now a standalone module. Consumers can register custom render types via `Renderer.register_type()` or `from askee_ds.render_types import register` without modifying framework source. Zero regressions — all 62 renderable components produce identical output.
-- **Pytest test suite**: Migrated from unittest to pytest. Split the monolithic 574-line `test_framework.py` into 7 focused modules (`test_loader`, `test_theme`, `test_renderer`, `test_composer`, `test_validator`, `test_adapters`, `test_cli`). Added `conftest.py` with session-scoped fixtures. 62 tests (9 new CLI tests), runs in ~0.6s. CI updated to use pytest.
 
 ### Removed
 

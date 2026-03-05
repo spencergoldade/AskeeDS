@@ -5,19 +5,23 @@ component framework for TUI and text-based games.
 
 ---
 
-## Current state (v3 architecture)
+## Current state (v4)
 
-The v3 foundational restructure is complete. All 9 planned work items
-have been implemented, tested, and committed.
+The v4 foundation sweep is complete. All planned work items — bug fixes,
+responsive architecture, component consolidation, snapshot testing,
+component proving, screen composition, and documentation — have been
+implemented, tested, and committed.
 
-- **58 components** (10 approved, 48 ideated) across 15 category files.
-- **109 tests** in 10 test modules, running in under 1 second.
+- **56 components** (24 approved, 32 ideated) across 15 category files.
+- **157 tests** in 10 test modules, running in ~1 second.
 - **16 render types** in a pluggable registry (`askee_ds/render_types/`).
-- **Declarative sizing**: components declare `width: fill`, `content`, or
-  fixed integers, with min/max constraints.
-- **Interaction specs**: focusable, keyboard actions, and scrollable
+- **24 snapshot golden files** for visual regression testing.
+- **Declarative sizing**: 8 components use `width: fill` with
+  `min_width`/`max_width` constraints. Layouts propagate `available_width`
+  to children.
+- **Interaction specs**: Focusable, keyboard actions, and scrollable
   declarations in component YAML.
-- **Screen composition**: full game screens defined as YAML files,
+- **Screen composition**: 17 example screens across 6 gameplay contexts,
   rendered via `askee-ds compose` or `Composer.compose_screen()`.
 - **CLI**: `validate`, `preview`, `list`, `compose`.
 
@@ -35,54 +39,65 @@ by name. Custom types can be added via `Renderer.register_type()`.
 
 ---
 
-## Completed (v3)
+## Completed
+
+### v4 — Foundation sweep (current)
+
+1. Fixed 5 broken components and render type bugs
+2. Wired `available_width` through layout render types
+3. Migrated 8 components to adaptive sizing (`width: fill`)
+4. Consolidated `speech-bubble` variants; removed `menu.pause`
+5. Snapshot testing for all 24 approved components
+6. Proved 14 components (10 → 24 approved)
+7. Composed 17 example game screens
+8. Documentation split into audience-specific guides
+
+### v3 — Architecture
 
 1. Registry-based renderer (monolithic → modular)
-2. Pytest test suite (unittest → pytest, 7 focused modules)
-3. Game content eviction (maps/ and decorations/ archived)
+2. Pytest test suite (unittest → pytest)
+3. Game content eviction (maps/decorations archived)
 4. Validated color roles (color_hint → default_color_role)
-5. Declarative sizing model (fill, content, min/max)
-6. Interaction spec (focusable, actions, scrollable)
-7. Component catalog audit (63 → 58, proving criteria defined)
-8. Declarative screen composition (YAML screens, CLI compose)
-9. Documentation updates
+5. Declarative sizing model
+6. Interaction spec
+7. Component catalog audit (63 → 58)
+8. Declarative screen composition
+9. Documentation restructure
 
 ---
 
 ## What's next
 
-These are the natural next steps now that the foundation is solid.
+These are natural next steps now that the foundation is solid.
 Priority order reflects dependencies and value.
 
 ### 1. Prove more components (ideated → approved)
 
-Apply the proving criteria to move the strongest ideated components to
-approved. Priority candidates:
+32 ideated components remain. Priority candidates for the next proving
+round:
 
-- `command-input.default` — the primary text adventure input
-- `entity-list.room` — room contents display
-- `narrative-log.pane` — main game output area
-- `menu.main` — main menu (already has interaction spec)
-- `feedback.success` / `feedback.error` — core game feedback
-- `layout.stack` / `layout.app.shell` — layout primitives
+- `command-input.default` — primary text adventure input
+- `exit-list.inline` — room exit display
+- `room-card.default` — already uses adaptive sizing, high-value
+- `status-bar.default` — already uses adaptive sizing, high-value
+- `choice-wheel.inline` — interactive dialogue choices
+- Layout components (`layout.app.shell`) — composition primitives
 
 Each promotion requires: renders correctly, has tests, props validated,
-serves a stated genre, not redundant, interaction spec if interactive.
+serves a stated game genre, not redundant, interaction spec if interactive.
 
-### 2. Migrate components to adaptive sizing
+### 2. Migrate more components to adaptive sizing
 
-Convert hardcoded widths to `width: fill` with min/max constraints:
+Extend `width: fill` with constraints to the next tier of components:
 
-- `status-bar.default` (width: 50 → fill, min 40, max 80)
-- `room-card.default` (width: 44 → fill, min 30, max 60)
-- `narrative-log.pane` (width: 52 → fill, min 40, max 70)
-- Layout components should pass available_width to children
+- `toast.inline`, `progress-bar.horizontal` — feedback components
+- `form.single-field` — input component
+- Layout components should propagate height as well as width
 
 ### 3. Table sizing support
 
 Extend the `table` render type to respect `available_width`:
 - Column widths proportional to available space
-- min/max column width constraints
 - Content truncation when table exceeds available width
 
 ### 4. Textual adapter interaction wiring
@@ -92,13 +107,10 @@ Wire keyboard actions from interaction specs to Textual key bindings:
 - Action key bindings trigger Textual messages
 - Navigation actions update state props
 
-### 5. More screen examples
+### 5. Theme variants
 
-Create additional screen YAML files demonstrating different game types:
-- `screens/examples/rpg_character.yaml` — character sheet with stats
-- `screens/examples/inventory.yaml` — grid or list inventory
-- `screens/examples/dialogue.yaml` — NPC conversation flow
-- `screens/examples/main_menu.yaml` — title screen with menu
+Support multiple theme definitions (dark, light, high-contrast) that
+swap color tokens while keeping the same component structure.
 
 ### 6. JSON export
 

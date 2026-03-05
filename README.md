@@ -210,6 +210,37 @@ AskeeDS uses semantic versioning recorded in [VERSION](VERSION) and
 
 ---
 
+## License and attribution
+
+AskeeDS is released under the [MIT License](LICENSE). You are free to
+use, modify, and distribute it in personal and commercial projects.
+
+**If you use AskeeDS in your game or project, please credit:**
+
+> AskeeDS by Spencer Goldade
+
+Add this to your game's credits screen, README, or about page. The MIT
+license requires preserving the copyright notice in source
+distributions; crediting AskeeDS in your finished product is a
+community expectation, not a legal mandate, but it helps others discover
+the project and supports continued development.
+
+---
+
+## Contributing
+
+Contributions are welcome. Before opening a pull request:
+
+1. Run `askee-ds validate` to check YAML components.
+2. Run `python3 -m pytest tests/ -v` to confirm all tests pass.
+3. Follow the component lifecycle — new components start as `ideated`.
+4. Update `CHANGELOG.md` under the **Unreleased** section.
+
+If you ship a game or tool that uses AskeeDS, please include the
+attribution above. Forks and derivatives should preserve the credit.
+
+---
+
 ## Acknowledgments
 
 This README's structure was inspired by
@@ -217,5 +248,5 @@ This README's structure was inspired by
 
 > **Make something weird and wonderful.** AskeeDS is meant to be copied,
 > bent, and remixed — build strange worlds, kind TUIs, tiny tools, or full
-> games. If you ship something you're proud of, consider sharing a short
-> write-up or screenshot and crediting AskeeDS so others can discover it too.
+> games. If you ship something you're proud of, share a short write-up or
+> screenshot — we'd love to see it.
