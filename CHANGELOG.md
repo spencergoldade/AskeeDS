@@ -6,6 +6,8 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **Renderer audit**: Explicit renderers for 20+ previously unrendered components (notifications, screens, speech bubbles, trackers, panels, grid, radial, nav, header, status icons, spinner, divider, icon placeholder). All now respond to prop edits and randomization in the visual test.
+- Intent metadata (purpose, default-view, randomized-view, prop-types, edge-cases) for 6 components that were missing it: `status-icon.row`, `cooldown.badge`, `cooldown.row`, `notification.achievement`, `notification.loot`, `feedback.mixed`.
 - **color_role support**: Component visual test applies `color_role` to the preview (background, text, border). Default and random prop values for `color_role`; palette and role list from `design/ascii/askee_ds_tokens.yaml`.
 - **AskeeDS token file** (`design/ascii/askee_ds_tokens.yaml`): Canonical source for color role ids and default TUI palette. Values may be copied from local design token files; this file is the only token source committed to the repo.
 - Component visual test: approve (A), unapprove (U), and set-status (S) from browser and detail screens; status persisted to `design/ascii/components.txt`.
@@ -33,6 +35,14 @@ All notable changes to AskeeDS will be documented in this file.
 - Map preview and visual test UX improvements.
 - Testing tool updates.
 - Resolved `components.txt` and project-agnostic color token wording (merge).
+
+### Changed
+
+- `tracker.objective` spec updated to use `label`/`checked` keys (matching implementation and `prop_shapes.yaml`).
+- `cooldown.badge` renderer now shows `label` before the badge when provided.
+- `counter.score` reference art corrected to show a single instance.
+- `toast.inline` renderer now uses `variant` prop to show a prefix symbol.
+- `room-card.default` renderer now wires `entity_list[]` into the preview.
 
 ### Fixed
 

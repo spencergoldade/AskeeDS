@@ -1916,7 +1916,7 @@ Ammo: 12/24
 ␟   increments (score bomb) → animation must not lag or queue up
 ␟   indefinitely.
 
-Score: 1,250   Kills: 7
+Score: 1,250
 
 ␟␟␟ COMPONENT: tracker.objective
 ␟ description: One line per objective; unchecked/checked.
@@ -1941,14 +1941,10 @@ Score: 1,250   Kills: 7
 ␟   active. - Objective with progress fraction (3/5 complete) → shows a
 ␟   mini-progress bar or "3/5" counter. - `color_role` → header and accent
 ␟   colors shift.
-␟ prop-types: - `objectives`: `Array<{ id: string, title: string, description?:
-␟   string, completed: boolean, progress?: { current: number, total: number
-␟   }, priority?: "primary" | "secondary" | "optional" }>` — E.g. `[{ id:
-␟   "q1", title: "Find the Lost Artifact", description: "Last seen in the
-␟   old mines.", completed: false, priority: "primary" }, { id: "q2", title:
-␟   "Defeat 5 Goblins", completed: false, progress: { current: 3, total: 5
-␟   }, priority: "secondary" }]`. - `color_role_optional`: `string |
-␟   undefined`.
+␟ prop-types: - `objectives`: `Array<{ id?: string, label: string, checked:
+␟   boolean }>` — E.g. `[{ id: "q1", label: "Find the Lost Artifact",
+␟   checked: false }, { id: "q2", label: "Defeat 5 Goblins",
+␟   checked: true }]`. - `color_role_optional`: `string | undefined`.
 ␟ edge-cases: - Empty `objectives[]` → show "No active objectives." rather than blank
 ␟   component. - All objectives completed → show a completion state with
 ␟   clear visual feedback. - Very many objectives (20+) → collapse completed
@@ -1989,6 +1985,26 @@ Invasion front:
 ␟ component-status: In Review
 ␟ usage: Place near HUD or sheets to summarize active buffs, debuffs, and alerts.
 ␟ props: icons[], labels[], color_role_optional
+␟ purpose: A compact row of status effect indicators — buffs, debuffs, conditions,
+␟   and alerts displayed as symbolic glyphs with optional text labels beneath
+␟   or beside them. Common in RPGs (Diablo status bar), MOBAs (League buff
+␟   icons), and survival games (temperature, poison, blessing indicators).
+␟   Gives the player a quick visual summary of all active effects without
+␟   opening a detailed panel.
+␟ default-view: A horizontal row of bracketed symbols (e.g. [+] [*] [!]) with
+␟   corresponding text labels below or to the right. Each icon/label pair
+␟   represents one active effect. Icons are drawn from a fixed set of ASCII
+␟   glyphs; labels are short (one or two words).
+␟ randomized-view: - 1 icon → single status indicator. - 5+ icons → row grows
+␟   horizontally; may wrap or scroll if too wide. - Icons without labels →
+␟   icons only, no text. - `color_role` → row background or icon color shifts.
+␟ prop-types: - `icons`: `Array<string>` — Symbol glyphs, e.g. `["+", "*", "!"]`.
+␟   - `labels`: `Array<string>` — Matching text labels, e.g. `["buff",
+␟   "debuff", "alert"]`. Length should match `icons`. - `color_role_optional`:
+␟   `string | undefined`.
+␟ edge-cases: - `icons` and `labels` have different lengths → render icons up to
+␟   the shorter array length; ignore extras. - Empty `icons[]` → show nothing
+␟   or a placeholder. - Very long labels → truncate to fit available width.
 
 [+] [*] [!]   buff  debuff  alert
 
@@ -1997,6 +2013,24 @@ Invasion front:
 ␟ component-status: In Review
 ␟ usage: Attach to single abilities or actions to show remaining turns before reuse.
 ␟ props: turns_left, label, color_role_optional
+␟ purpose: A single cooldown indicator showing how many turns remain before an
+␟   ability or action can be used again. The core building block of
+␟   `cooldown.row`; usable standalone when only one ability is tracked. Common
+␟   in turn-based RPGs, tactics games (XCOM, Fire Emblem), and card games
+␟   where abilities have cooldown cycles.
+␟ default-view: An integer inside square brackets, e.g. `[3]`. When `label` is
+␟   provided, it appears before the badge: `Strike [3]`. At `turns_left = 0`,
+␟   the badge shows `[0]` indicating the ability is ready.
+␟ randomized-view: - `turns_left = 0` → `[0]`, ability ready. - `turns_left = 5`
+␟   → `[5]`, several turns remaining. - With `label` → `Fireball [2]`. -
+␟   `color_role` → badge color shifts.
+␟ prop-types: - `turns_left`: `number` (non-negative integer) — Turns remaining,
+␟   e.g. `0`, `3`, `5`. - `label`: `string` — Ability name, e.g. `"Strike"`,
+␟   `"Fireball"`, `"Heal"`. Rendered before the badge when non-empty. -
+␟   `color_role_optional`: `string | undefined`.
+␟ edge-cases: - `turns_left` is negative → display `[0]`. - `label` is empty →
+␟   show badge only `[n]`. - Very long `label` → truncate to keep the badge
+␟   compact.
 
 [3]
 
@@ -2006,6 +2040,25 @@ Invasion front:
 ␟ usage: Show multiple abilities' cooldowns under character or combat HUD elements.
 ␟ props: abilities[], color_role_optional
 ␟ color-hint: ui.muted for labels; status.warning when turns_left > 0
+␟ purpose: A horizontal row of labeled cooldown badges — each showing an ability
+␟   name and its remaining cooldown turns. Composes multiple `cooldown.badge`
+␟   entries into a single HUD element. Standard in turn-based combat systems
+␟   (Fire Emblem, Darkest Dungeon) where the player needs to see all ability
+␟   cooldowns at a glance.
+␟ default-view: A space-separated row of `{label} [{turns_left}]` pairs, e.g.
+␟   `Strike [0]  Block [2]  Dash [1]`. Abilities at `turns_left = 0` may be
+␟   styled differently (neutral vs warning).
+␟ randomized-view: - 1 ability → single badge. - 5+ abilities → row may wrap or
+␟   scroll. - All at `[0]` → all ready. - Mix of ready and cooling → visual
+␟   distinction between ready and unavailable. - `color_role` → row accent
+␟   color shifts.
+␟ prop-types: - `abilities`: `Array<{ label: string, turns_left: number }>` —
+␟   E.g. `[{ "label": "Strike", "turns_left": 0 }, { "label": "Block",
+␟   "turns_left": 2 }, { "label": "Dash", "turns_left": 1 }]`. -
+␟   `color_role_optional`: `string | undefined`.
+␟ edge-cases: - Empty `abilities[]` → show nothing or "No abilities". - Very many
+␟   abilities (8+) → row wraps or truncates. - `turns_left` negative → treat
+␟   as 0.
 
 Strike [0]  Block [2]  Dash [1]
 
@@ -2017,6 +2070,21 @@ Strike [0]  Block [2]  Dash [1]
 ␟ usage: Pop up when the player meets achievement conditions or milestone goals.
 ␟ props: message, color_role_optional
 ␟ shape: box.single
+␟ purpose: A brief bordered notification announcing that the player has earned an
+␟   achievement or milestone. Appears as a pop-up or inline announcement.
+␟   Common in virtually all modern games (Steam achievements, Xbox
+␟   achievements, in-game milestone systems).
+␟ default-view: A single-line bordered box containing the `message`. Uses the
+␟   `box.single` shape — a horizontal border top and bottom with the message
+␟   centered or left-aligned inside.
+␟ randomized-view: - Short message ("First Steps") → compact box. - Long message
+␟   ("Complete the Ancient Ruins without taking damage") → box stretches or
+␟   text truncates. - `color_role` → box border and background color shift.
+␟ prop-types: - `message`: `string` — Achievement text, e.g.
+␟   `"Achievement: First Steps"`, `"Milestone: 100 Enemies Slain"`. -
+␟   `color_role_optional`: `string | undefined`.
+␟ edge-cases: - Empty `message` → show an empty box or placeholder text. - Very
+␟   long `message` → truncate with ellipsis to fit box width.
 
 +------------------------------------------+
 |  Achievement: First Steps                |
@@ -2028,6 +2096,20 @@ Strike [0]  Block [2]  Dash [1]
 ␟ usage: Use when the player gains items outside of the main log, such as auto-loot.
 ␟ props: message, color_role_optional
 ␟ shape: box.single
+␟ purpose: A brief bordered notification announcing a loot drop or item acquisition.
+␟   Appears when the player gains items through auto-loot, quest rewards, or
+␟   environmental pickups — separate from the narrative log. Common in action
+␟   RPGs (Diablo, Borderlands), looter shooters, and MMOs.
+␟ default-view: A single-line bordered box containing the `message` (e.g.
+␟   `"Loot: rusty sword"`). Same shape as `notification.achievement`.
+␟ randomized-view: - Short message ("Loot: key") → compact box. - Long message
+␟   ("Loot: Enchanted Blade of the Forgotten King (+3)") → truncates. -
+␟   `color_role` → box color shifts (gold for rare loot is natural).
+␟ prop-types: - `message`: `string` — Loot notification text, e.g.
+␟   `"Loot: rusty sword"`, `"Found: 50 gold"`. - `color_role_optional`:
+␟   `string | undefined`.
+␟ edge-cases: - Empty `message` → show empty box or placeholder. - Rapid
+␟   successive loot notifications → should queue, not overlap.
 
 +------------------------------------------+
 |  Loot: rusty sword                       |
@@ -2038,6 +2120,26 @@ Strike [0]  Block [2]  Dash [1]
 ␟ component-status: In Review
 ␟ usage: Show after rolls or checks that succeed with complications in PbtA-style systems.
 ␟ props: headline, upside_text, downside_text, color_role_optional
+␟ purpose: A feedback block for mixed outcomes — a success that comes with a
+␟   cost or complication. Central to Powered by the Apocalypse (PbtA) games,
+␟   Forged in the Dark, and any system where partial successes are a core
+␟   mechanic. Shows the headline result, what went right (upside), and what
+␟   went wrong (downside) in a single compact block.
+␟ default-view: A bordered box with the `headline` on the first line (prefixed
+␟   with "Mixed:"), then `upside_text` prefixed with "Upside:", and
+␟   `downside_text` prefixed with "Downside:". Each on its own line inside the
+␟   box.
+␟ randomized-view: - Short texts → compact box. - Long texts → lines wrap or
+␟   truncate within the box width. - `color_role` → box border/background
+␟   shifts.
+␟ prop-types: - `headline`: `string` — Result summary, e.g. `"You dodge the
+␟   blow..."`. - `upside_text`: `string` — What went right, e.g. `"You avoid
+␟   the worst of it."`. - `downside_text`: `string` — What went wrong, e.g.
+␟   `"Your sword slips from hand."`. - `color_role_optional`: `string |
+␟   undefined`.
+␟ edge-cases: - Missing `upside_text` or `downside_text` → show only the
+␟   available parts. - All fields empty → show placeholder or empty box. -
+␟   Very long texts → truncate each line to fit the box width.
 
 +------------------------------------------+
 | Mixed: You dodge the blow...             |
