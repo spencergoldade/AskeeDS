@@ -1,10 +1,20 @@
 /* AskeeDS component visual test — section styling
    Maps to design tokens: color-bg-surface (default), color-bg-subtle (grouped content). */
 
+/* Detail screen: header pane (Figlet + name) has padding on all sides */
+#detail_header {
+  padding: 2 2 2 2;
+}
+
 /* Section headers: make titles and dividers stand out; add separation between sections */
 .section_title {
   text-style: bold;
   margin-top: 1;
+}
+
+/* Detail screen section titles (Reference, Props, Preview) get extra padding */
+.detail_section_title {
+  padding: 1 2 1 2;
 }
 
 .section_subtitle {

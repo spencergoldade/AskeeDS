@@ -60,6 +60,8 @@ STATUS_OPTIONS = [("All", "All")] + [(s, s) for s in sorted(COMPONENT_STATUSES)]
 
 # Section divider for TUI (horizontal line from box-drawing convention; 60 chars)
 SECTION_DIVIDER = "-" * 60
+# Detail screen section underlines (Reference, Props, Preview) use "=" for emphasis
+SECTION_DIVIDER_EQUALS = "=" * 60
 
 # Prop intent: array element shapes (and optional scalar types) for defaults/randomizer.
 # Loaded from design/ascii/prop_shapes.yaml when present; empty dict if missing or invalid.
@@ -1570,18 +1572,18 @@ class DetailScreen(Screen):
                     ),
                     id="overview_container",
                 ),
-                Static("Reference (canonical art)", classes="section_title"),
-                Static(SECTION_DIVIDER, classes="section_divider"),
+                Static("Reference (canonical art)", classes="section_title detail_section_title"),
+                Static(SECTION_DIVIDER_EQUALS, classes="section_divider"),
                 Container(Static(id="reference_art"), id="reference_pane", classes="art_block section_reference"),
-                Static("Props (edit below)", classes="section_title"),
-                Static(SECTION_DIVIDER, classes="section_divider"),
+                Static("Props (edit below)", classes="section_title detail_section_title"),
+                Static(SECTION_DIVIDER_EQUALS, classes="section_divider"),
                 Container(
                     *self._props_widgets(),
                     id="props_pane",
                     classes="section_props",
                 ),
-                Static("Preview (live)", classes="section_title"),
-                Static(SECTION_DIVIDER, classes="section_divider"),
+                Static("Preview (live)", classes="section_title detail_section_title"),
+                Static(SECTION_DIVIDER_EQUALS, classes="section_divider"),
                 Container(Static(id="preview_art"), id="preview_container", classes="art_block section_preview"),
                 id="detail_content",
             ),
@@ -1616,17 +1618,26 @@ class DetailScreen(Screen):
         overview_container = self.query_one("#overview_container", Container)
         overview_container.styles.display = "none"
 
+    def on_resize(self) -> None:
+        """Re-render header Figlet when terminal is resized so it uses full width."""
+        self._set_header()
+
     def _set_header(self) -> None:
         meta = self.component.get("meta", {})
         name = self.component["name"]
         status = meta.get("component-status", "—")
         desc = (meta.get("description") or "")[:80]
+        # Use full available width for Figlet so it doesn't wrap prematurely
+        try:
+            avail_width = max(80, getattr(self.size, "width", 0) or 240)
+        except Exception:
+            avail_width = 240
         # Component name via Figlet (4max or amc_3_line) then two blank lines then plain name
         figlet_art = None
         for font_name in ("4max", "amc_3line", "amc_3_line"):
             try:
                 from askee_ds.banner import render_banner_text
-                figlet_art = render_banner_text(name, font=font_name, max_height=6)
+                figlet_art = render_banner_text(name, font=font_name, max_height=6, max_width=avail_width)
                 if figlet_art and figlet_art.strip():
                     break
             except Exception:
