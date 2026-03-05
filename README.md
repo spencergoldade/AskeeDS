@@ -43,12 +43,43 @@ real ASCII output.
 
 ---
 
+## Quick start
+
+Pick the guide that matches your role:
+
+- **I'm a designer** — Read [GUIDE.md](GUIDE.md) to learn concepts,
+  vocabulary, and how to author components and screens in YAML.
+- **I'm a developer** — Read [INTEGRATING.md](INTEGRATING.md) for the
+  Python API, CLI, adapters, and how to extend the system.
+- **I need to look something up** — Open [REFERENCE.md](REFERENCE.md)
+  for render types, section types, tokens, and every field definition.
+
+### Install
+
+```bash
+git clone <this-repo-url>
+cd askeeDS
+pip install -e .
+```
+
+### Try it
+
+```bash
+askee-ds validate
+askee-ds list --status approved
+askee-ds preview room-card.default \
+  --props '{"title":"Cavern","description_text":"A dark cave.","items":[],"npcs":[],"exits":[{"id":"n","label":"north"}]}'
+askee-ds compose screens/examples/adventure_main.yaml
+```
+
+---
+
 ## What you get
 
 ```
 components/                 YAML component definitions (the product)
   _schema.yaml              meta-schema enforced by the validator
-  core/                     25 components: buttons, inputs, display, feedback, navigation, layouts
+  core/                     20 components: buttons, inputs, display, feedback, navigation, layouts
   game/                     38 components: HUD, inventory, character, exploration, conversation, etc.
 tokens/                     design tokens
   colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
@@ -67,7 +98,7 @@ askee_ds/                   Python package
   renderer.py               renders components from definitions
   theme.py                  resolves tokens to concrete values
   validator.py              validates components against _schema.yaml
-  cli.py                    CLI: validate, preview, list
+  cli.py                    CLI: validate, preview, list, compose
 tests/                      framework and legacy tests
 examples/
   quick_start.py            minimal hello-world
@@ -107,150 +138,6 @@ explicitly outside its scope:
   files. The engine owns data storage.
 - **Content generation.** AskeeDS does not generate levels, stories,
   items, or NPCs. It provides the UI components to *display* them.
-
----
-
-## Getting started
-
-### Install
-
-```bash
-git clone <this-repo-url>
-cd askeeDS
-pip install -e .
-```
-
-Only dependency: [PyYAML](https://pyyaml.org/).
-
-### Validate
-
-```bash
-askee-ds validate
-# OK — 63 components validated, 0 errors.
-```
-
-### Preview a component
-
-```bash
-askee-ds preview room-card.default \
-  --props '{"title":"Cavern","description_text":"A dark cave.","items":[],"npcs":[],"exits":[{"id":"n","label":"north"}]}'
-```
-
-### List components
-
-```bash
-# All approved components
-askee-ds list --status approved
-
-# All HUD components
-askee-ds list --prefix status-bar
-```
-
-### Use the Python API
-
-```python
-from askee_ds import Loader, Theme, Renderer
-
-loader = Loader()
-components = loader.load_components_dir("components/")
-tokens = loader.load_tokens_dir("tokens/")
-theme = Theme(tokens)
-renderer = Renderer(theme)
-
-output = renderer.render(components["status-bar.default"], {
-    "hp_current": 85,
-    "hp_max": 100,
-    "location": "The Clearing",
-    "turn_count": 12,
-})
-print(output)
-# +------------------------------------------------+
-# | HP: 85/100  |  The Clearing  |  Turn 12        |
-# +------------------------------------------------+
-```
-
-### Adaptive sizing
-
-Components with `width: fill` adapt to the available terminal width.
-Pass `available_width` when rendering to control the output size:
-
-```python
-output = renderer.render(
-    components["room-card.default"],
-    {"title": "Cavern", "description_text": "A dark cave.",
-     "items": [], "npcs": [], "exits": []},
-    available_width=60,
-)
-```
-
-Components can also declare `min_width` and `max_width` constraints
-in their render spec to clamp the adaptive range:
-
-```yaml
-render:
-  type: box
-  width: fill
-  min_width: 30
-  max_width: 60
-  border: single
-  sections: [...]
-```
-
-Integer widths (`width: 44`) still work exactly as before.
-
-### Compose full screens
-
-```python
-from askee_ds import Loader, Theme, Renderer, Composer
-
-loader = Loader()
-components = loader.load_components_dir("components/")
-tokens = loader.load_tokens_dir("tokens/")
-theme = Theme(tokens)
-renderer = Renderer(theme)
-composer = Composer(renderer, components)
-
-output = composer.compose("layout.stack", {
-    "blocks": [
-        ("status-bar.default", {"hp_current": 85, "hp_max": 100,
-                                "location": "Cavern", "turn_count": 5}),
-        ("room-card.default",  {"title": "Cavern",
-                                "description_text": "A dark cave.",
-                                "items": [], "npcs": [],
-                                "exits": [{"id": "n", "label": "north"}]}),
-        ("command-input.default", {"prompt": ">"}),
-    ],
-})
-print(output)
-```
-
-### Compose a screen from YAML
-
-Define a complete game screen in YAML and render it with one call:
-
-```bash
-askee-ds compose screens/examples/adventure_main.yaml
-askee-ds compose screens/examples/adventure_main.yaml --width 60
-```
-
-Or from Python:
-
-```python
-output = composer.compose_screen("screens/examples/adventure_main.yaml")
-print(output)
-```
-
-Screen YAML files reference layout components and fill slots with
-component references, nested layouts, or plain text. See
-`screens/examples/adventure_main.yaml` for a working example.
-
-### Validate on load (optional)
-
-```python
-loader = Loader(schema_path="components/_schema.yaml")
-components = loader.load_components_dir("components/")
-# Any schema violations print as warnings to stderr.
-```
 
 ---
 
@@ -304,130 +191,6 @@ World > Dungeon > Level 3
 Run `askee-ds list` to see all 58 components, `askee-ds preview <name>`
 to render any of them, or `python examples/all_components.py` to see
 every renderable component at once.
-
----
-
-## How to add a new component
-
-1. Pick a category file (e.g. `components/game/hud.yaml`).
-2. Add a YAML definition:
-
-```yaml
-cooldown.timer:
-  category: game/hud
-  description: Turn-based ability cooldown display.
-  status: ideated
-  props:
-    label:
-      type: string
-      required: true
-    turns_left:
-      type: integer
-      required: true
-  render:
-    type: inline
-    template: "{label}: {turns_left} turns"
-  art: |2
-    Fireball: 3 turns
-```
-
-3. Validate: `askee-ds validate`
-4. Preview: `askee-ds preview cooldown.timer --props '{"label":"Fireball","turns_left":3}'`
-
-### Component status lifecycle
-
-Components progress through these statuses:
-
-| Status | Meaning |
-|--------|---------|
-| `ideated` | Defined but not yet proven. Props and render spec may change. |
-| `to-do` | Design intent confirmed; implementation planned. |
-| `in-progress` | Actively being designed or refined. |
-| `in-review` | Ready for review. |
-| `approved` | Proven, stable, and ready for engine consumption. |
-| `deprecated` | Superseded; will be removed in a future version. |
-| `cancelled` | Abandoned; kept for reference only. |
-
-### Proving criteria (ideated to approved)
-
-A component can be promoted to `approved` when it meets all of:
-
-1. **Renders correctly**: The render spec produces ASCII output matching
-   the reference art for at least one representative set of props.
-2. **Has tests**: At least one test exercises the component's render path.
-3. **Props validated**: All required props are typed; optional props have
-   sensible defaults. Schema validation passes.
-4. **Serves a stated genre**: The component clearly supports text
-   adventure, low-fi RPG, procedural RPG, or open-world ASCII gameplay.
-5. **No duplicates**: The component's function is not redundant with
-   another approved component.
-6. **Interaction spec** (if interactive): Focusable components have a
-   valid `interaction` block with named actions and key bindings.
-
-### Render types
-
-| Type | What it does | Example |
-|------|-------------|---------|
-| `inline` | Single-line template interpolation. | `[☆] Star this` |
-| `join` | Joins an array of items with a separator. | `World > Dungeon > Level 3` |
-| `box` | Bordered box with sections (header, text, list, bars, etc.). | Room cards, status bars. |
-| `clock` | Filled/empty circle segments. | `[●●○○] 2 / 4` |
-| `stage_track` | Multi-stage horizontal track with marker. | `[ Safe ]─[ War ] ^` |
-| `banner` | Figlet text with art fallback. | Large ASCII title. |
-| `frames` | Returns the first frame of an animation list. | `\|` |
-| `table` | Auto-width column table with header separator. | Stat comparison tables. |
-| `bubble` | Speech bubble with directional tail. | NPC/player dialog. |
-| `tree` | Recursive tree with `├──`/`└──`/`│` connectors. | Skill trees, hierarchies. |
-| `grid` | Bordered cell grid from a slots array. | Inventory grids. |
-| `charmap` | 2D character grid with optional legend. | Minimaps. |
-| `art_lookup` | Decoration art lookup (falls back to reference art). | Decorative ASCII art. |
-| `stack` | Vertically stacked bordered blocks. | Full-screen layouts. |
-| `columns` | Side-by-side panes with border column. | Two-column layouts. |
-| `shell` | Header + sidebar + content area. | App shell. |
-
----
-
-## How to use AskeeDS in another project
-
-### Option A — Copy the YAML definitions
-
-Copy `components/` and `tokens/` into your project. Parse the YAML with
-any language's YAML library. The component definitions are the contract;
-build your own renderer for your runtime.
-
-### Option B — Use the Python package
-
-```bash
-pip install -e path/to/askeeDS
-```
-
-Then use `from askee_ds import Loader, Theme, Renderer` in your code.
-
-### Option C — Git submodule
-
-```bash
-git submodule add <this-repo-url> vendor/askee-ds
-```
-
-Pin to a tag and update when ready. See [CHANGELOG.md](CHANGELOG.md) for
-migration notes between versions.
-
----
-
-## Validation and testing
-
-```bash
-# Validate all YAML components against the schema
-askee-ds validate
-
-# Run framework tests (Loader, Renderer, Theme, Validator, Composer, adapters, CLI)
-python3 -m pytest tests/ -v
-```
-
-The schema (`components/_schema.yaml`) enforces:
-- Required fields: `category`, `description`, `status`, `render`
-- Valid status values, category prefixes, prop types
-- Valid render types, border styles, section types
 
 ---
 

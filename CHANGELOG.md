@@ -17,9 +17,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Documentation
 
+- **Documentation restructured into audience-specific guides**: Split the monolithic README into four root-level files. `GUIDE.md` is a designer-first walkthrough (concepts, vocabulary, step-by-step tutorials — zero Python, YAML only). `REFERENCE.md` is a structured lookup for all 16 render types, 11 section types, 10 color roles, interaction fields, and every component/prop/screen field. `INTEGRATING.md` is the developer guide covering Python API, CLI reference, Rich and Textual adapters, render type extension, and project adoption patterns. `README.md` slimmed to a concise landing page with Quick Start links by role.
+- Deleted stale `design/README.md` (referenced archived files).
 - Added "What AskeeDS does not do" section to README (8 explicit scope boundaries).
 - Rewrote ROADMAP.md for v3 direction: completed items summary and prioritized next steps.
-- Updated README with screen composition docs, proving criteria, and current component counts.
 
 - **Registry-based renderer**: Refactored the monolithic 520-line `renderer.py` into a thin dispatcher backed by a pluggable render type registry (`askee_ds/render_types/`). Each of the 16 render types is now a standalone module. Consumers can register custom render types via `Renderer.register_type()` or `from askee_ds.render_types import register` without modifying framework source. Zero regressions — all 62 renderable components produce identical output.
 - **Pytest test suite**: Migrated from unittest to pytest. Split the monolithic 574-line `test_framework.py` into 7 focused modules (`test_loader`, `test_theme`, `test_renderer`, `test_composer`, `test_validator`, `test_adapters`, `test_cli`). Added `conftest.py` with session-scoped fixtures. 62 tests (9 new CLI tests), runs in ~0.6s. CI updated to use pytest.
