@@ -2,7 +2,7 @@
 
 Feature work to evolve AskeeDS from a component library into a full
 framework. The v2 migration (YAML format, package extraction, validator,
-CI, tests, README) is complete — see `MIGRATION-PLAN.md` for that history.
+CI, tests, README) is complete.
 
 For full context on past decisions and trade-offs, refer to the chats:
 - [AskeeDS v2 restructure](a32bb85b-95ca-4c2f-8e46-8e7ddc56dc0a) —
@@ -115,9 +115,10 @@ python3 -m unittest discover -s tools      # legacy parser tests
 ## Current state (numbers)
 
 - **63 components** in YAML (10 approved, 53 ideated).
-- **46 renderable** via declarative render specs (inline, join, box).
-- **17 reference-only** — fall back to displaying their `art:` block.
-- **49 tests** (30 framework + package, 19 legacy tools).
+- **51 renderable** (81%) via declarative render specs (inline, join, box,
+  clock, stage_track, banner, frames + active_list section).
+- **12 reference-only** — fall back to displaying their `art:` block.
+- **36 framework + package tests**, 19 legacy tool tests.
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
 
@@ -150,20 +151,20 @@ python3 -m unittest discover -s tools      # legacy parser tests
 new section types, render types, or custom logic in the Renderer. Each
 requires updating `_schema.yaml` with the new type and adding tests.
 
-### Batch A — Low-hanging fruit (new section/render types)
+### Batch A — Low-hanging fruit (done)
 
-These can be implemented as straightforward extensions to the existing
-Renderer without architectural changes.
+Five new render/section types added to the Renderer and schema. Each
+component's YAML updated from `reference` to its new type. 6 tests added.
 
-| Component | New type | What to build |
-|-----------|----------|---------------|
-| `nav.vertical` | `active_list` section | Render items from an array prop, placing a `>` marker on the item whose `id` matches an `active_id` prop. Simlar to the existing `list` section but with selection state. |
-| `tracker.clock` | `clock` render type | Render `filled` of `segments` as filled/empty circle characters (e.g. `●○○○`). Single-line output; straightforward string building. |
-| `tracker.front` | `stage_track` render type | Render `stages[]` as `[ label ]` boxes joined by `─`, with a `^` marker under `current_stage_index`. Multi-line output (boxes on line 1, marker on line 2). |
-| `typography.banner` | `banner` render type | Wire the existing `askee_ds/banner.py` module into the Renderer. When pyfiglet is installed, render Figlet text; otherwise fall back to the reference art. The banner module already handles font selection, width limits, and height truncation. |
-| `spinner.loading` | `frames` render type | Return the first frame from a `frames` list in the render spec. Actual animation is a runtime concern — the Renderer's job is to produce a single static frame. Document that consumers should cycle frames on a timer. |
+| Component | New type | Status |
+|-----------|----------|--------|
+| `nav.vertical` | `active_list` section | Done — box with `>` marker on active item |
+| `tracker.clock` | `clock` render type | Done — `●`/`○` segment display |
+| `tracker.front` | `stage_track` render type | Done — `[ label ]─[ label ]` with `^` marker |
+| `typography.banner` | `banner` render type | Done — pyfiglet with art fallback |
+| `spinner.loading` | `frames` render type | Done — returns first frame |
 
-**After Batch A**: 51/63 components renderable (81%).
+**Result**: 51/63 components renderable (81%).
 
 ### Batch B — New layout primitives
 

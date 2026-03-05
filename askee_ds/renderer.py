@@ -39,6 +39,14 @@ class Renderer:
             return self._render_join(spec, props)
         if rtype == "box":
             return self._render_box(spec, props)
+        if rtype == "clock":
+            return self._render_clock(spec, props)
+        if rtype == "stage_track":
+            return self._render_stage_track(spec, props)
+        if rtype == "banner":
+            return self._render_banner(spec, props, component)
+        if rtype == "frames":
+            return self._render_frames(spec, props)
         return component.art.rstrip("\n")
 
     # -- inline ---------------------------------------------------------
@@ -163,7 +171,84 @@ class Renderer:
                 text = f" [{mark}] " + self._interpolate(tmpl, item)
                 lines.append(self._row(text, inner, bd))
 
+        elif stype == "active_list":
+            items = props.get(section.get("over", ""), [])
+            active_id = props.get(
+                section.get("active_prop", "active_id"), ""
+            )
+            marker = section.get("marker", ">")
+            tmpl = section.get("template", "{label}")
+            pad = " " * len(marker)
+            for item in items:
+                item_id = item.get("id", "")
+                prefix = marker if item_id == active_id else pad
+                text = f" {prefix} " + self._interpolate(tmpl, item)
+                lines.append(self._row(text, inner, bd))
+
         return lines
+
+    # -- clock ----------------------------------------------------------
+
+    def _render_clock(self, spec: dict, props: dict) -> str:
+        label = props.get("label", "")
+        segments = props.get("segments", 0)
+        filled = props.get("filled", 0)
+        clock = "●" * filled + "○" * max(0, segments - filled)
+        return f"{label}\n[{clock}]   {filled} / {segments}"
+
+    # -- stage_track ----------------------------------------------------
+
+    def _render_stage_track(self, spec: dict, props: dict) -> str:
+        label = props.get("label", "")
+        stages = props.get("stages", [])
+        current = props.get("current_stage_index", 0)
+        boxes: list[str] = []
+        centers: list[int] = []
+        pos = 0
+        for i, stage in enumerate(stages):
+            stage_label = stage.get("label", stage.get("id", ""))
+            box = f"[ {stage_label} ]"
+            if i > 0:
+                boxes.append("\u2500")
+                pos += 1
+            centers.append(pos + (len(box) - 1) // 2)
+            boxes.append(box)
+            pos += len(box)
+        track_line = "".join(boxes)
+        marker_line = ""
+        if 0 <= current < len(centers):
+            marker_line = " " * centers[current] + "^"
+        lines: list[str] = []
+        if label:
+            lines.append(f"{label}:")
+        if track_line:
+            lines.append(track_line)
+        if marker_line:
+            lines.append(marker_line)
+        return "\n".join(lines)
+
+    # -- banner ---------------------------------------------------------
+
+    def _render_banner(
+        self, spec: dict, props: dict, component: Component
+    ) -> str:
+        from .banner import render_banner_text
+
+        text = props.get("text", "")
+        style_hint = props.get("style_hint", "splash")
+        font = props.get("font")
+        result = render_banner_text(text, style_hint, font=font)
+        if result is not None:
+            return result.rstrip("\n")
+        return component.art.rstrip("\n")
+
+    # -- frames ---------------------------------------------------------
+
+    def _render_frames(self, spec: dict, props: dict) -> str:
+        frames = props.get(spec.get("prop", "frames"), [])
+        if frames:
+            return str(frames[0])
+        return ""
 
     # -- helpers --------------------------------------------------------
 

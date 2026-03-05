@@ -45,7 +45,15 @@ nav.vertical:
       type: string
       required: false
   render:
-    type: reference
+    type: box
+    width: 20
+    border: single
+    sections:
+      - type: active_list
+        over: items
+        active_prop: active_id
+        marker: ">"
+        template: "{label}"
   art: |2
     | Inventory
     | Map

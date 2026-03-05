@@ -6,6 +6,9 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **Batch A specialized renderers**: 5 new render/section types — `active_list` (nav with selection marker), `clock` (segment progress), `stage_track` (multi-stage horizontal track), `banner` (Figlet text with fallback), `frames` (static frame from animation sequence). 51/63 components (81%) now renderable.
+- **6 new framework tests** for the Batch A render types; 36 framework + package tests total.
+
 - **Framework roadmap** (`ROADMAP.md`): Feature plan with full agent context, principles, file structure, verification commands, and workspace rules. Covers specialized renderers (batches A/B/C), component composition, runtime adapters, maps/decorations migration, examples, packaging, and legacy retirement.
 - **README rewritten**: Fresh README for the YAML-first framework. Covers getting started (CLI + Python API), rendered component examples, how to add components, render types, status lifecycle, and adoption patterns. All references to the old format removed.
 - **Framework tests** (`tests/test_framework.py`): 25 tests covering Loader, Renderer, Theme, and Validator — including a test that renders every non-reference component to catch regressions.
@@ -36,6 +39,10 @@ All notable changes to AskeeDS will be documented in this file.
 - Decoration validation; unified component art block parsing.
 - Ko-fi funding option in README.
 - Figlet and color support in the visual test.
+
+### Removed
+
+- **Migration plan deleted**: `MIGRATION-PLAN.md` removed — all 7 phases complete, context preserved in `ROADMAP.md` and git history.
 
 ### Changed
 

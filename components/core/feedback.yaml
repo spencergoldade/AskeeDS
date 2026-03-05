@@ -153,12 +153,13 @@ spinner.loading:
       type: string
       required: false
   render:
-    type: reference
+    type: frames
+    prop: frames
   art: |2
     |
   notes: >-
-    Show inline while waiting on short operations. Animation is a runtime
-    concern.
+    Renders the first frame; consumers cycle through the frames array at
+    runtime. Animation is a runtime concern.
 
 feedback.mixed:
   category: core/feedback

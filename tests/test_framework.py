@@ -192,6 +192,63 @@ class TestRenderer(unittest.TestCase):
         self.assertIn("[ ]", output)
         self.assertIn("Find key", output)
 
+    def test_render_active_list(self):
+        comp = self.components["nav.vertical"]
+        output = self.renderer.render(comp, {
+            "items": [
+                {"id": "inv", "label": "Inventory"},
+                {"id": "map", "label": "Map"},
+                {"id": "settings", "label": "Settings"},
+            ],
+            "active_id": "settings",
+        })
+        self.assertIn("> Settings", output)
+        self.assertNotIn("> Inventory", output)
+        self.assertIn("Inventory", output)
+
+    def test_render_clock(self):
+        comp = self.components["tracker.clock"]
+        output = self.renderer.render(comp, {
+            "label": "Quest",
+            "segments": 4,
+            "filled": 2,
+        })
+        self.assertIn("Quest", output)
+        self.assertIn("●●○○", output)
+        self.assertIn("2 / 4", output)
+
+    def test_render_stage_track(self):
+        comp = self.components["tracker.front"]
+        output = self.renderer.render(comp, {
+            "label": "Invasion",
+            "stages": [
+                {"id": "safe", "label": "Safe"},
+                {"id": "war", "label": "War"},
+            ],
+            "current_stage_index": 0,
+        })
+        self.assertIn("Invasion:", output)
+        self.assertIn("[ Safe ]", output)
+        self.assertIn("[ War ]", output)
+        self.assertIn("^", output)
+
+    def test_render_banner_fallback(self):
+        comp = self.components["typography.banner"]
+        output = self.renderer.render(comp, {"text": "TEST"})
+        self.assertTrue(len(output) > 0)
+
+    def test_render_frames(self):
+        comp = self.components["spinner.loading"]
+        output = self.renderer.render(comp, {
+            "frames": ["|", "/", "-", "\\"],
+        })
+        self.assertEqual(output, "|")
+
+    def test_render_frames_empty(self):
+        comp = self.components["spinner.loading"]
+        output = self.renderer.render(comp, {"frames": []})
+        self.assertEqual(output, "")
+
     def test_render_bars(self):
         comp = self.components["character-sheet.compact"]
         output = self.renderer.render(comp, {

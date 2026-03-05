@@ -51,6 +51,10 @@ render:
     - inline
     - join
     - box
+    - clock
+    - stage_track
+    - banner
+    - frames
     - reference
 
   inline_fields:
@@ -78,6 +82,7 @@ render:
     - progress
     - numbered_list
     - checked_list
+    - active_list
 
   border_values:
     - single

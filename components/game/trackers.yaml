@@ -57,7 +57,7 @@ tracker.clock:
       type: string
       required: false
   render:
-    type: reference
+    type: clock
   art: |2
     Quest: Find the key
     [○○○○]   0 / 4
@@ -89,7 +89,7 @@ tracker.front:
       type: string
       required: false
   render:
-    type: reference
+    type: stage_track
   art: |2
     Invasion front:
     [ Safe ]-[ Skirmishes ]-[ Occupied ]-[ Overrun ]
