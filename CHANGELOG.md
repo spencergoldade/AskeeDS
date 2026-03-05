@@ -6,6 +6,8 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **Framework POC** (`poc_renderer.py`): Self-contained proof-of-concept demonstrating the proposed AskeeDS v2 architecture — YAML component definitions with typed props and declarative render specs, a token-based theme system, and a renderer that produces real ASCII output from definition + props + theme. Covers four components (button, status bar, character sheet, room card) spanning inline to complex box layouts with text wrapping, conditional lists, and resource bars.
+
 - **Renderer audit**: Explicit renderers for 20+ previously unrendered components (notifications, screens, speech bubbles, trackers, panels, grid, radial, nav, header, status icons, spinner, divider, icon placeholder). All now respond to prop edits and randomization in the visual test.
 - Intent metadata (purpose, default-view, randomized-view, prop-types, edge-cases) for 6 components that were missing it: `status-icon.row`, `cooldown.badge`, `cooldown.row`, `notification.achievement`, `notification.loot`, `feedback.mixed`.
 - **color_role support**: Component visual test applies `color_role` to the preview (background, text, border). Default and random prop values for `color_role`; palette and role list from `design/ascii/askee_ds_tokens.yaml`.
