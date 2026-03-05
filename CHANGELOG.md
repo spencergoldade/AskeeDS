@@ -13,6 +13,11 @@ All notable changes to AskeeDS will be documented in this file.
 - **`examples/quick_start.py`**: Minimal hello-world demonstrating the YAML-first framework (Loader → Theme → Renderer).
 - **`examples/all_components.py`**: Visual catalog rendering all 59 non-reference components with auto-generated sample props.
 
+### Documentation
+
+- **README updated** to reflect current state: render types table expanded from 4 to 14 entries, component counts updated (59/63 renderable), examples directory added to file tree, `all_components.py` mentioned alongside CLI preview commands.
+- **Commit rule expanded** to assess `README.md` alongside `CHANGELOG.md` before every commit, keeping shipped documentation in sync with code changes.
+
 - **Framework roadmap** (`ROADMAP.md`): Feature plan with full agent context, principles, file structure, verification commands, and workspace rules. Covers specialized renderers (batches A/B/C), component composition, runtime adapters, maps/decorations migration, examples, packaging, and legacy retirement.
 - **README rewritten**: Fresh README for the YAML-first framework. Covers getting started (CLI + Python API), rendered component examples, how to add components, render types, status lifecycle, and adoption patterns. All references to the old format removed.
 - **Framework tests** (`tests/test_framework.py`): 25 tests covering Loader, Renderer, Theme, and Validator — including a test that renders every non-reference component to catch regressions.

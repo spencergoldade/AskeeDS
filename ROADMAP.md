@@ -108,7 +108,8 @@ python3 -m unittest discover -s tools      # legacy parser tests
 ```
 
 **Workspace rules to follow:**
-- Always update `CHANGELOG.md` before committing.
+- Before committing, update `CHANGELOG.md` and assess whether `README.md`
+  needs changes too (counts, render types, examples, etc.).
 - Commit after major changes; let the user control when to push.
 - Never reference `.cursor/`, `.mdc`, or gitignored paths from shipped
   files.

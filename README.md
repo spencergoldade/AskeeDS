@@ -61,10 +61,14 @@ askee_ds/                   Python package
   validator.py              validates components against _schema.yaml
   cli.py                    CLI: validate, preview, list
 tests/                      framework and legacy tests
+examples/
+  quick_start.py            minimal hello-world
+  all_components.py         visual catalog of all renderable components
 ```
 
 63 components total. 10 are approved (proven core); 53 are ideated
-(defined but not yet individually proven). All load, validate, and render.
+(defined but not yet individually proven). 59 render from declarative
+specs; 4 fall back to reference art (3 layout shells + 1 radial menu).
 
 ---
 
@@ -184,8 +188,9 @@ framework turns definition + props + theme into ASCII output.
 World > Dungeon > Level 3
 ```
 
-Run `askee-ds list` to see all 63 components, or `askee-ds preview <name>`
-to render any of them.
+Run `askee-ds list` to see all 63 components, `askee-ds preview <name>`
+to render any of them, or `python examples/all_components.py` to see
+every renderable component at once.
 
 ---
 
@@ -237,7 +242,17 @@ Components progress through these statuses:
 | `inline` | Single-line template interpolation. | `[☆] Star this` |
 | `join` | Joins an array of items with a separator. | `World > Dungeon > Level 3` |
 | `box` | Bordered box with sections (header, text, list, bars, etc.). | Room cards, status bars. |
-| `reference` | Falls back to the reference ASCII art. Needs a specialized renderer. | Layouts, minimaps, trees. |
+| `clock` | Filled/empty circle segments. | `[●●○○] 2 / 4` |
+| `stage_track` | Multi-stage horizontal track with marker. | `[ Safe ]─[ War ] ^` |
+| `banner` | Figlet text with art fallback. | Large ASCII title. |
+| `frames` | Returns the first frame of an animation list. | `\|` |
+| `table` | Auto-width column table with header separator. | Stat comparison tables. |
+| `bubble` | Speech bubble with directional tail. | NPC/player dialog. |
+| `tree` | Recursive tree with `├──`/`└──`/`│` connectors. | Skill trees, hierarchies. |
+| `grid` | Bordered cell grid from a slots array. | Inventory grids. |
+| `charmap` | 2D character grid with optional legend. | Minimaps. |
+| `art_lookup` | Decoration art lookup (falls back to reference art). | Decorative ASCII art. |
+| `reference` | Falls back to the reference ASCII art. | Layout shells, radial menus. |
 
 ---
 
