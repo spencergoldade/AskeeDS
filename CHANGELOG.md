@@ -6,7 +6,8 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
-- **Declarative sizing model**: Components can now declare adaptive width and height via their render spec. `width: fill` expands to available space, `width: content` sizes to content, and integer values remain fixed (backwards-compatible). Optional `min_width`, `max_width`, `min_height`, `max_height` constraints clamp the result. New `askee_ds/sizing.py` resolver, `tokens/sizing.yaml` with terminal defaults, `available_width`/`available_height` on `RenderContext`, and Renderer/Composer pass-through. 25 new sizing tests (87 total, all green).
+- **Declarative sizing model**: Components can now declare adaptive width and height via their render spec. `width: fill` expands to available space, `width: content` sizes to content, and integer values remain fixed (backwards-compatible). Optional `min_width`, `max_width`, `min_height`, `max_height` constraints clamp the result. New `askee_ds/sizing.py` resolver, `tokens/sizing.yaml` with terminal defaults, `available_width`/`available_height` on `RenderContext`, and Renderer/Composer pass-through. 25 new sizing tests.
+- **Interaction spec**: Components can now declare interaction behavior via an `interaction` block: `focusable`, `actions` (with named keyboard bindings), and `scrollable`. Three approved interactive components annotated (`button.text`, `button.icon`, `choice-wheel.inline`). Validator enforces valid fields, key names, and action structure. Textual adapter reads `focusable` and sets `can_focus` on widgets. Replaces the old boolean `interactive` field. 11 new tests (98 total, all green).
 
 ### Changed
 

@@ -19,6 +19,12 @@ button.icon:
   render:
     type: inline
     template: "[{icon}] {label}"
+  interaction:
+    focusable: true
+    actions:
+      - name: activate
+        keys: [enter, space]
+        description: Press the button
   art: |2
     [☆] Star this
   notes: >-
@@ -39,9 +45,14 @@ button.text:
   render:
     type: inline
     template: "[ {label} ]"
+  interaction:
+    focusable: true
+    actions:
+      - name: activate
+        keys: [enter, space]
+        description: Press the button
   art: |2
     [ Submit ]
-  interactive: true
   notes: >-
     Use for simple confirm/cancel or secondary actions in modals and
     screens.

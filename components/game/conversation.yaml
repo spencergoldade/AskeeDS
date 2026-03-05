@@ -71,6 +71,18 @@ choice-wheel.inline:
       - type: numbered_list
         over: options
         template: "{label}"
+  interaction:
+    focusable: true
+    actions:
+      - name: select_next
+        keys: [down, right]
+        description: Move to next option
+      - name: select_prev
+        keys: [up, left]
+        description: Move to previous option
+      - name: confirm
+        keys: [enter]
+        description: Confirm selection
   art: |2
     1. Go north
     2. Talk to guard

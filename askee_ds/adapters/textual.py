@@ -53,6 +53,7 @@ class AskeeWidget(Static):  # type: ignore[misc]
         name: str | None = None,
         id: str | None = None,
         classes: str | None = None,
+        focusable: bool = False,
     ) -> None:
         if Static is None:
             raise RuntimeError(
@@ -60,6 +61,7 @@ class AskeeWidget(Static):  # type: ignore[misc]
                 "Install with: pip install askee-ds[textual]"
             )
         super().__init__(content, name=name, id=id, classes=classes)
+        self.can_focus = focusable
 
     @classmethod
     def from_component(
@@ -88,7 +90,10 @@ class AskeeWidget(Static):  # type: ignore[misc]
         rich_text = adapter.render_component(
             renderer, component, props, color_role=color_role
         )
-        return cls(rich_text, name=name, id=id, classes=classes)
+        focusable = component.interaction.get("focusable", False)
+        return cls(
+            rich_text, name=name, id=id, classes=classes, focusable=focusable,
+        )
 
     @classmethod
     def from_text(

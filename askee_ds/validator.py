@@ -48,6 +48,10 @@ class Validator:
         self._section_types = set(render.get("section_types", []))
         self._border_values = set(render.get("border_values", []))
 
+        interaction = schema.get("interaction", {})
+        self._interaction_fields = set(interaction.get("optional_fields", []))
+        self._interaction_key_values = set(interaction.get("key_values", []))
+
     @classmethod
     def from_schema_file(cls, path: str | Path) -> "Validator":
         """Load a validator from a _schema.yaml file."""
@@ -95,6 +99,9 @@ class Validator:
 
         for pname, pdef in component.props.items():
             errors.extend(self._validate_prop(name, pname, pdef))
+
+        if component.interaction:
+            errors.extend(self._validate_interaction(name, component.interaction))
 
         return errors
 
@@ -145,5 +152,45 @@ class Validator:
                         (comp_name, f"section[{i}] type '{stype}' is not "
                                     f"valid; allowed: {sorted(self._section_types)}")
                     )
+
+        return errors
+
+    def _validate_interaction(
+        self, comp_name: str, interaction: dict,
+    ) -> list[tuple[str, str]]:
+        errors: list[tuple[str, str]] = []
+
+        for key in interaction:
+            if key not in self._interaction_fields:
+                errors.append(
+                    (comp_name, f"interaction field '{key}' is not valid; "
+                                f"allowed: {sorted(self._interaction_fields)}")
+                )
+
+        focusable = interaction.get("focusable")
+        if focusable is not None and not isinstance(focusable, bool):
+            errors.append(
+                (comp_name, "interaction.focusable must be a boolean")
+            )
+
+        for i, action in enumerate(interaction.get("actions", [])):
+            if not isinstance(action, dict):
+                errors.append(
+                    (comp_name, f"interaction.actions[{i}] must be a dict")
+                )
+                continue
+            if "name" not in action:
+                errors.append(
+                    (comp_name, f"interaction.actions[{i}] missing 'name'")
+                )
+            if self._interaction_key_values:
+                for key in action.get("keys", []):
+                    if key not in self._interaction_key_values:
+                        errors.append(
+                            (comp_name,
+                             f"interaction.actions[{i}] key '{key}' "
+                             f"is not valid; allowed: "
+                             f"{sorted(self._interaction_key_values)}")
+                        )
 
         return errors
