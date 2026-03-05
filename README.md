@@ -247,6 +247,6 @@ This README's structure was inspired by
 [Best README Template](https://github.com/othneildrew/Best-README-Template).
 
 > **Make something weird and wonderful.** AskeeDS is meant to be copied,
-> bent, and remixed — build strange worlds, kind TUIs, tiny tools, or full
-> games. If you ship something you're proud of, share a short write-up or
-> screenshot — we'd love to see it.
+> bent, and remixed. Build strange worlds, kind TUIs, tiny tools, or full
+> games. If you ship something you're proud of: share a short write-up or
+> screenshot; I'd love to see it! [Spencer on Bluesky](https://bsky.app/profile/monkeyslunch.bsky.social) [Spencer on Mastodon](https://mstdn.ca/@monkeyslunch)
