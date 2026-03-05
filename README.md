@@ -148,6 +148,8 @@ All commands below are run from the **repo root**. Use this table to find the ri
 - **Paths:** For `parse_components.py` and `parse_decorations.py`, if you omit paths, the default is the canonical file in `design/ascii/` (e.g. `components.txt`). Pass multiple files to merge core + overrides.
 - **Package CLIs:** `askee-ds-validate`, `askee-ds-export`, and `askee-ds-demo` are available after `pip install -e .`; they use the same logic as the scripts under `tools/`.
 
+**If `git commit` fails with "unknown option trailer":** Your global Git config or a shell `git` function may be adding options (e.g. `--trailer`) that your Git version does not support. From the repo root, run once: `./scripts/setup-local-git.sh`. That configures this repo so `git commit` uses a wrapper that bypasses that. If commits still fail (e.g. your shell wraps `git`), use either `./scripts/git-commit.sh -m "your message"` or `command git commit -m "your message"` instead. To revert the setup: `git config --unset commit.template && git config --unset core.hooksPath && git config --unset alias.commit`.
+
 ---
 
 ## What you get in this repo
