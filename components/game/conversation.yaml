@@ -1,0 +1,72 @@
+# AskeeDS — game/conversation
+# Conversation components.
+
+
+speech-bubble.left:
+  category: game/conversation
+  description: NPC/system speech; tail on left.
+  status: in-review
+  props:
+    text:
+      type: string
+      required: true
+    speaker_id:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+      +-----------------------------+
+     / The guard nods. "Go north."   |
+    +-------------------------------+
+  notes: >-
+    Use for NPC dialog, system narration, or radio-style chatter directed
+    at the player.
+
+speech-bubble.right:
+  category: game/conversation
+  description: Player speech; tail on right.
+  status: in-review
+  props:
+    text:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +-----------------------------+
+    | I'll go north.              \
+    +-----------------------------+
+  notes: >-
+    Use for explicit player dialog choices or typed speech in
+    conversations.
+
+choice-wheel.inline:
+  category: game/conversation
+  description: Vertical numbered options for dialog/choice flow.
+  status: approved
+  props:
+    options:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    1. Go north
+    2. Talk to guard
+    3. Take lamp
+  notes: >-
+    Present small sets of mutually exclusive options during dialog or
+    scripted choices.

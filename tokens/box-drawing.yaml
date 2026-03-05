@@ -1,0 +1,52 @@
+# AskeeDS — Box-Drawing Characters
+# Approved border character sets. Load from here in code; do not hardcode.
+# Component art shows intended shape only — renderers use these glyphs.
+
+default: single
+
+sets:
+  single:
+    description: Standard ASCII box (7-bit safe, 80x24 terminals)
+    h: "-"
+    v: "|"
+    tl: "+"
+    tr: "+"
+    bl: "+"
+    br: "+"
+    tj_right: "+"
+    tj_left: "+"
+    tj_down: "+"
+    tj_up: "+"
+    cross: "+"
+
+  heavy:
+    description: Heavier borders (Unicode U+2500 block)
+    h: "\u2501"
+    v: "\u2503"
+    tl: "\u250F"
+    tr: "\u2513"
+    bl: "\u2517"
+    br: "\u251B"
+    tj_right: "\u2523"
+    tj_left: "\u252B"
+    tj_down: "\u2533"
+    tj_up: "\u253B"
+    cross: "\u254B"
+
+  double:
+    description: Double-line borders (Unicode U+2550 block)
+    h: "\u2550"
+    v: "\u2551"
+    tl: "\u2554"
+    tr: "\u2557"
+    bl: "\u255A"
+    br: "\u255D"
+    tj_right: "\u2560"
+    tj_left: "\u2563"
+    tj_down: "\u2566"
+    tj_up: "\u2569"
+    cross: "\u256C"
+
+bar:
+  filled: "\u2588"
+  empty: "\u2591"

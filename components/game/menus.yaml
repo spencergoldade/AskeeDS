@@ -1,0 +1,86 @@
+# AskeeDS — game/menus
+# Menus components.
+
+
+menu.main:
+  category: game/menus
+  description: "Main menu; title + list (New game, Load, Options, Quit)."
+  status: in-review
+  props:
+    title:
+      type: string
+      required: true
+    items:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +-- AskeeDS ----------------------+
+    |  New game                       |
+    |  Load game                      |
+    |  Options                        |
+    |  Quit                           |
+    +---------------------------------+
+  interactive: true
+  notes: Use on startup or return-to-menu flows for core game navigation.
+
+menu.pause:
+  category: game/menus
+  description: Pause/options overlay; same list shape.
+  status: in-review
+  props:
+    title:
+      type: string
+      required: true
+    items:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +-- Paused -----------------------+
+    |  Resume                         |
+    |  Settings                       |
+    |  Quit to menu                   |
+    +---------------------------------+
+  notes: Overlay during gameplay pauses to access settings or exit options.
+
+quick-select.radial:
+  category: game/menus
+  description: Compass-style or 8-slot radial (e.g. weapon wheel).
+  status: in-review
+  props:
+    options:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    selected_id:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+       [1]
+    [4]   [2]
+       [3]
+  notes: >-
+    Represent quick-select menus like weapon or item wheels in purely text
+    form.

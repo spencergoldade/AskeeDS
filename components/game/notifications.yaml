@@ -1,0 +1,45 @@
+# AskeeDS — game/notifications
+# Notifications components.
+
+
+notification.achievement:
+  category: game/notifications
+  description: Bordered one-liner for achievements.
+  status: in-review
+  props:
+    message:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    |  Achievement: First Steps                |
+    +------------------------------------------+
+  notes: >-
+    Pop up when the player meets achievement conditions or milestone
+    goals.
+
+notification.loot:
+  category: game/notifications
+  description: Bordered one-liner for loot drops.
+  status: in-review
+  props:
+    message:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    |  Loot: rusty sword                       |
+    +------------------------------------------+
+  notes: >-
+    Use when the player gains items outside of the main log, such as
+    auto-loot.

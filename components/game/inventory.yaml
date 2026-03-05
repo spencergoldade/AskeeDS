@@ -1,0 +1,54 @@
+# AskeeDS — game/inventory
+# Inventory components.
+
+
+inventory.grid:
+  category: game/inventory
+  description: Grid of slots (e.g. 2x4 or 4x3) with labels.
+  status: in-review
+  props:
+    slots:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    columns:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +--------+--------+--------+--------+
+    | slot 1 | slot 2 | slot 3 | slot 4 |
+    +--------+--------+--------+--------+
+    | slot 5 | slot 6 | slot 7 | slot 8 |
+    +--------+--------+--------+--------+
+  notes: >-
+    Represent backpack or equipment layouts where position matters (e.g.
+    limited slots).
+
+inventory.list:
+  category: game/inventory
+  description: List of items with optional quantity.
+  status: in-review
+  props:
+    items:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    - rusty sword (1)
+    - brass lamp (1)
+    - key (2)
+  notes: Use when item order and grouping matter more than spatial arrangement.

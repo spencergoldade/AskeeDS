@@ -1,0 +1,82 @@
+# AskeeDS — core/inputs
+# Inputs components.
+
+
+command-input.default:
+  category: core/inputs
+  description: Command line with prompt; optional tab/history hint.
+  status: in-review
+  props:
+    prompt:
+      type: string
+      required: true
+    placeholder:
+      type: string
+      required: true
+    hint_text:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    > go north
+    [Tab: complete] [Up/Down: history]
+  notes: >-
+    Use at the bottom of the screen as the primary parser or command entry
+    point.
+
+input.text:
+  category: core/inputs
+  description: Single-line prompt and field (bordered or prompt-only).
+  status: in-review
+  props:
+    prompt:
+      type: string
+      required: true
+    placeholder:
+      type: string
+      required: true
+    max_length:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    > _______________
+  notes: >-
+    Use for short, focused text entry such as character names or menu
+    filters.
+
+form.single-field:
+  category: core/inputs
+  description: Label + input + optional hint in one block.
+  status: in-review
+  props:
+    label:
+      type: string
+      required: true
+    placeholder:
+      type: string
+      required: true
+    hint:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +----------------------------------+
+    | Name: _____________________      |
+    | (your character name)            |
+    +----------------------------------+
+  notes: >-
+    Use for simple forms like naming a character or entering a single
+    setting.

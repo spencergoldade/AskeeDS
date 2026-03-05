@@ -1,0 +1,173 @@
+# AskeeDS — core/feedback
+# Feedback components.
+
+
+feedback.success:
+  category: core/feedback
+  description: "One-line parser success (e.g. take, drop). Green in code."
+  status: in-review
+  props:
+    message:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Taken: rusty sword (+1 weapon)
+  color_hint: status.good
+  notes: Display directly under the input or log to confirm accepted commands.
+
+feedback.error:
+  category: core/feedback
+  description: One-line parser error or suggestion. Yellow/red in code.
+  status: in-review
+  props:
+    message:
+      type: string
+      required: true
+    suggestion:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    You don't see "sword" here. Did you mean "rusty sword"?
+  color_hint: status.warning
+  notes: >-
+    Use when a command fails to parse or act, ideally with a suggested
+    fix.
+
+modal.overlay:
+  category: core/feedback
+  description: Centered bordered box; pattern for confirmation/dialog.
+  status: in-review
+  props:
+    title:
+      type: string
+      required: true
+    body_text:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    | Confirm                                  |
+    +------------------------------------------+
+    | Are you sure you want to quit?           |
+    |                                          |
+    |        [ Cancel ]  [ Quit ]              |
+    +------------------------------------------+
+  notes: >-
+    Use for blocking confirmations, choices, or alerts over existing
+    content.
+
+toast.inline:
+  category: core/feedback
+  description: Transient one- or two-line feedback (e.g. bottom-right).
+  status: in-review
+  props:
+    message:
+      type: string
+      required: true
+    variant:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +-----------------------------------+
+    |  Saved.                           |
+    +-----------------------------------+
+  notes: >-
+    Briefly show save confirmations or non-blocking alerts near a screen
+    edge.
+
+progress-bar.horizontal:
+  category: core/feedback
+  description: Horizontal bar with optional label/percent; used by meters.
+  status: in-review
+  props:
+    value:
+      type: integer
+      required: true
+    max:
+      type: integer
+      required: true
+    label:
+      type: string
+      required: false
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    [=========>                    ] 50%
+  notes: >-
+    Embed wherever you need a generic progress indicator, e.g. loading
+    tasks or quests.
+
+spinner.loading:
+  category: core/feedback
+  description: Animated loading indicator (cycle through frames in code).
+  status: in-review
+  props:
+    style_hint:
+      type: string
+      required: false
+    frames:
+      type: array
+      required: true
+      element_type: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    |
+  notes: >-
+    Show inline while waiting on short operations such as network or disk
+    I/O.
+
+feedback.mixed:
+  category: core/feedback
+  description: Short block summarizing a mixed success (upside and downside).
+  status: in-review
+  props:
+    headline:
+      type: string
+      required: true
+    upside_text:
+      type: string
+      required: true
+    downside_text:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    | Mixed: You dodge the blow...             |
+    |  Upside: You avoid the worst of it.      |
+    |  Downside: Your sword slips from hand.   |
+    -------------------------------------------+
+  notes: >-
+    Show after rolls or checks that succeed with complications in
+    PbtA-style systems.

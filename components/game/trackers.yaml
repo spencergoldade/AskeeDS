@@ -1,0 +1,92 @@
+# AskeeDS — game/trackers
+# Trackers components.
+
+
+tracker.objective:
+  category: game/trackers
+  description: One line per objective; unchecked/checked.
+  status: in-review
+  props:
+    objectives:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+        checked: boolean
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    [ ] Find the key
+    [x] Talk to the guard
+    [ ] Open the door
+  notes: >-
+    Show in a sidebar or overlay listing current quests or objectives with
+    completion state.
+
+tracker.clock:
+  category: game/trackers
+  description: >-
+    Segment-style progress clock for countdowns, projects, or looming
+    threats.
+  status: in-review
+  props:
+    label:
+      type: string
+      required: true
+    segments:
+      type: string
+      required: true
+    filled:
+      type: integer
+      required: true
+    risk_level:
+      type: string
+      required: false
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Quest: Find the key
+    [○○○○]   0 / 4
+  color_hint: status.good/warning/danger
+  notes: >-
+    Pair with objectives to visualize time pressure or progress toward a
+    key event.
+
+tracker.front:
+  category: game/trackers
+  description: >-
+    Horizontal multi-stage track showing an advancing front or world
+    threat.
+  status: in-review
+  props:
+    label:
+      type: string
+      required: true
+    stages:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    current_stage_index:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Invasion front:
+    [ Safe ]-[ Skirmishes ]-[ Occupied ]-[ Overrun ]
+       ^
+  notes: >-
+    Use to track escalating world states such as invasions, storms, or
+    rumors.

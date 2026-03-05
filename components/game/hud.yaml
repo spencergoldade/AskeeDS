@@ -1,0 +1,263 @@
+# AskeeDS — game/hud
+# Hud components.
+
+
+status-bar.default:
+  category: game/hud
+  description: "Single-line HUD; HP, location, turn. Top or bottom of screen."
+  status: in-review
+  props:
+    hp_current:
+      type: integer
+      required: true
+    hp_max:
+      type: integer
+      required: true
+    location_name:
+      type: string
+      required: true
+    turn_count:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: box
+    width: 50
+    border: single
+    sections:
+      - type: text
+        text: " HP: {hp_current}/{hp_max}  |  {location}  |  Turn {turn_count}"
+  art: |2
+    HP: 85/100  |  The Clearing  |  Turn 12
+  color_hint: status.good/warning/danger
+  notes: >-
+    Pin to the top or bottom of the screen to show core moment-to-moment
+    status.
+
+status-bar.risk:
+  category: game/hud
+  description: Single-line HUD with risk and luck bands in addition to core status.
+  status: in-review
+  props:
+    hp_current:
+      type: integer
+      required: true
+    hp_max:
+      type: integer
+      required: true
+    location_name:
+      type: string
+      required: true
+    turn_count:
+      type: integer
+      required: true
+    risk_level:
+      type: string
+      required: true
+    luck_band:
+      type: string
+      required: false
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    HP: 40/100  |  The Alley  |  Turn 27  |  Risk: Hunted  |  Luck: Fading
+  color_hint: status.good/warning/danger
+  notes: >-
+    Swap in when the game tracks global danger level or player fortune
+    alongside HP.
+
+hint-bar.contextual:
+  category: game/hud
+  description: Contextual shortcuts; progressive disclosure for new vs expert.
+  status: in-review
+  props:
+    hints:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Commands: look, go <dir>, take <item>, i(nventory), ? for help
+  notes: >-
+    Show above or below input to teach core commands without overwhelming
+    experts.
+
+hint-bar.interactions:
+  category: game/hud
+  description: >-
+    Context-sensitive interaction hints emphasizing playful or emotional
+    verbs.
+  status: in-review
+  props:
+    interactions:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    You can: pet dog, talk to guard, inspect statue
+  notes: >-
+    Surface fun, optional verbs like pet, talk, or inspect when relevant
+    entities are present.
+
+meter.resource:
+  category: game/hud
+  description: "Horizontal bar + label; type = health | mana | stamina."
+  status: in-review
+  props:
+    type:
+      type: string
+      required: true
+    current:
+      type: integer
+      required: true
+    max:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    HP:   [=========>                    ] 85/100
+    Mana: [====                           ] 20/50
+  color_hint: status.good/warning/danger
+  notes: >-
+    Embed wherever you need a labeled resource bar, often inside sheets or
+    HUDs.
+
+counter.ammo:
+  category: game/hud
+  description: Ammo or similar resource count (current/max or bar).
+  status: approved
+  props:
+    current:
+      type: integer
+      required: true
+    max:
+      type: integer
+      required: true
+    label:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Ammo: 12/24
+  notes: Use in combat or ranged-weapon HUDs to show current and max ammo.
+
+counter.score:
+  category: game/hud
+  description: Score or kill count.
+  status: in-review
+  props:
+    value:
+      type: integer
+      required: true
+    label:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Score: 1,250
+  notes: >-
+    Display cumulative scores, kills, or similar tallies in arcade-style
+    modes.
+
+status-icon.row:
+  category: game/hud
+  description: "Row of symbols (buffs, debuffs, alerts) with optional labels."
+  status: in-review
+  props:
+    icons:
+      type: array
+      required: true
+      element:
+        symbol: string
+        label: string
+    labels:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    [+] [*] [!]   buff  debuff  alert
+  notes: >-
+    Place near HUD or sheets to summarize active buffs, debuffs, and
+    alerts.
+
+cooldown.badge:
+  category: game/hud
+  description: Turn-based cooldown (turns left); no realtime.
+  status: in-review
+  props:
+    turns_left:
+      type: integer
+      required: true
+    label:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    [3]
+  notes: >-
+    Attach to single abilities or actions to show remaining turns before
+    reuse.
+
+cooldown.row:
+  category: game/hud
+  description: Row of labeled cooldown badges for multiple abilities.
+  status: approved
+  props:
+    abilities:
+      type: array
+      required: true
+      element:
+        label: string
+        turns_left: integer
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Strike [0]  Block [2]  Dash [1]
+  color_hint: ui.muted
+  notes: >-
+    Show multiple abilities' cooldowns under character or combat HUD
+    elements.

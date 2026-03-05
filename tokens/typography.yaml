@@ -1,0 +1,23 @@
+# AskeeDS — Typography Conventions
+# Rules and approved fonts for text rendering in TUI contexts.
+
+conventions:
+  max_line_width: 80
+  preferred_body_width: 60-70
+  min_terminal: "80x24"
+  color_depth: "256-color"
+
+figlet:
+  usage: >-
+    Only for typography.banner component (splash screens, major headings).
+    All other TUI text is plain monospace — no Figlet.
+  approved_fonts:
+    - banner
+    - big
+    - block
+    - doom
+    - larry3d
+    - slant
+    - small
+    - standard
+  default_font: standard

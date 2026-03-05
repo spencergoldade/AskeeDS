@@ -1,0 +1,179 @@
+# AskeeDS — game/exploration
+# Exploration components.
+
+
+room-card.default:
+  category: game/exploration
+  description: "Room pane: title, body, then engine-generated \"You see\" and Exits."
+  status: in-review
+  props:
+    title:
+      type: string
+      required: true
+    description_text:
+      type: string
+      required: true
+    entity_list:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    exits:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: box
+    width: 44
+    border: single
+    sections:
+      - type: header
+        text: "{title}"
+      - type: divider
+      - type: wrap
+        text: "{description_text}"
+        indent: 1
+      - type: blank
+      - type: list
+        label: Items
+        over: items
+        template: "  {label}"
+        if_empty: hide
+      - type: list
+        label: NPCs
+        over: npcs
+        template: "  {label}"
+        if_empty: hide
+      - type: divider
+      - type: list
+        label: Exits
+        over: exits
+        template: "  {label}"
+  art: |2
+    +-- The Clearing ---------------------------------+
+    | A small clearing in the woods.                  |
+    |                                                 |
+    | You see:                                        |
+    |   * brass lamp                                  |
+    |   * guard                                       |
+    | Exits: north  south                             |
+    +-------------------------------------------------+
+  notes: >-
+    Use as the main descriptive block when the player enters or examines a
+    room.
+
+entity-list.room:
+  category: game/exploration
+  description: Scannable list of items and NPCs in current room (from content).
+  status: in-review
+  props:
+    items:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    npcs:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    You see:
+      * brass lamp
+      * guard
+  color_hint: entity.item
+  notes: >-
+    Render under a room description or in a sidebar to list interactable
+    entities.
+
+exit-list.inline:
+  category: game/exploration
+  description: Exits line derived from room frontmatter exits map.
+  status: in-review
+  props:
+    directions:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Exits: north  south  east
+  color_hint: entity.npc
+  notes: >-
+    Place after a room description or entity list to advertise available
+    directions.
+
+minimap.default:
+  category: game/exploration
+  description: Small ASCII grid (e.g. 10x10) with legend. Secondary pane.
+  status: in-review
+  props:
+    grid:
+      type: array
+      required: true
+      element_type: array
+    legend_entries:
+      type: string
+      required: true
+    player_position:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +----------+
+    | ....#....|
+    | .P.#.....|
+    | ....D....|
+    +----------+
+      . empty  # wall  P you  D door
+  notes: >-
+    Show in a secondary pane to give spatial context without replacing
+    text descriptions.
+
+narrative-log.pane:
+  category: game/exploration
+  description: Scrollable narrative output; primary focus area. Bordered pane.
+  status: in-review
+  props:
+    lines:
+      type: array
+      required: true
+      element_type: string
+    max_visible:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +-- Narrative log ---------------------------------+
+    | You enter the clearing.                          |
+    | The guard eyes you but says nothing.             |
+    |                                                  |
+    +--------------------------------------------------+
+  notes: "Use as the main scrolling history of events, descriptions, and dialog."

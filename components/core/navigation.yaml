@@ -1,0 +1,51 @@
+# AskeeDS — core/navigation
+# Navigation components.
+
+
+breadcrumb.inline:
+  category: core/navigation
+  description: Inline path (e.g. location hierarchy).
+  status: approved
+  props:
+    segments:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Home > The Clearing > Guard post
+  notes: >-
+    Show above a main pane to orient the player in nested locations or
+    menus.
+
+nav.vertical:
+  category: core/navigation
+  description: Vertical list of nav items (e.g. sidebar).
+  status: in-review
+  props:
+    items:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    active_id:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    | Inventory
+    | Map
+    | Journal
+    > Settings
+  notes: Use in sidebars or left panes for primary navigation between screens.

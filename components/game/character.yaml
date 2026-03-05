@@ -1,0 +1,164 @@
+# AskeeDS — game/character
+# Character components.
+
+
+character-sheet.compact:
+  category: game/character
+  description: "Name plus 2–3 rows (HP, mana, status); reuses meter/label."
+  status: approved
+  props:
+    name:
+      type: string
+      required: true
+    stats:
+      type: array
+      required: true
+      element:
+        label: string
+        current: integer
+        max: integer
+    color_role:
+      type: string
+      required: false
+  render:
+    type: box
+    width: 34
+    border: single
+    sections:
+      - type: header
+        text: "{name}"
+      - type: divider
+      - type: bars
+        over: stats
+        bar_width: 10
+        template: " {label:<5} [{bar}] {current}/{max}"
+  art: |2
+    Hero
+    HP:  [=========>    ] 85/100
+    Mana: [====          ] 20/50
+  notes: >-
+    Show as a sidebar or dedicated screen summarizing the current
+    character state.
+
+panel.survival-status:
+  category: game/character
+  description: >-
+    Compact survival panel grouping hunger, thirst, fatigue, and similar
+    needs.
+  status: in-review
+  props:
+    needs:
+      type: array
+      required: true
+      element:
+        label: string
+        current: integer
+        max: integer
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Survival
+    Hunger:   [=====               ] 30/100
+    Thirst:   [========            ] 55/100
+    Fatigue:  [===========         ] 70/100
+  color_hint: status.good/warning/danger
+  notes: >-
+    Use in survival-focused games to track core needs alongside HP and
+    resources.
+
+tree.compact:
+  category: game/character
+  description: Indented hierarchy for skills/abilities/loadouts.
+  status: in-review
+  props:
+    nodes:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+        children: array
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Combat
+      > Strike
+      > Block
+      > Parry
+    Lore
+      > Identify
+      > Persuade
+  notes: >-
+    Show skill trees, perk lists, or nested loadouts in a text-friendly
+    hierarchy.
+
+tree.relationships:
+  category: game/character
+  description: >-
+    Indented list of NPC and faction relationships with attitudes and
+    tags.
+  status: in-review
+  props:
+    relations:
+      type: array
+      required: true
+      element:
+        name: string
+        attitude: string
+        tags: array
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    Allies
+      > Guard captain (friendly) [city, watch]
+    Rivals
+      > Thieves' Guild (hostile) [underworld]
+  notes: >-
+    Use on a relationships or factions screen to surface social ties and
+    standings.
+
+panel.consequence:
+  category: game/character
+  description: Panel listing lasting body and mental consequences with severities.
+  status: in-review
+  props:
+    body_conditions:
+      type: array
+      required: true
+      element:
+        label: string
+        severity: string
+    mental_conditions:
+      type: array
+      required: true
+      element:
+        label: string
+        severity: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    | Consequences                             |
+    +------------------------------------------+
+    | Body:                                    |
+    |  - Scarred arm (mild)                    |
+    |  - Broken rib (severe)                   |
+    | Mental:                                  |
+    |  - Nightmares (moderate)                 |
+    |  - Shaken faith (mild)                   |
+    +------------------------------------------+
+  notes: >-
+    Use in games with long-term injuries or trauma to summarize ongoing
+    effects.

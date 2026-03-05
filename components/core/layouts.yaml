@@ -1,0 +1,76 @@
+# AskeeDS — core/layouts
+# Layouts components.
+
+
+layout.app.shell:
+  category: core/layouts
+  description: "Main app shell with header, sidebar, and content area"
+  status: in-review
+  props:
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------------+
+    | App Title                 [user] [settings]    |
+    +------------+-----------------------------------+
+    | nav item 1 | content area                      |
+    | nav item 2 |                                   |
+    +------------+-----------------------------------+
+  notes: >-
+    Use as the top-level frame for the whole TUI, wrapping nav and main
+    content.
+
+layout.two-column:
+  category: core/layouts
+  description: Left/right panes; no header (use with header.banner if needed).
+  status: in-review
+  props:
+    left_content:
+      type: string
+      required: true
+    right_content:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------+-----------------------------+
+    | left pane        | right pane                  |
+    |                  |                             |
+    +------------------+-----------------------------+
+  notes: >-
+    Split the screen between navigation/secondary content and a main
+    detail pane.
+
+layout.stack:
+  category: core/layouts
+  description: Stacked full-width blocks (e.g. status + main + input).
+  status: in-review
+  props:
+    blocks:
+      type: array
+      required: true
+      element_type: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------------+
+    | block 1 (e.g. status bar)                      |
+    +------------------------------------------------+
+    | block 2 (main content)                         |
+    |                                                |
+    +------------------------------------------------+
+    | block 3 (input)                                |
+    +------------------------------------------------+
+  notes: >-
+    Compose vertical flows like status bar, log, and input stacked top to
+    bottom.

@@ -1,0 +1,165 @@
+# AskeeDS — game/screens
+# Screens components.
+
+
+screen.loading:
+  category: game/screens
+  description: Centered loading message + optional tip.
+  status: in-review
+  props:
+    message:
+      type: string
+      required: true
+    tip:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    |                                          |
+    |            Loading...                    |
+    |     Tip: Type "look" to examine.         |
+    |                                          |
+    +------------------------------------------+
+  notes: >-
+    Display while loading saves, generating worlds, or performing long
+    operations.
+
+screen.crafting:
+  category: game/screens
+  description: >-
+    Crafting workbench screen with input slots, output preview, and
+    resource costs.
+  status: in-review
+  props:
+    inputs:
+      type: array
+      required: true
+      element:
+        label: string
+        item_name: string
+    output_preview:
+      type: string
+      required: true
+    success_chance:
+      type: integer
+      required: false
+    resource_costs:
+      type: array
+      required: true
+      element:
+        label: string
+        amount: integer
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    |           Crafting bench                 |
+    +------------------------------------------+
+    | Inputs:                                  |
+    |  [ herb ]  [ bottle ]                    |
+    |                                          |
+    | Output: healing potion                   |
+    | Chance: 75%                              |
+    |                                          |
+    | Costs: mana 5, time 1h                   |
+    +------------------------------------------+
+  notes: >-
+    Use for dedicated crafting flows where players combine items into new
+    outputs.
+
+screen.death:
+  category: game/screens
+  description: Death screen; title + message + actions.
+  status: in-review
+  props:
+    message:
+      type: string
+      required: true
+    actions:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------+
+    |         You have died.                   |
+    |                                          |
+    |  The guard's blade finds you.            |
+    |                                          |
+    |    [ Respawn ]  [ Main menu ]            |
+    +------------------------------------------+
+  notes: >-
+    Show when the player reaches a fail state, offering respawn or exit
+    actions.
+
+screen.tutorial:
+  category: game/screens
+  description: Small bordered hint; Tutorial or Hint label.
+  status: in-review
+  props:
+    title:
+      type: string
+      required: true
+    body:
+      type: string
+      required: true
+    dismiss_label:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +-- Hint -------------------------+
+    |  Type "go north" to move.       |
+    |           [ OK ]                |
+    +---------------------------------+
+  notes: Use to surface onboarding hints or contextual guidance early in play.
+
+decoration.placeholder:
+  category: game/screens
+  description: >-
+    Slot for public-domain or project-owned ASCII art (fish, skull). width
+    and height define slot size in character cells; art is supplied
+    elsewhere and cropped or centered to fit. Use ASCII-only characters
+    (no Unicode) per AskeeDS box-drawing/decoration policy.
+  status: in-review
+  props:
+    art_id:
+      type: string
+      required: true
+    width:
+      type: integer
+      required: true
+    height:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+     .-~~~-.
+    (  o   o  )
+    (   ^   )
+     \|_|_/
+  notes: >-
+    Reserve a fixed-size area for decorative ASCII art such as logos,
+    monsters, or scenes.

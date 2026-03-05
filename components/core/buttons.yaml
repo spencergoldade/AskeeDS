@@ -1,0 +1,46 @@
+# AskeeDS — core/buttons
+# Buttons components.
+
+
+button.icon:
+  category: core/buttons
+  description: Button with leading icon (one or two chars).
+  status: approved
+  props:
+    label:
+      type: string
+      required: true
+    icon:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    [☆] Star this
+  notes: >-
+    Use for primary or secondary actions where a small symbol reinforces
+    meaning.
+
+button.text:
+  category: core/buttons
+  description: Text-only button; no icon.
+  status: in-review
+  props:
+    label:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: inline
+    template: "[ {label} ]"
+  art: |2
+    [ Submit ]
+  interactive: true
+  notes: >-
+    Use for simple confirm/cancel or secondary actions in modals and
+    screens.

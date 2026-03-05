@@ -1,0 +1,190 @@
+# AskeeDS — core/display
+# Display components.
+
+
+tooltip.default:
+  category: core/display
+  description: Bordered tooltip; optional stats variant.
+  status: in-review
+  props:
+    text:
+      type: string
+      required: true
+  render:
+    type: reference
+  art: |2
+    +-------------------------------+
+    |  Additional information for   |
+    |  your perusal                 |
+    +-------------------------------+
+  variant: "default | stats"
+  notes: >-
+    Show contextual help or quick stats when the user focuses or hovers an
+    element.
+
+table.fourcolumn:
+  category: core/display
+  description: Four-column bordered table; header row and data rows.
+  status: in-review
+  props:
+    label:
+      type: string
+      required: true
+    content:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +----------------------------------+---------+------------------------+----------------+
+    |               Col1               |  Col2   |          Col3          | Numeric Column |
+    +----------------------------------+---------+------------------------+----------------+
+    | Value 1                          | Value 2 | 123                    |           10.0 |
+    | Separate                         | cols    | with a tab or 4 spaces |       -2,027.1 |
+    | This is a row with only one cell |         |                        |                |
+    +----------------------------------+---------+------------------------+----------------+
+  notes: >-
+    Use for structured tabular data such as stats, settings, or
+    comparisons.
+
+divider.horizontal:
+  category: core/display
+  description: Section separator within a pane; no box.
+  status: in-review
+  props:
+    style_hint:
+      type: string
+      required: false
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    ------------------------------------------
+  notes: >-
+    Separate logical sections inside a larger pane without drawing a full
+    box.
+
+label.inline:
+  category: core/display
+  description: Short label before value (e.g. stat display).
+  status: in-review
+  props:
+    label:
+      type: string
+      required: true
+    value:
+      type: integer
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    HP: 85
+  notes: "Pair with numbers or short values in HUDs, sheets, and summary rows."
+
+icon.placeholder:
+  category: core/display
+  description: Single- or two-char icon slot for buttons/menus.
+  status: in-review
+  props:
+    symbol:
+      type: string
+      required: true
+    alt_text:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    [?]
+  notes: Reserve space for an icon when you do not yet know the final symbol.
+
+card.simple:
+  category: core/display
+  description: Generic bordered title + body; room-card is game variant.
+  status: approved
+  props:
+    title:
+      type: string
+      required: true
+    body_text:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +-- Card title ------------------------+
+    | Body text goes here and may wrap     |
+    | across multiple lines when needed.   |
+    +--------------------------------------+
+  notes: >-
+    Use as a generic info card for help, lore snippets, or small
+    summaries.
+
+header.banner:
+  category: core/display
+  description: Single-line app/game title with optional trailing controls.
+  status: in-review
+  props:
+    title:
+      type: string
+      required: true
+    controls:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+    +------------------------------------------------+
+    | AskeeDS                   [user] [settings]     |
+    +------------------------------------------------+
+  notes: >-
+    Place at the very top of layouts to carry branding and global
+    controls.
+
+typography.banner:
+  category: core/display
+  description: Multi-line ASCII-art title; structural placeholder for Figlet/Art.
+  status: in-review
+  props:
+    text:
+      type: string
+      required: true
+    style_hint:
+      type: string
+      required: true
+    font:
+      type: string
+      required: false
+    color_role:
+      type: string
+      required: false
+  render:
+    type: reference
+  art: |2
+      ___  ____  _  __ ______
+     / _ )/ __ \/ |/ // __/ /
+    / _  / /_/ /    /_/ /_/ 
+    /____/\____/_/|_/___/___ 
+  notes: >-
+    Use on splash screens or major transitions to emphasize titles or
+    chapter breaks.
