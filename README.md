@@ -64,6 +64,7 @@ askee_ds/                   Python package
   loader.py                 loads YAML components, tokens, decorations
   composer.py               composes layout components from child trees
   adapters/rich.py          Rich adapter: ANSI-colored output
+  adapters/textual.py       Textual adapter: AskeeWidget for TUI apps
   renderer.py               renders components from definitions
   theme.py                  resolves tokens to concrete values
   validator.py              validates components against _schema.yaml
@@ -73,6 +74,7 @@ examples/
   quick_start.py            minimal hello-world
   all_components.py         visual catalog of all renderable components
   full_screen.py            composed game screen using Composer
+  textual_app.py            live TUI demo using Textual adapter
 ```
 
 63 components total. 10 are approved (proven core); 53 are ideated
@@ -348,6 +350,7 @@ The schema (`components/_schema.yaml`) enforces:
 | [PyYAML](https://pyyaml.org/) | Parse YAML definitions and tokens. | Yes |
 | [pyfiglet](https://github.com/pwaller/pyfiglet) | Figlet banner text for `typography.banner`. | Optional (`pip install -e ".[banner]"`) |
 | [Rich](https://github.com/Textualize/rich) | ANSI-colored output via the Rich adapter. | Optional (`pip install -e ".[rich]"`) |
+| [Textual](https://github.com/Textualize/textual) | TUI widgets via the Textual adapter. | Optional (`pip install -e ".[textual]"`) |
 
 ---
 

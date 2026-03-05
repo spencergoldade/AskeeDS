@@ -19,6 +19,9 @@ All notable changes to AskeeDS will be documented in this file.
 - **Rich adapter** (`askee_ds/adapters/rich.py`): Colorizes rendered ASCII output using Theme color roles. Box-drawing chars get border color, content text gets foreground color, highlighted tokens (HP:, Exits:, checkboxes) get accent color. Optional dependency: `pip install askee-ds[rich]`.
 - **`examples/full_screen.py`**: Composed full-screen game UI using the Composer — demonstrates `layout.app.shell` and `layout.stack` with nested child components.
 - **4 new tests** for Rich adapter; 56 total tests.
+- **Textual adapter** (`askee_ds/adapters/textual.py`): `AskeeWidget` wraps themed Rich output as a Textual `Static` widget. Factory methods `from_component()` and `from_text()` for quick mounting. Optional dependency: `pip install askee-ds[textual]`.
+- **`examples/textual_app.py`**: Live TUI demo with sidebar nav, quest tracker, status bar, room card, and command input — all themed AskeeDS widgets in a Textual layout.
+- **2 new tests** for Textual adapter; 58 total tests.
 
 ### Changed
 

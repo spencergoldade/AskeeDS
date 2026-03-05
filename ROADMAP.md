@@ -74,6 +74,7 @@ askee_ds/                       # Python package
   cli.py                        # unified CLI (validate, preview, list) + legacy
   composer.py                   # composes layout components from child trees
   adapters/rich.py              # Rich adapter: ANSI-colored output
+  adapters/textual.py           # Textual adapter: AskeeWidget for TUI apps
   banner.py                     # Figlet banner rendering (used by typography.banner)
   components.py                 # LEGACY: U+241F parser (falls back to archive)
   decorations.py                # LEGACY: decoration parser
@@ -81,7 +82,7 @@ askee_ds/                       # Python package
   box_drawing.py                # LEGACY: loads design/ascii/box-drawing.yaml
   _paths.py                     # repo root helper
 tests/
-  test_framework.py             # 51 tests: Loader, Renderer, Theme, Validator, Composer, Rich adapter
+  test_framework.py             # 53 tests: Loader, Renderer, Theme, Validator, Composer, adapters
   test_package.py               # 5 legacy tests: components, decorations, maps
 tools/
   parse_components.py           # LEGACY: parser CLI (not in CI)
@@ -93,6 +94,7 @@ examples/
   quick_start.py                # minimal hello-world (new framework)
   all_components.py             # visual catalog of all renderable components
   full_screen.py                # composed game screen using Composer
+  textual_app.py                # live TUI demo with themed AskeeDS widgets
   map_preview.py                # uses legacy askee_ds.maps API
 _archive/                       # archived files (see README in each folder)
   poc_renderer.py, design-ascii/, tools/
@@ -193,7 +195,7 @@ Read them before starting work.
   clock, stage_track, banner, frames, table, bubble, tree, grid, charmap,
   art_lookup, stack, columns, shell + active_list section).
 - **1 reference-only** — `quick-select.radial` (intentional).
-- **56 framework + package tests** (51 framework, 5 package), 19 legacy tool tests.
+- **58 framework + package tests** (53 framework, 5 package), 19 legacy tool tests.
 - **CI**: Validates YAML, renders all non-reference components, validates
   maps and decorations.
 
@@ -304,7 +306,7 @@ Adapters translate AskeeDS output into runtime-native widgets. Optional,
 live under `askee_ds/adapters/`.
 
 - [x] `askee_ds/adapters/rich.py` — Rich adapter: colorizes ASCII output with Theme color roles (fg, border, accent)
-- [ ] `askee_ds/adapters/textual.py` — Textual `Widget` wrapping the Rich adapter with CSS layout
+- [x] `askee_ds/adapters/textual.py` — `AskeeWidget` wrapping Rich adapter as Textual Static
 - [ ] `askee-ds export --format json` — CLI command for engines that prefer JSON over YAML
 - [ ] Document game-engine integration pattern (load YAML, resolve props, render via engine)
 
@@ -354,7 +356,7 @@ Maps, decorations, and box-drawing have been migrated out of
 - [x] `examples/quick_start.py` — minimal hello-world
 - [x] `examples/all_components.py` — visual catalog of all renderable components
 - [ ] `examples/map_preview.py` — archive when maps are migrated (section 4)
-- [ ] `examples/textual_app.py` — Textual app using AskeeDS (depends on section 3)
+- [x] `examples/textual_app.py` — live TUI demo with themed AskeeDS widgets
 - [x] `examples/full_screen.py` — composed game screen using Composer
 
 ---
@@ -412,7 +414,7 @@ cleanup that makes the project fully "v2."
 - [x] **4. Maps and decorations migration** — done (maps relocated, decorations YAML, box-drawing consolidated, design/ascii/ removed)
 - [x] **5. Composer** — done (3 layout render types, Composer class, 62/63 renderable)
 - [x] **6. Rich adapter** — done (colorizes output with Theme color roles, optional dependency)
-- [ ] **7. Textual adapter + `textual_app.py`** — depends on Rich adapter
+- [x] **7. Textual adapter + `textual_app.py`** — done (AskeeWidget, live TUI demo)
 - [x] **8. `full_screen.py` example** — done
 - [ ] **9. Packaging and release** (`0.2.0`) — when framework is stable
 - [ ] **10. Legacy retirement** — archive remaining legacy after maps/decorations migrated

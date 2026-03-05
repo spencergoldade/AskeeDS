@@ -14,6 +14,7 @@ dependencies = [
 
 [project.optional-dependencies]
 rich = ["rich>=13.0.0"]
+textual = ["textual>=0.47.0", "rich>=13.0.0"]
 visual-test = ["textual>=0.47.0", "pyfiglet>=0.8.0"]
 banner = ["pyfiglet>=0.8.0"]
 

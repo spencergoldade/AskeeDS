@@ -479,6 +479,34 @@ class TestRichAdapter(unittest.TestCase):
         self.assertEqual(result.plain, original)
 
 
+class TestTextualAdapter(unittest.TestCase):
+
+    def setUp(self):
+        from askee_ds import Loader, Theme, Renderer
+        loader = Loader()
+        self.components = loader.load_components_dir(COMPONENTS_DIR)
+        tokens = loader.load_tokens_dir(TOKENS_DIR)
+        self.theme = Theme(tokens)
+        self.renderer = Renderer(self.theme)
+
+    def test_from_component_creates_widget(self):
+        from askee_ds.adapters.textual import AskeeWidget
+        widget = AskeeWidget.from_component(
+            self.renderer, self.components["status-bar.default"],
+            props={"hp_current": 5, "hp_max": 10,
+                   "location": "Test", "turn_count": 1},
+            theme=self.theme, color_role="neutral",
+        )
+        self.assertIsInstance(widget, AskeeWidget)
+
+    def test_from_text_creates_widget(self):
+        from askee_ds.adapters.textual import AskeeWidget
+        widget = AskeeWidget.from_text(
+            "+---+\n| A |\n+---+", self.theme, "danger",
+        )
+        self.assertIsInstance(widget, AskeeWidget)
+
+
 class TestValidator(unittest.TestCase):
 
     def setUp(self):
