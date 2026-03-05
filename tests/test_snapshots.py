@@ -57,6 +57,74 @@ CANONICAL_PROPS: dict[str, dict] = {
         ],
     },
     "counter.ammo": {"current": 7, "max": 12, "label": "Arrows"},
+    "entity-list.room": {
+        "items": [
+            {"id": "lamp", "label": "Brass lamp"},
+            {"id": "key", "label": "Rusty key"},
+        ],
+        "npcs": [{"id": "guard", "label": "Guard"}],
+    },
+    "feedback.error": {
+        "message": 'You don\'t see "sword" here. Did you mean "rusty sword"?',
+    },
+    "feedback.success": {
+        "message": "Taken: rusty sword (+1 weapon)",
+    },
+    "hint-bar.contextual": {
+        "hints": [
+            {"id": "look", "label": "look"},
+            {"id": "go", "label": "go <dir>"},
+            {"id": "take", "label": "take <item>"},
+        ],
+        "prefix": "Commands: ",
+    },
+    "inventory.list": {
+        "items": [
+            {"id": "sword", "label": "Rusty sword"},
+            {"id": "lamp", "label": "Brass lamp"},
+            {"id": "key", "label": "Key"},
+        ],
+    },
+    "layout.stack": {
+        "blocks": ["Status bar content", "Main content area"],
+    },
+    "layout.two-column": {
+        "left_content": "Nav item 1\nNav item 2",
+        "right_content": "Content area\nMore content",
+        "left_width": 15,
+    },
+    "menu.main": {
+        "title": "Main Menu",
+        "items": [
+            {"id": "new", "label": "New Game"},
+            {"id": "load", "label": "Load Game"},
+            {"id": "quit", "label": "Quit"},
+        ],
+    },
+    "minimap.default": {
+        "grid": [[".", ".", "#"], [".", "P", "#"], [".", ".", "."]],
+        "legend_entries": [
+            {"char": ".", "label": "empty"},
+            {"char": "#", "label": "wall"},
+            {"char": "P", "label": "you"},
+        ],
+        "player_position": "1,1",
+    },
+    "narrative-log.pane": {
+        "lines": [
+            "You enter the clearing.",
+            "The guard watches silently.",
+        ],
+        "max_visible": 10,
+    },
+    "nav.vertical": {
+        "items": [
+            {"id": "inv", "label": "Inventory"},
+            {"id": "map", "label": "Map"},
+            {"id": "settings", "label": "Settings"},
+        ],
+        "active_id": "inv",
+    },
     "room-card.default": {
         "title": "The Clearing",
         "description_text": "A sun-dappled clearing surrounded by ancient oaks.",
@@ -72,11 +140,25 @@ CANONICAL_PROPS: dict[str, dict] = {
             {"id": "east", "label": "East"},
         ],
     },
+    "speech-bubble": {
+        "text": "The guard nods. \"Go north.\"",
+        "tail": "left",
+    },
     "status-bar.default": {
         "hp_current": 85,
         "hp_max": 100,
         "location": "The Clearing",
         "turn_count": 12,
+    },
+    "tracker.objective": {
+        "objectives": [
+            {"id": "key", "label": "Find the key", "checked": False},
+            {"id": "guard", "label": "Talk to the guard", "checked": True},
+            {"id": "door", "label": "Open the door", "checked": False},
+        ],
+    },
+    "typography.banner": {
+        "text": "QUEST",
     },
 }
 

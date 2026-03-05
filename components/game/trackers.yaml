@@ -5,7 +5,7 @@
 tracker.objective:
   category: game/trackers
   description: One line per objective; unchecked/checked.
-  status: ideated
+  status: approved
   props:
     objectives:
       type: array

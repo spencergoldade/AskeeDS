@@ -5,7 +5,7 @@
 speech-bubble:
   category: game/conversation
   description: Speech bubble with directional tail for NPC or player dialogue.
-  status: ideated
+  status: approved
   props:
     text:
       type: string

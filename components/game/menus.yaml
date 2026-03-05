@@ -5,7 +5,7 @@
 menu.main:
   category: game/menus
   description: Main menu with title and item list.
-  status: ideated
+  status: approved
   props:
     title:
       type: string

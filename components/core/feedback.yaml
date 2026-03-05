@@ -5,7 +5,7 @@
 feedback.success:
   category: core/feedback
   description: One-line success message. Green in code.
-  status: ideated
+  status: approved
   props:
     message:
       type: string
@@ -24,7 +24,7 @@ feedback.success:
 feedback.error:
   category: core/feedback
   description: One-line error or suggestion. Yellow/red in code.
-  status: ideated
+  status: approved
   props:
     message:
       type: string

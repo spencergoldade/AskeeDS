@@ -30,7 +30,7 @@ breadcrumb.inline:
 nav.vertical:
   category: core/navigation
   description: Vertical list of nav items (e.g. sidebar).
-  status: ideated
+  status: approved
   props:
     items:
       type: array

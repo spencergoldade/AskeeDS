@@ -176,7 +176,7 @@ header.banner:
 typography.banner:
   category: core/display
   description: Multi-line ASCII-art title; structural placeholder for Figlet/Art.
-  status: ideated
+  status: approved
   props:
     text:
       type: string

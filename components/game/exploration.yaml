@@ -79,7 +79,7 @@ room-card.default:
 entity-list.room:
   category: game/exploration
   description: Scannable list of items and NPCs in current room.
-  status: ideated
+  status: approved
   props:
     items:
       type: array
@@ -152,7 +152,7 @@ exit-list.inline:
 minimap.default:
   category: game/exploration
   description: Small ASCII grid (e.g. 10x10) with legend.
-  status: ideated
+  status: approved
   props:
     grid:
       type: array
@@ -188,7 +188,7 @@ minimap.default:
 narrative-log.pane:
   category: game/exploration
   description: Scrollable narrative output; primary focus area.
-  status: ideated
+  status: approved
   props:
     lines:
       type: array

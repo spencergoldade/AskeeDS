@@ -37,7 +37,7 @@ inventory.grid:
 inventory.list:
   category: game/inventory
   description: List of items with optional quantity.
-  status: ideated
+  status: approved
   props:
     items:
       type: array

@@ -77,7 +77,7 @@ status-bar.risk:
 hint-bar.contextual:
   category: game/hud
   description: Contextual hints or interaction shortcuts for progressive disclosure.
-  status: ideated
+  status: approved
   props:
     hints:
       type: array
