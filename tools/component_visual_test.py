@@ -35,6 +35,7 @@ try:
         OptionList,
         Select,
         Static,
+        TextArea,
     )
     from textual.screen import Screen, ModalScreen
     from textual import on
@@ -47,10 +48,44 @@ except ImportError as e:
 from parse_components import parse_components, parse_props_meta, COMPONENT_STATUSES
 
 COMPONENTS_PATH = ROOT / "design" / "ascii" / "components.txt"
+PROP_SHAPES_PATH = ROOT / "design" / "ascii" / "prop_shapes.yaml"
 STATUS_OPTIONS = [("All", "All")] + [(s, s) for s in sorted(COMPONENT_STATUSES)]
 
 # Section divider for TUI (horizontal line from box-drawing convention; 60 chars)
 SECTION_DIVIDER = "-" * 60
+
+# Prop intent: array element shapes (and optional scalar types) for defaults/randomizer.
+# Loaded from design/ascii/prop_shapes.yaml when present; empty dict if missing or invalid.
+_PROP_SHAPES_CACHE: dict | None = None
+
+
+def _load_prop_shapes() -> dict:
+    """Load prop_shapes.yaml; return { "array_shapes": { prop_name: element_shape }, ... } or empty."""
+    global _PROP_SHAPES_CACHE
+    if _PROP_SHAPES_CACHE is not None:
+        return _PROP_SHAPES_CACHE
+    out: dict = {}
+    if not PROP_SHAPES_PATH.exists():
+        _PROP_SHAPES_CACHE = out
+        return out
+    try:
+        import yaml  # type: ignore[import-untyped]
+        raw = yaml.safe_load(PROP_SHAPES_PATH.read_text(encoding="utf-8"))
+        if isinstance(raw, dict):
+            out = raw
+    except Exception:
+        pass
+    _PROP_SHAPES_CACHE = out
+    return out
+
+
+def _get_array_shape(prop_name: str) -> str | None:
+    """Return element_shape for an array prop from prop_shapes.yaml, or None."""
+    data = _load_prop_shapes()
+    shapes = data.get("array_shapes")
+    if isinstance(shapes, dict):
+        return shapes.get(prop_name)
+    return None
 
 # Session notes: one file per day under tools/visual_test_notes/
 NOTES_DIR = ROOT / "tools" / "visual_test_notes"
@@ -196,6 +231,26 @@ _RANDOM_WORDS = (
 _RANDOM_PLACES = ("The Clearing", "The Alley", "Town Square", "Dark Woods", "Riverbank", "Cave Mouth")
 _RANDOM_LABELS = ("Submit", "Cancel", "Look", "Go north", "Take item", "Use", "Drop", "Inventory")
 _RANDOM_ICONS = ("☆", "★", "†", "•", "◆", "►", "♥")
+_RANDOM_STAT_LABELS = ("HP", "Mana", "Stamina", "Energy", "Focus", "Armor", "Shield", "Rage")
+_RANDOM_HERO_NAMES = ("Hero", "Champion", "Vanguard", "Warden", "Scout", "Strider", "Pilgrim")
+
+
+def _randomize_label_current_max(prop_name: str, n: int | None = None) -> list[dict]:
+    """Return random list of { label, current, max } for stats/needs-style bars.
+    For prop_name 'stats', may append one value-only row { label, value }."""
+    if n is None:
+        n = random.randint(2, 4)
+    result: list[dict] = []
+    labels = random.sample(_RANDOM_STAT_LABELS, min(n, len(_RANDOM_STAT_LABELS)))
+    if len(labels) < n:
+        labels += [random.choice(_RANDOM_STAT_LABELS) for _ in range(n - len(labels))]
+    for label in labels[:n]:
+        mx = random.randint(50, 150)
+        cur = random.randint(0, mx)
+        result.append({"label": label, "current": cur, "max": mx})
+    if prop_name == "stats" and n >= 2 and random.choice([True, False]):
+        result.append({"label": "Status", "value": random.choice(("Cautious", "Ready", "Resting", "Alert"))})
+    return result
 
 
 def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
@@ -205,7 +260,9 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
         prop_name = p["name"]
         if p["is_array"]:
             n = random.randint(1, 5)
-            if "exit" in prop_name or "direction" in prop_name:
+            if _get_array_shape(prop_name) == "label_current_max" or prop_name in ("stats", "needs"):
+                result[prop_name] = _randomize_label_current_max(prop_name)
+            elif "exit" in prop_name or "direction" in prop_name:
                 dirs = ["north", "south", "east", "west", "up", "down"]
                 chosen = random.sample(dirs, min(n, len(dirs)))
                 result[prop_name] = [{"id": d[0], "label": d} for d in chosen]
@@ -277,6 +334,8 @@ def randomize_props_for_component(name: str, parsed_props: list[dict]) -> dict:
                 result[prop_name] = random.choice(("default", "stats"))
             elif prop_name == "stats_dict":
                 result[prop_name] = {random.choice(_RANDOM_WORDS).capitalize(): random.randint(1, 100) for _ in range(3)}
+            elif prop_name == "name":
+                result[prop_name] = random.choice(_RANDOM_HERO_NAMES)
             else:
                 result[prop_name] = random.choice(_RANDOM_WORDS).capitalize()
     return result
@@ -1291,7 +1350,18 @@ class DetailScreen(Screen):
             name = p["name"]
             suffix = "[]" if p["is_array"] else ""
             raw = _serialize_prop_value(self.prop_values.get(name))
-            widgets.append(Horizontal(Label(f"{name}{suffix}: "), Input(value=raw, id=f"prop_{name}")))
+            if p["is_array"]:
+                ta = TextArea(raw, id=f"prop_{name}")
+                ta.styles.height = 8
+                widgets.append(
+                    Vertical(
+                        Label(f"{name}{suffix}: "),
+                        ta,
+                        classes="prop_array_row",
+                    )
+                )
+            else:
+                widgets.append(Horizontal(Label(f"{name}{suffix}: "), Input(value=raw, id=f"prop_{name}")))
         return widgets
 
     def on_mount(self) -> None:
@@ -1317,8 +1387,8 @@ class DetailScreen(Screen):
         for p in self.parsed_props:
             name = p["name"]
             try:
-                inp = self.query_one(f"#prop_{name}", Input)
-                raw = inp.value or ""
+                w = self.query_one(f"#prop_{name}")
+                raw = (w.text if hasattr(w, "text") else w.value) or ""
                 val, err = _parse_prop_value(raw, p["is_array"])
                 out[name] = val
             except Exception:
@@ -1336,6 +1406,7 @@ class DetailScreen(Screen):
         self.query_one("#preview_art", Static).update(preview.rstrip())
 
     @on(Input.Changed)
+    @on(TextArea.Changed)
     def _on_prop_change(self) -> None:
         self._update_preview()
 
@@ -1359,8 +1430,12 @@ class DetailScreen(Screen):
         for p in self.parsed_props:
             name = p["name"]
             try:
-                inp = self.query_one(f"#prop_{name}", Input)
-                inp.value = _serialize_prop_value(self.prop_values.get(name))
+                w = self.query_one(f"#prop_{name}")
+                serialized = _serialize_prop_value(self.prop_values.get(name))
+                if hasattr(w, "text"):
+                    w.text = serialized
+                else:
+                    w.value = serialized
             except Exception:
                 pass
         self._update_preview()
@@ -1370,8 +1445,12 @@ class DetailScreen(Screen):
         for p in self.parsed_props:
             name = p["name"]
             try:
-                inp = self.query_one(f"#prop_{name}", Input)
-                inp.value = _serialize_prop_value(self.prop_values.get(name))
+                w = self.query_one(f"#prop_{name}")
+                serialized = _serialize_prop_value(self.prop_values.get(name))
+                if hasattr(w, "text"):
+                    w.text = serialized
+                else:
+                    w.value = serialized
             except Exception:
                 pass
         self._update_preview()

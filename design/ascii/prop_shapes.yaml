@@ -1,0 +1,32 @@
+# Prop intent for component visual test (defaults + randomizer).
+# Keys: prop name (snake_case). Values: element_shape or scalar type.
+# Used by tools/component_visual_test.py. See design/ascii/PROP-INTENT-AND-TEST-DATA-PLAN.md.
+
+# Array props: shape of each element. Drives what default_props and randomize_props generate.
+array_shapes:
+  stats: label_current_max      # character-sheet.compact: { label, current?, max? } or { label, value }
+  needs: label_current_max      # panel.survival-status: { label, current, max }
+  segments: id_label            # breadcrumb.inline: { id, label }
+  exits: exits                  # room-card: directions as { id, label }
+  directions: exits
+  options: id_label             # choice-wheel, menu items
+  items: id_label               # menu, nav, inventory (inventory also has quantity in default)
+  objectives: id_label_checked  # tracker.objective: { id?, label, checked }
+  lines: lines                  # narrative-log: string[]
+  hints: id_label
+  interactions: id_label
+  nodes: nodes                  # tree.compact: { id, label, children? }
+  relations: relations          # tree.relationships: { id, label, items? }
+  abilities: label_turns_left   # cooldown.row: { label, turns_left }
+  blocks: blocks                # layout.stack: string[]
+  # Generic fallback when not listed: id_label
+
+# Optional future: scalar types so randomizer keeps e.g. hp_current as integer.
+# scalar_types:
+#   hp_current: integer
+#   hp_max: integer
+#   turn_count: integer
+#   max_length: integer
+#   value: integer
+#   max: integer
+#   current: integer
