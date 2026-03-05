@@ -5,7 +5,7 @@
 inventory.grid:
   category: game/inventory
   description: Grid of slots (e.g. 2x4 or 4x3) with labels.
-  status: in-review
+  status: ideated
   props:
     slots:
       type: array
@@ -34,7 +34,7 @@ inventory.grid:
 inventory.list:
   category: game/inventory
   description: List of items with optional quantity.
-  status: in-review
+  status: ideated
   props:
     items:
       type: array

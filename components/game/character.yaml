@@ -45,7 +45,7 @@ panel.survival-status:
   description: >-
     Compact survival panel grouping hunger, thirst, fatigue, and similar
     needs.
-  status: in-review
+  status: ideated
   props:
     needs:
       type: array
@@ -82,7 +82,7 @@ panel.survival-status:
 tree.compact:
   category: game/character
   description: Indented hierarchy for skills/abilities/loadouts.
-  status: in-review
+  status: ideated
   props:
     nodes:
       type: array
@@ -113,7 +113,7 @@ tree.relationships:
   description: >-
     Indented list of NPC and faction relationships with attitudes and
     tags.
-  status: in-review
+  status: ideated
   props:
     relations:
       type: array
@@ -139,7 +139,7 @@ tree.relationships:
 panel.consequence:
   category: game/character
   description: Panel listing lasting body and mental consequences with severities.
-  status: in-review
+  status: ideated
   props:
     body_conditions:
       type: array

@@ -5,7 +5,7 @@
 tooltip.default:
   category: core/display
   description: Bordered tooltip; optional stats variant.
-  status: in-review
+  status: ideated
   props:
     text:
       type: string
@@ -34,7 +34,7 @@ tooltip.default:
 table.fourcolumn:
   category: core/display
   description: Four-column bordered table; header row and data rows.
-  status: in-review
+  status: ideated
   props:
     label:
       type: string
@@ -62,7 +62,7 @@ table.fourcolumn:
 divider.horizontal:
   category: core/display
   description: Section separator within a pane; no box.
-  status: in-review
+  status: ideated
   props:
     style_hint:
       type: string
@@ -85,7 +85,7 @@ divider.horizontal:
 label.inline:
   category: core/display
   description: Short label before value (e.g. stat display).
-  status: in-review
+  status: ideated
   props:
     label:
       type: string
@@ -106,7 +106,7 @@ label.inline:
 icon.placeholder:
   category: core/display
   description: Single- or two-char icon slot for buttons/menus.
-  status: in-review
+  status: ideated
   props:
     symbol:
       type: string
@@ -161,7 +161,7 @@ card.simple:
 header.banner:
   category: core/display
   description: Single-line app/game title with optional trailing controls.
-  status: in-review
+  status: ideated
   props:
     title:
       type: string
@@ -193,7 +193,7 @@ header.banner:
 typography.banner:
   category: core/display
   description: Multi-line ASCII-art title; structural placeholder for Figlet/Art.
-  status: in-review
+  status: ideated
   props:
     text:
       type: string

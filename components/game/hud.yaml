@@ -39,7 +39,7 @@ status-bar.default:
 status-bar.risk:
   category: game/hud
   description: Single-line HUD with risk and luck bands.
-  status: in-review
+  status: ideated
   props:
     hp_current:
       type: integer
@@ -75,7 +75,7 @@ status-bar.risk:
 hint-bar.contextual:
   category: game/hud
   description: Contextual shortcuts; progressive disclosure for new vs expert.
-  status: in-review
+  status: ideated
   props:
     hints:
       type: array
@@ -103,7 +103,7 @@ hint-bar.interactions:
   description: >-
     Context-sensitive interaction hints emphasizing playful or emotional
     verbs.
-  status: in-review
+  status: ideated
   props:
     interactions:
       type: array
@@ -129,7 +129,7 @@ hint-bar.interactions:
 meter.resource:
   category: game/hud
   description: Horizontal bar + label for health, mana, stamina.
-  status: in-review
+  status: ideated
   props:
     label:
       type: string
@@ -181,7 +181,7 @@ counter.ammo:
 counter.score:
   category: game/hud
   description: Score or kill count.
-  status: in-review
+  status: ideated
   props:
     value:
       type: integer
@@ -204,7 +204,7 @@ counter.score:
 status-icon.row:
   category: game/hud
   description: Row of symbols (buffs, debuffs, alerts) with optional labels.
-  status: in-review
+  status: ideated
   props:
     icons:
       type: array
@@ -229,7 +229,7 @@ status-icon.row:
 cooldown.badge:
   category: game/hud
   description: Turn-based cooldown (turns left); no realtime.
-  status: in-review
+  status: ideated
   props:
     turns_left:
       type: integer

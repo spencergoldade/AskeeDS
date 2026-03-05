@@ -5,7 +5,7 @@
 screen.loading:
   category: game/screens
   description: Centered loading message + optional tip.
-  status: in-review
+  status: ideated
   props:
     message:
       type: string
@@ -43,7 +43,7 @@ screen.crafting:
   description: >-
     Crafting workbench screen with input slots, output preview, and
     resource costs.
-  status: in-review
+  status: ideated
   props:
     inputs:
       type: array
@@ -100,7 +100,7 @@ screen.crafting:
 screen.death:
   category: game/screens
   description: Death screen with title, message, and actions.
-  status: in-review
+  status: ideated
   props:
     message:
       type: string
@@ -141,7 +141,7 @@ screen.death:
 screen.tutorial:
   category: game/screens
   description: Small bordered hint with title, body, and dismiss button.
-  status: in-review
+  status: ideated
   props:
     title:
       type: string
@@ -178,7 +178,7 @@ decoration.placeholder:
   description: >-
     Slot for decorative ASCII art. Width and height define slot size;
     art is supplied from a catalog and cropped or centered to fit.
-  status: in-review
+  status: ideated
   props:
     art_id:
       type: string

@@ -5,7 +5,7 @@
 layout.app.shell:
   category: core/layouts
   description: "Main app shell with header, sidebar, and content area"
-  status: in-review
+  status: ideated
   props:
     color_role:
       type: string
@@ -26,7 +26,7 @@ layout.app.shell:
 layout.two-column:
   category: core/layouts
   description: Left/right panes; no header (use with header.banner if needed).
-  status: in-review
+  status: ideated
   props:
     left_content:
       type: string
@@ -51,7 +51,7 @@ layout.two-column:
 layout.stack:
   category: core/layouts
   description: Stacked full-width blocks (e.g. status + main + input).
-  status: in-review
+  status: ideated
   props:
     blocks:
       type: array

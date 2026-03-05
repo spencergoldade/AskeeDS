@@ -36,6 +36,7 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Changed
 
+- **Component status reset**: 53 non-approved components reset from `in-review` to `ideated`. 10 approved components unchanged. Components re-enter the lifecycle from the earliest state.
 - **POC archived**: `poc_renderer.py` moved to `_archive/`; the real `askee_ds` package now covers all its functionality.
 - **CLI rewritten**: `askee_ds/cli.py` now has a unified `askee-ds` entry point alongside the legacy commands.
 - README and instructional updates.

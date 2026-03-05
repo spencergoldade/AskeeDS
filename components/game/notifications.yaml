@@ -5,7 +5,7 @@
 notification.achievement:
   category: game/notifications
   description: Bordered one-liner for achievements.
-  status: in-review
+  status: ideated
   props:
     message:
       type: string
@@ -31,7 +31,7 @@ notification.achievement:
 notification.loot:
   category: game/notifications
   description: Bordered one-liner for loot drops.
-  status: in-review
+  status: ideated
   props:
     message:
       type: string

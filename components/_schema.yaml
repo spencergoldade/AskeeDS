@@ -1,0 +1,85 @@
+# AskeeDS Component Schema
+# Defines what a valid component YAML definition looks like.
+# Used by the validator to check component files for correctness.
+
+component:
+  required_fields:
+    - category
+    - description
+    - status
+    - render
+
+  optional_fields:
+    - props
+    - art
+    - color_hint
+    - interactive
+    - variant
+    - notes
+
+  status_values:
+    - ideated
+    - to-do
+    - in-progress
+    - in-review
+    - approved
+    - cancelled
+    - deprecated
+
+  category_prefixes:
+    - core/
+    - game/
+
+prop:
+  required_fields:
+    - type
+    - required
+
+  type_values:
+    - string
+    - integer
+    - number
+    - boolean
+    - array
+
+  optional_fields:
+    - element
+    - element_type
+
+render:
+  type_values:
+    - inline
+    - join
+    - box
+    - reference
+
+  inline_fields:
+    - template
+
+  join_fields:
+    - over
+    - separator
+    - template
+    - prefix
+
+  box_fields:
+    - width
+    - border
+    - sections
+
+  section_types:
+    - header
+    - divider
+    - text
+    - wrap
+    - blank
+    - list
+    - bars
+    - progress
+    - numbered_list
+    - checked_list
+
+  border_values:
+    - single
+    - heavy
+    - double

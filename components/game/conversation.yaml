@@ -5,7 +5,7 @@
 speech-bubble.left:
   category: game/conversation
   description: NPC/system speech; tail on left.
-  status: in-review
+  status: ideated
   props:
     text:
       type: string
@@ -29,7 +29,7 @@ speech-bubble.left:
 speech-bubble.right:
   category: game/conversation
   description: Player speech; tail on right.
-  status: in-review
+  status: ideated
   props:
     text:
       type: string

@@ -5,7 +5,7 @@
 menu.main:
   category: game/menus
   description: Main menu with title and item list.
-  status: in-review
+  status: ideated
   props:
     title:
       type: string
@@ -43,7 +43,7 @@ menu.main:
 menu.pause:
   category: game/menus
   description: Pause/options overlay; same list shape.
-  status: in-review
+  status: ideated
   props:
     title:
       type: string
@@ -79,7 +79,7 @@ menu.pause:
 quick-select.radial:
   category: game/menus
   description: Compass-style or 8-slot radial (e.g. weapon wheel).
-  status: in-review
+  status: ideated
   props:
     options:
       type: array

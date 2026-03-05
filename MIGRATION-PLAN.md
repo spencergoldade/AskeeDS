@@ -213,15 +213,14 @@ The user said ~20-30 components are core and proven; the rest are speculative.
 The user has NOT yet identified which specific components to keep vs archive.
 **Ask the user** before pruning — do not decide unilaterally.
 
-- [ ] **Identify core vs speculative**: Present the user with the full list
-      of 63 components grouped by category and ask them to mark which are
-      core. Alternatively, use the `status` field: `approved` components
-      (currently 7: button.icon, breadcrumb.inline, card.simple,
-      character-sheet.compact, choice-wheel.inline, counter.ammo,
-      cooldown.row) are definitely core.
-- [ ] **Move speculative to `_archive/components/`**: Components the user
-      marks as speculative get moved. Keep the YAML format so they can be
-      restored later.
+- [x] **Identify core vs speculative**: User reviewed all 63 components.
+      10 approved components kept as core. 53 in-review components reset
+      to `ideated` status (earliest lifecycle state). All data validated
+      clean against the schema — no pruning needed.
+- [x] **Reset speculative to ideated**: All 53 non-approved components
+      kept in place (not archived) with status reset to `ideated`. They
+      remain in the same YAML files and will progress through the status
+      lifecycle as they are individually designed and proven.
 - [ ] **Archive old format files**: Move `design/ascii/components.txt`,
       `design/ascii/format-spec.md`, `design/ascii/prop_shapes.yaml`,
       `design/ascii/askee_ds_tokens.yaml`, and `design/ascii/manifest.yaml`

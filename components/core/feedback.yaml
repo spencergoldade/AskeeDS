@@ -5,7 +5,7 @@
 feedback.success:
   category: core/feedback
   description: One-line success message. Green in code.
-  status: in-review
+  status: ideated
   props:
     message:
       type: string
@@ -24,7 +24,7 @@ feedback.success:
 feedback.error:
   category: core/feedback
   description: One-line error or suggestion. Yellow/red in code.
-  status: in-review
+  status: ideated
   props:
     message:
       type: string
@@ -48,7 +48,7 @@ feedback.error:
 modal.overlay:
   category: core/feedback
   description: Centered bordered box for confirmation/dialog.
-  status: in-review
+  status: ideated
   props:
     title:
       type: string
@@ -85,7 +85,7 @@ modal.overlay:
 toast.inline:
   category: core/feedback
   description: Transient one- or two-line feedback.
-  status: in-review
+  status: ideated
   props:
     message:
       type: string
@@ -114,7 +114,7 @@ toast.inline:
 progress-bar.horizontal:
   category: core/feedback
   description: Horizontal bar with optional label/percent.
-  status: in-review
+  status: ideated
   props:
     value:
       type: integer
@@ -140,7 +140,7 @@ progress-bar.horizontal:
 spinner.loading:
   category: core/feedback
   description: Animated loading indicator (cycle through frames in code).
-  status: in-review
+  status: ideated
   props:
     style_hint:
       type: string
@@ -163,7 +163,7 @@ spinner.loading:
 feedback.mixed:
   category: core/feedback
   description: Short block summarizing a mixed success (upside and downside).
-  status: in-review
+  status: ideated
   props:
     headline:
       type: string
