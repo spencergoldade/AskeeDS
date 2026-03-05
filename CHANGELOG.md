@@ -11,6 +11,14 @@ All notable changes to AskeeDS will be documented in this file.
 - **Component catalog audit**: Reviewed all 53 ideated components against stated game genres. Archived 3 speculative components (`icon.placeholder`, `quick-select.radial`, `decoration.placeholder`). Consolidated 4 near-duplicates into 2 (`notification.inline` replaces achievement+loot; `hint-bar.contextual` absorbs interactions variant). Updated `menu.main` to use proper `interaction` block. Defined proving criteria for `ideated → approved` promotion. 58 components total (10 approved, 48 ideated).
 - **Declarative screen composition**: Designers can now define full game screens as YAML files (`screens/`) that reference layout components and fill their slots with component references, nested layouts, or plain text. New `Composer.compose_screen()` loads and renders screen YAML. CLI `askee-ds compose` renders screens from the terminal. Example screen `screens/examples/adventure_main.yaml` demonstrates a complete text adventure layout. 11 new tests (109 total, all green).
 
+### Fixed
+
+- **Layout junction characters**: `render_stack` now uses shared separator borders (`├`/`┤`) between blocks instead of double top/bottom corners. `render_columns` and `render_shell` use proper junction characters (`┬`/`┴`) at column splits. Correct rendering for all three border styles (single, heavy, double).
+- **`narrative-log.pane`**: Fixed broken template `" {}"` → `" {label}"` so list items are actually interpolated.
+- **`progress-bar.horizontal`**: Changed from broken `inline` type (which can't compute bar fill) to `box` with a `progress` section that correctly renders the bar.
+- **`hint-bar.contextual`**: `join` renderer now interpolates the `prefix` field against props, so `prefix: "{prefix}"` correctly resolves to the prop value.
+- **`element_type` on `PropDef`**: Added `element_type` field to `PropDef` and parsing in the Loader. Components using `element_type` (e.g. `table.fourcolumn`, `spinner.loading`, `narrative-log.pane`) now generate correct sample data in `all_components.py`.
+
 ### Changed
 
 - **Renamed `tokens/box-drawing.yaml` → `tokens/borders.yaml`** for clarity.

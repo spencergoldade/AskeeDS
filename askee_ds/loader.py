@@ -36,6 +36,7 @@ class PropDef:
     type: str
     required: bool = True
     element: Optional[dict] = None
+    element_type: Optional[str] = None
 
 
 @dataclass
@@ -126,6 +127,7 @@ class Loader:
                     type=pdef.get("type", "string"),
                     required=pdef.get("required", True),
                     element=pdef.get("element"),
+                    element_type=pdef.get("element_type"),
                 )
             else:
                 props[pname] = PropDef(name=pname, type=str(pdef))

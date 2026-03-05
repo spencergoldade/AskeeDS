@@ -206,7 +206,7 @@ narrative-log.pane:
       - type: divider
       - type: list
         over: lines
-        template: " {}"
+        template: " {label}"
   art: |2
     +-- Narrative log ---------------------------------+
     | You enter the clearing.                          |

@@ -18,6 +18,6 @@ def render_join(spec: dict, props: dict, ctx: RenderContext) -> str:
     items = props.get(spec.get("over", ""), [])
     sep = spec.get("separator", "  ")
     tmpl = spec.get("template", "{label}")
-    prefix = spec.get("prefix", "")
+    prefix = interpolate(spec.get("prefix", ""), props)
     parts = [interpolate(tmpl, item) for item in items]
     return prefix + sep.join(parts)

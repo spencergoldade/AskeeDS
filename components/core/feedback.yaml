@@ -129,10 +129,19 @@ progress-bar.horizontal:
       type: string
       required: false
   render:
-    type: inline
-    template: "{label} [{bar}] {value}/{max}"
+    type: box
+    width: 40
+    border: single
+    sections:
+      - type: progress
+        bar_width: 20
+        value_prop: value
+        max_prop: max
+        template: " {label} [{bar}] {value}/{max}"
   art: |2
-    [=========>                    ] 50%
+    +--------------------------------------+
+    | Loading [=========>          ] 50/100 |
+    +--------------------------------------+
   notes: >-
     Embed wherever you need a generic progress indicator, e.g. loading
     tasks or quests.
