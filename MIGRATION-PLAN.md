@@ -276,145 +276,22 @@ The user has NOT yet identified which specific components to keep vs archive.
 
 ---
 
-## Post-migration — Framework buildout
+## What's next
 
-These are not migration tasks. They are the features needed to make AskeeDS
-a real framework (the user's stated end goal). Do these after the migration
-phases above are complete.
-
-### Specialized renderers for the 17 reference-only components
-
-46/63 components have declarative render specs. The remaining 17 fall back
-to displaying their reference ASCII art because they need rendering logic
-that the current section types don't cover. These need new section types or
-custom render logic in the Renderer:
-
-| Component | What it needs |
-|-----------|--------------|
-| `layout.app.shell`, `layout.two-column`, `layout.stack` | Composition — these take child content (other rendered components) as slot props. Needs the Composer (see below). |
-| `nav.vertical` | Active-list section: render items with a `>` marker on the active item (matched by `active_id` prop). |
-| `table.fourcolumn` | Table section: column headers, data rows, auto-width columns, alignment. |
-| `typography.banner` | Figlet rendering. `askee_ds/banner.py` already has this partially — wire it into the renderer as a render type. |
-| `spinner.loading` | Animation frames. This is a runtime concern (cycle through frames on a timer). The renderer could return the first frame; actual animation is the consumer's job. |
-| `speech-bubble.left`, `speech-bubble.right` | Bubble-shaped box with a directional tail. Needs a `bubble` render type that wraps text and adds tail characters on the correct side. |
-| `tree.compact`, `tree.relationships` | Recursive tree rendering with indentation. Needs a `tree` section type that walks nested `children` arrays. |
-| `inventory.grid` | Grid layout: arrange `slots[]` into rows of `columns` width, each cell boxed. Needs a `grid` section type. |
-| `minimap.default` | 2D character grid rendering from a `grid` array of arrays, plus legend. Needs a `charmap` section type. |
-| `quick-select.radial` | Spatial text layout (compass rose). This may stay as reference since it's hard to generalize. |
-| `tracker.clock` | Segment clock: render `filled` of `segments` as filled/empty circles. Needs a `clock` render type. |
-| `tracker.front` | Stage track: render `stages[]` as `[ label ]` boxes joined by `-`, with a `^` marker under `current_stage_index`. |
-| `decoration.placeholder` | Art lookup from a catalog by `art_id`, cropped/centered to `width` x `height`. Needs a decoration catalog loader. |
-
-### Component composition (`askee_ds/composer.py`)
-
-The three layout components (`layout.app.shell`, `layout.two-column`,
-`layout.stack`) are **compositional** — they take other rendered components
-as slot content. The current Renderer produces strings; the Composer would:
-
-1. Render child components first (e.g., a status bar, a room card, an input).
-2. Pass those rendered strings as props to the layout component.
-3. The layout's render spec arranges them (e.g., `layout.stack` stacks blocks
-   vertically; `layout.two-column` places them side by side).
-
-This is the key difference between a "component library" and a "framework."
-Without composition, consumers have to manually stitch rendered strings
-together. With it, they describe a tree of components and the framework
-produces the final output.
-
-Proposed API:
-```python
-from askee_ds import Loader, Theme, Renderer, Composer
-
-composer = Composer(renderer)
-output = composer.compose("layout.stack", {
-    "blocks": [
-        ("status-bar.default", {"hp_current": 8, "hp_max": 10, ...}),
-        ("room-card.default", {"title": "Cavern", ...}),
-        ("command-input.default", {"prompt": ">", ...}),
-    ],
-})
-print(output)
-```
-
-### Runtime adapters
-
-The user's target runtimes are Python TUI frameworks (Textual, Rich) and
-game engines (Godot, Unity, custom). Adapters translate AskeeDS rendered
-output into runtime-native widgets.
-
-- **`askee_ds/adapters/textual.py`**: A Textual `Widget` subclass that takes
-  a Component + props and renders it as a Textual widget with proper styling
-  (colors from the Theme applied via Rich markup or Textual CSS). This lets
-  AskeeDS components be used directly in Textual apps.
-- **`askee_ds/adapters/rich.py`**: A Rich `Renderable` that produces styled
-  Rich output from AskeeDS components (colors, bold, borders via Rich's
-  box-drawing).
-- **Game engine adapters**: Not in this repo. The Askee engine will consume
-  AskeeDS's YAML definitions and JSON exports directly. Document the
-  expected integration pattern in the README.
-
-### Maps and decorations migration
-
-Maps (`design/ascii/maps/`) and decorations (`design/ascii/decoration-catalog.txt`)
-were NOT migrated in this round. They are still in the old format under
-`design/ascii/`. When ready:
-
-- **Maps**: Move `design/ascii/maps/` to `maps/` (top level, alongside
-  `components/` and `tokens/`). The map YAML files (`index.yaml`,
-  `map-tiles.yaml`) and `.txt` map files are already YAML/text and don't
-  need format conversion — just relocation.
-- **Decorations**: Convert `design/ascii/decoration-catalog.txt` (which uses
-  the same U+241F format) to YAML. Could become `components/game/decorations.yaml`
-  or a separate `decorations/` directory depending on how many there are.
-
-### Examples directory
-
-The proposed structure included example scripts that were never created:
-
-- **`examples/quick_start.py`**: Minimal "hello world" — load one component,
-  render it, print it. 10-15 lines. Replace or update the existing
-  `examples/map_preview.py` which uses the old API.
-- **`examples/textual_app.py`**: A small Textual app that uses AskeeDS
-  components to build a game-like TUI (status bar + room card + input).
-  Depends on the Textual adapter.
-- **`examples/full_screen.py`**: Uses the Composer to build a full game
-  screen from composed layout + child components.
-
-### Dependencies to add
-
-These were discussed and recommended but not yet added:
-
-- **pytest** (replace unittest): Better output, fixtures, parametrize. Update
-  `pyproject.toml` to add pytest as a dev dependency. Convert existing tests.
-- **jsonschema** (optional): For validating component YAML against the schema.
-  Alternative: write a simple custom validator (no external dependency).
-- Consider **not** adding Jinja2 — the current `{prop}` interpolation with
-  regex is simple and sufficient. Jinja2 would add complexity without clear
-  benefit since ASCII art templates need alignment-aware rendering, not
-  general-purpose templating.
-
-### pyproject.toml updates
-
-When the migration is complete:
-- Update the package description to mention the framework, not just parsers.
-- Add a `preview` or `render` CLI entry point.
-- Add pytest to `[project.optional-dependencies]` under a `dev` extra.
-- Consider bumping version to `0.2.0`.
+The migration is complete. Feature work (specialized renderers, component
+composition, runtime adapters, maps/decorations migration, examples, and
+packaging) is tracked in **[ROADMAP.md](ROADMAP.md)**.
 
 ---
-
-## Principles
-
-- **Foundations first**: Get the format, loader, and renderer right before
-  scaling to all components.
-- **Scale**: Write render specs for all components once the renderer is proven.
-- **Test**: Validate everything loads, renders, and roundtrips correctly.
-- **Iterate**: Prune, archive, and clean up after the new system is solid.
-- **Complete**: Update README and docs last, when the project is stable.
 
 ## Commit history (this migration)
 
 ```
+a64b9b1 docs: rewrite README for the YAML-first framework
+eab2e9d feat(framework): archive old format, update CI, add framework tests
+51815cf chore(components): reset 53 non-approved components to ideated status
+1161576 feat(framework): schema validator, unified CLI, and POC archival
+1ac1856 docs: expand migration plan with full context for continuity
 b4edd13 feat(package): extract Loader, Theme, Renderer into askee_ds package
 bee4d9d feat(framework): render specs for 46/63 components and new section types
 c01e443 feat(framework): migrate 63 components to YAML and establish new structure
