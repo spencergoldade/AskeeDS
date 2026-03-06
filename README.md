@@ -13,7 +13,8 @@ YP   YP `8888Y' YP   YD Y88888P Y88888P Y8888D' `8888Y'
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?style=flat&logo=ko-fi)](https://ko-fi.com/spencerg1350)
 
-**AskeeDS is a design system for text-based games and TUIs** — 56 components, declarative YAML, themes, and a Python renderer that turns structured data into real ASCII output.
+**AskeeDS is a design system for text-based games and TUIs**
+56 components, declarative YAML, themes, and a Python renderer that turns structured data into real ASCII output.
 
 It's the UI layer your game engine doesn't have to build. You pass in the data; AskeeDS handles the look.
 
@@ -37,13 +38,13 @@ It's the UI layer your game engine doesn't have to build. You pass in the data; 
 +------------------------------------------+
 ```
 
-> **Make something weird and wonderful.** AskeeDS is meant to be copied, bent, and remixed. Build strange worlds, kind TUIs, tiny tools, or full games. If you ship something: [find me on Bluesky](https://bsky.app/profile/monkeyslunch.bsky.social) or [Mastodon](https://mstdn.ca/@monkeyslunch) — I'd genuinely love to see it.
+> **Make something weird and wonderful.** AskeeDS is meant to be copied, bent, and remixed. Build strange worlds, kind TUIs, tiny tools, or full games. If you ship something: [find me on Bluesky](https://bsky.app/profile/monkeyslunch.bsky.social) or [Mastodon](https://mstdn.ca/@monkeyslunch). I'd genuinely love to see it.
 
 ---
 
 ## What it looks like in practice
 
-Components are defined in YAML with typed props. The framework resolves your theme and renders real ASCII — no manual string-building required.
+Components are defined in YAML with typed props. The framework resolves your theme and renders real ASCII, with no manual string-building required.
 
 **status-bar.default** — Single-line HUD showing HP, location, and turn.
 ```
@@ -128,7 +129,7 @@ askee-ds compose screens/examples/adventure_main.yaml
 
 ## AskeeDS handles the look. Your engine handles the rest.
 
-This boundary is intentional. AskeeDS is a design system, not a game engine — it gives you the UI layer so you don't have to build it yourself.
+This boundary is intentional. AskeeDS is a design system, not a game engine. It gives you the UI layer so you don't have to build it yourself.
 
 | AskeeDS | Your engine |
 |---|---|
@@ -207,4 +208,4 @@ If AskeeDS powers something you ship, please credit it:
 
 > AskeeDS by Spencer Goldade
 
-A line in your credits screen, README, or about page is all it takes. You're also welcome to use the ASCII wordmark from `CREDITS_LOGO.txt` directly in your game's credits. It's not a legal requirement — it's how open source stays discoverable.
+A line in your credits screen, README, or about page is all it takes. You're also welcome to use the ASCII wordmark from `CREDITS_LOGO.txt` directly in your game's credits. It's not a legal requirement, it's just how open source stays discoverable.
