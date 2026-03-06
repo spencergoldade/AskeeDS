@@ -13,14 +13,9 @@ YP   YP `8888Y' YP   YD Y88888P Y88888P Y8888D' `8888Y'
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?style=flat&logo=ko-fi)](https://ko-fi.com/spencerg1350)
 
-AskeeDS is an ASCII design system and component framework for TUI and
-text-based games. It defines game UI components — menus, HUDs, inventory
-screens, room cards, character sheets, and more — as structured YAML with
-typed props and declarative render specs. A Python framework loads these
-definitions, resolves a theme (colors, borders, bar glyphs), and produces
-real ASCII output. **The look is retro (ASCII aesthetic); the target is
-modern terminals and equipment** — default sizing assumes contemporary
-terminal dimensions, not legacy hardware.
+**AskeeDS is a design system for text-based games and TUIs** — 56 components, declarative YAML, themes, and a Python renderer that turns structured data into real ASCII output.
+
+It's the UI layer your game engine doesn't have to build. You pass in the data; AskeeDS handles the look.
 
 ```
 +------------------------------------------+
@@ -42,130 +37,15 @@ terminal dimensions, not legacy hardware.
 +------------------------------------------+
 ```
 
----
-
-## Who is this for?
-
-- **Game designers**: Define screens and components as YAML + ASCII art.
-  The framework enforces prop types and validates your work.
-- **Developers**: Wire AskeeDS into a Python TUI, game engine, or any
-  runtime that consumes structured data. The YAML definitions are the
-  contract; the renderer is a reference implementation.
-- **The Askee engine**: AskeeDS is the design system that the Askee game
-  engine (separate project) will consume.
+> **Make something weird and wonderful.** AskeeDS is meant to be copied, bent, and remixed. Build strange worlds, kind TUIs, tiny tools, or full games. If you ship something: [find me on Bluesky](https://bsky.app/profile/monkeyslunch.bsky.social) or [Mastodon](https://mstdn.ca/@monkeyslunch) — I'd genuinely love to see it.
 
 ---
 
-## Quick start
+## What it looks like in practice
 
-Pick the guide that matches your role:
-
-- **I'm a designer** — Read [GUIDE.md](GUIDE.md) to learn concepts,
-  vocabulary, and how to author components and screens in YAML.
-- **I'm a developer** — Read [INTEGRATING.md](INTEGRATING.md) for the
-  Python API, CLI, adapters, and how to extend the system.
-- **I need to look something up** — Open [REFERENCE.md](REFERENCE.md)
-  for render types, section types, tokens, and every field definition.
-
-### Install
-
-```bash
-git clone <this-repo-url>
-cd askeeDS
-pip install -e .
-```
-
-Tip: on macOS, the Python that runs `pip` may install the `askee-ds` script
-into a directory that is not on your shell `PATH`. If you use a virtual
-environment (`python3 -m venv .venv` then `source .venv/bin/activate` before
-`pip install -e .`), the script will be on `PATH` while the venv is active.
-
-### Try it
-
-```bash
-askee-ds validate
-askee-ds list --status approved
-askee-ds preview room-card.default \
-  --props '{"title":"Cavern","description_text":"A dark cave.","items":[],"npcs":[],"exits":[{"id":"n","label":"north"}]}'
-askee-ds compose screens/examples/adventure_main.yaml
-```
-
-If you see `command not found: askee-ds` (common on macOS), run the same
-commands via Python: `python3 -m askee_ds.cli validate`, `python3 -m askee_ds.cli list --status approved`, etc.
-
----
-
-## What you get
-
-```
-components/                 YAML component definitions (the product)
-  _schema.yaml              meta-schema enforced by the validator
-  core/                     19 components: buttons, inputs, display, feedback, navigation, layouts
-  game/                     37 components: HUD, inventory, character, exploration, conversation, etc.
-tokens/                     design tokens
-  colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
-  borders.yaml              3 border character sets (single, heavy, double)
-  typography.yaml           Figlet font conventions, line width rules
-  sizing.yaml               terminal defaults for adaptive width/height (modern default 100×30)
-themes/                     theme variants (override color_roles)
-  dark.yaml, light.yaml, high-contrast.yaml (grayscale), experimental.yaml (color)
-screens/                    YAML screen definitions (full-screen layouts)
-  _schema.yaml              meta-schema for screen files
-  examples/                 17 example game screens (title, conversation, adventure, etc.)
-askee_ds/                   Python package
-  loader.py                 loads YAML components and tokens
-  composer.py               composes layout components and screens from YAML
-  render_types/             modular render type registry (16 built-in types)
-  adapters/rich.py          Rich adapter: ANSI-colored output
-  adapters/textual.py       Textual adapter: AskeeWidget for TUI apps
-  renderer.py               renders components from definitions
-  theme.py                  resolves tokens to concrete values
-  validator.py              validates components against _schema.yaml
-  cli.py                    CLI: validate, preview, list, compose (--theme for preview/compose)
-tests/                      framework and legacy tests
-examples/
-  quick_start.py            minimal hello-world
-  all_components.py         visual catalog of all renderable components
-  full_screen.py            composed game screen using Composer
-  textual_app.py            live TUI demo using Textual adapter
-DESIGNER_SIZING_WORKFLOW.md designer checklist for adaptive sizing (pause point)
-```
-
-56 components total; all 56 are approved. All render from declarative
-specs. 24 have snapshot golden files for visual regression; 17 example
-game screens demonstrate real layouts.
-
----
-
-## What AskeeDS handles vs. what your engine handles
-
-AskeeDS gives your game its **look** — the layout, components, and
-visual structure. Everything else lives in your game engine.
-
-| AskeeDS handles (the look) | Your engine handles (the logic) |
-|---|---|
-| Defining UI components (menus, HUDs, cards, sheets) as YAML | Managing game state (HP, inventory, turn order, quest progress) |
-| Rendering ASCII output from data you pass in | Deciding *what* data to show and *when* to show it |
-| Declaring interaction specs (focusable, key bindings) | Capturing keystrokes and running your event loop |
-| Declaring animation frames (e.g. spinner) | Cycling through frames at the speed you choose |
-| Pure text/ASCII rendering | Any pixel graphics, images, or GPU rendering you want |
-| Laying out screens from component definitions | Networking, multiplayer sync, or server communication |
-| Providing color roles and border styles | Audio, sound effects, or music |
-| Defining component structure and validation | Save/load, persistence, and file storage |
-| Offering 56 ready-made UI components | Generating levels, stories, items, NPCs, or any content |
-
-**In short:** AskeeDS is a design system. You define what things look
-like. Your engine decides what happens.
-
----
-
-## Component examples
-
-Components are YAML definitions with typed props and a render spec. The
-framework turns definition + props + theme into ASCII output.
+Components are defined in YAML with typed props. The framework resolves your theme and renders real ASCII — no manual string-building required.
 
 **status-bar.default** — Single-line HUD showing HP, location, and turn.
-
 ```
 +------------------------------------------------+
 | HP: 85/100  |  The Clearing  |  Turn 12        |
@@ -173,7 +53,6 @@ framework turns definition + props + theme into ASCII output.
 ```
 
 **character-sheet.compact** — Compact stat block with name header and resource bars.
-
 ```
 +--------------------------------+
 | Kael the Wanderer              |
@@ -185,7 +64,6 @@ framework turns definition + props + theme into ASCII output.
 ```
 
 **tracker.objective** — One line per objective; unchecked/checked.
-
 ```
 +------------------------------+
 | [x] Find the key             |
@@ -195,61 +73,118 @@ framework turns definition + props + theme into ASCII output.
 ```
 
 **button.icon** — Button with leading icon.
-
 ```
 [☆] Star this
 ```
 
 **breadcrumb.inline** — Inline location path.
-
 ```
 World > Dungeon > Level 3
 ```
 
-Run `askee-ds list` to see all 56 components, `askee-ds preview <name>`
-to render any of them, or `python examples/all_components.py` to see
-every renderable component at once.
+Run `askee-ds list` to see all 56, `askee-ds preview <name>` to render any of them, or `python examples/all_components.py` for the full visual catalog.
 
 ---
 
-## Tools and dependencies
+## Who is this for?
 
-| Name | Use | Required? |
-|------|-----|-----------|
-| [PyYAML](https://pyyaml.org/) | Parse YAML definitions and tokens. | Yes |
-| [pyfiglet](https://github.com/pwaller/pyfiglet) | Figlet banner text for `typography.banner`. | Optional (`pip install -e ".[banner]"`) |
-| [Rich](https://github.com/Textualize/rich) | ANSI-colored output via the Rich adapter. | Optional (`pip install -e ".[rich]"`) |
-| [Textual](https://github.com/Textualize/textual) | TUI widgets via the Textual adapter. | Optional (`pip install -e ".[textual]"`) |
+**Game designers** — Define screens and components as YAML + ASCII art. The framework enforces prop types and validates your work so you catch mistakes before runtime, not during.
+
+**Developers** — Wire AskeeDS into a Python TUI, game engine, or any runtime that consumes structured data. The YAML definitions are the contract; the renderer is a reference implementation you can swap out.
+
+**The Askee engine** — AskeeDS is the design system the [Askee game engine](https://github.com/spencergoldade) (separate project) will consume. It's extracted and open so other projects can use it too.
+
+---
+
+## Quick start
+
+Pick the guide that fits where you're coming from:
+
+- **I'm a designer** — [GUIDE.md](GUIDE.md): concepts, vocabulary, authoring components and screens in YAML.
+- **I'm a developer** — [INTEGRATING.md](INTEGRATING.md): the Python API, CLI, adapters, and how to extend the system.
+- **I need a reference** — [REFERENCE.md](REFERENCE.md): every render type, section type, token, and field definition.
+
+### Install
+
+```bash
+git clone <this-repo-url>
+cd askeeDS
+pip install -e .
+```
+
+> **macOS tip:** If `askee-ds` isn't found after install, use a virtual environment: `python3 -m venv .venv && source .venv/bin/activate`, then re-run `pip install -e .`. Alternatively, prefix every command with `python3 -m askee_ds.cli`.
+
+### Try it
+
+```bash
+askee-ds validate
+askee-ds list --status approved
+askee-ds preview room-card.default \
+  --props '{"title":"Cavern","description_text":"A dark cave.","items":[],"npcs":[],"exits":[{"id":"n","label":"north"}]}'
+askee-ds compose screens/examples/adventure_main.yaml
+```
+
+---
+
+## AskeeDS handles the look. Your engine handles the rest.
+
+This boundary is intentional. AskeeDS is a design system, not a game engine — it gives you the UI layer so you don't have to build it yourself.
+
+| AskeeDS | Your engine |
+|---|---|
+| 56 UI components (menus, HUDs, cards, sheets) defined in YAML | Game state — HP, inventory, turn order, quests |
+| Rendering ASCII output from data you pass in | Deciding *what* to show and *when* |
+| Interaction specs (focusable fields, key bindings) | The actual event loop and keystroke handling |
+| Animation frame declarations (spinners, etc.) | Cycling frames at your chosen speed |
+| Color roles, border styles, themes | Audio, sound effects, music |
+| Screen layout from component definitions | Save/load, persistence, networking |
+| Schema validation for components and screens | Level generation, story, NPCs, content |
+
+---
+
+## What's included
+
+```
+components/          56 YAML component definitions (the product)
+  core/              19 components: buttons, inputs, display, feedback, navigation, layouts
+  game/              37 components: HUD, inventory, character, exploration, conversation, etc.
+
+tokens/              Design tokens
+  colors.yaml        10 semantic color roles (neutral, danger, arcane, nature, ...)
+  borders.yaml       3 border character sets (single, heavy, double)
+  typography.yaml    Figlet font conventions, line width rules
+  sizing.yaml        Terminal defaults — modern 100×30, not legacy hardware
+
+themes/              dark.yaml · light.yaml · high-contrast.yaml · experimental.yaml
+
+screens/             17 example full-screen game layouts (title, adventure, conversation, etc.)
+
+askee_ds/            Python package: loader, renderer, composer, theme resolver,
+                     validator, CLI, Rich adapter, Textual adapter, 16 render types
+```
+
+All 56 components are approved and render from declarative specs. 24 have snapshot golden files for visual regression testing.
+
+---
+
+## Dependencies
+
+| Library | Purpose | Required? |
+|---|---|---|
+| [PyYAML](https://pyyaml.org/) | Parse component and token definitions | Yes |
+| [pyfiglet](https://github.com/pwaller/pyfiglet) | Figlet banner text (`typography.banner`) | `pip install -e ".[banner]"` |
+| [Rich](https://github.com/Textualize/rich) | ANSI-colored terminal output | `pip install -e ".[rich]"` |
+| [Textual](https://github.com/Textualize/textual) | TUI widgets via `AskeeWidget` | `pip install -e ".[textual]"` |
 
 ---
 
 ## Versioning
 
-AskeeDS uses semantic versioning recorded in [VERSION](VERSION) and
-[CHANGELOG.md](CHANGELOG.md).
+Tracked in [VERSION](VERSION) and [CHANGELOG.md](CHANGELOG.md), following semantic versioning:
 
-- **Major**: Breaking changes (renamed/removed components or required props).
-- **Minor**: New components, new optional props, new tokens.
-- **Patch**: Fixes, documentation, tooling.
-
----
-
-## License and attribution
-
-AskeeDS is released under the [MIT License](LICENSE). You are free to
-use, modify, and distribute it in personal and commercial projects.
-
-**If you use AskeeDS in your game or project, please credit:**
-
-> AskeeDS by Spencer Goldade
-
-Add this to your game's credits screen, README, or about page. You may
-also use the ASCII wordmark in `CREDITS_LOGO.txt` in your credits (e.g.
-title screen or about page); the file includes a short note that you are
-welcome to display it. The MIT license requires preserving the copyright
-notice in source distributions; crediting AskeeDS in your finished
-product is a community expectation, not a legal mandate, but it helps
-others discover the project and supports continued development.
+- **Major** — Breaking changes (renamed/removed components or required props)
+- **Minor** — New components, new optional props, new tokens
+- **Patch** — Fixes, documentation, tooling
 
 ---
 
@@ -257,22 +192,19 @@ others discover the project and supports continued development.
 
 Contributions are welcome. Before opening a pull request:
 
-1. Run `askee-ds validate` (or `python3 -m askee_ds.cli validate` if the command is not on your PATH) to check YAML components.
+1. Run `askee-ds validate` to check YAML components.
 2. Run `python3 -m pytest tests/ -v` to confirm all tests pass.
 3. Follow the component lifecycle — new components start as `ideated`.
-4. Update `CHANGELOG.md` under the **Unreleased** section.
-
-If you ship a game or tool that uses AskeeDS, please include the
-attribution above. Forks and derivatives should preserve the credit.
+4. Update `CHANGELOG.md` under **Unreleased**.
 
 ---
 
-## Acknowledgments
+## License and attribution
 
-This README's structure was inspired by
-[Best README Template](https://github.com/othneildrew/Best-README-Template).
+Released under the [MIT License](LICENSE). Use it freely in personal and commercial projects.
 
-> **Make something weird and wonderful.** AskeeDS is meant to be copied,
-> bent, and remixed. Build strange worlds, kind TUIs, tiny tools, or full
-> games. If you ship something you're proud of: share a short write-up or
-> screenshot; I'd love to see it! [Spencer on Bluesky](https://bsky.app/profile/monkeyslunch.bsky.social) [Spencer on Mastodon](https://mstdn.ca/@monkeyslunch)
+If AskeeDS powers something you ship, please credit it:
+
+> AskeeDS by Spencer Goldade
+
+A line in your credits screen, README, or about page is all it takes. You're also welcome to use the ASCII wordmark from `CREDITS_LOGO.txt` directly in your game's credits. It's not a legal requirement — it's how open source stays discoverable.
