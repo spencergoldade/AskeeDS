@@ -62,6 +62,11 @@ cd askeeDS
 pip install -e .
 ```
 
+Tip: on macOS, the Python that runs `pip` may install the `askee-ds` script
+into a directory that is not on your shell `PATH`. If you use a virtual
+environment (`python3 -m venv .venv` then `source .venv/bin/activate` before
+`pip install -e .`), the script will be on `PATH` while the venv is active.
+
 ### Try it
 
 ```bash
@@ -71,6 +76,9 @@ askee-ds preview room-card.default \
   --props '{"title":"Cavern","description_text":"A dark cave.","items":[],"npcs":[],"exits":[{"id":"n","label":"north"}]}'
 askee-ds compose screens/examples/adventure_main.yaml
 ```
+
+If you see `command not found: askee-ds` (common on macOS), run the same
+commands via Python: `python3 -m askee_ds.cli validate`, `python3 -m askee_ds.cli list --status approved`, etc.
 
 ---
 
@@ -234,7 +242,7 @@ the project and supports continued development.
 
 Contributions are welcome. Before opening a pull request:
 
-1. Run `askee-ds validate` to check YAML components.
+1. Run `askee-ds validate` (or `python3 -m askee_ds.cli validate` if the command is not on your PATH) to check YAML components.
 2. Run `python3 -m pytest tests/ -v` to confirm all tests pass.
 3. Follow the component lifecycle — new components start as `ideated`.
 4. Update `CHANGELOG.md` under the **Unreleased** section.

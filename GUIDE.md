@@ -7,7 +7,9 @@ boxes, status bars, menus, room cards, and more.
 
 This guide walks you through everything you need to know to design
 components and screens. No programming experience required. Everything
-here uses YAML files and the `askee-ds` command line tool.
+here uses YAML files and the `askee-ds` command line tool. If your system
+does not find `askee-ds` (common on macOS), use `python3 -m askee_ds.cli`
+instead — for example, `python3 -m askee_ds.cli validate`.
 
 ---
 

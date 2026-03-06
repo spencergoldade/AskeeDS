@@ -4,6 +4,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
+### Documentation
+
+- **CLI install and PATH**: README, INTEGRATING.md, and GUIDE.md now explain that `askee-ds` may not be on PATH after `pip install -e .` (common on macOS). Added tip to use a virtual environment so the script is on PATH, and fallback: `python3 -m askee_ds.cli <subcommand>`. Contributing section includes the fallback for the validate step.
+
 ### Added
 
 - **Theme variants**: Four theme files in `themes/` — `dark`, `light`, `high-contrast` (grayscale), and `experimental` (color, labeled experimental). System is grayscale-first for accessibility. `Loader.load_theme(name, themes_dir)` loads a theme overlay; merge over base tokens and pass to `Theme(tokens)`. CLI `preview` and `compose` accept `--theme dark|light|high-contrast|experimental`. Documented in REFERENCE.md (Theme variants) and GUIDE.md (vocabulary). 6 new tests in `test_themes.py`.

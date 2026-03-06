@@ -187,6 +187,10 @@ errors = validator.validate_all(components)
 All commands accept `--components DIR`, `--tokens DIR`, and
 `--schema FILE` to override default paths.
 
+If `askee-ds` is not found (common on macOS when the pip script directory
+is not on your PATH), use: `python3 -m askee_ds.cli <subcommand>` — for
+example, `python3 -m askee_ds.cli validate`.
+
 ### `askee-ds validate`
 
 Validate all YAML component definitions against the schema.
