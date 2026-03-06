@@ -1,0 +1,73 @@
+# AskeeDS — High-contrast theme (grayscale)
+# Maximum contrast for accessibility. Black and white with clear separation.
+
+color_roles:
+  neutral:
+    description: Default; no strong tint.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#cccccc"
+
+  danger:
+    description: Threat, error, death.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#ffffff"
+
+  arcane:
+    description: Magic, rare systems.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#eeeeee"
+
+  nature:
+    description: Outdoors, growth, safe zones.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#eeeeee"
+
+  frost:
+    description: Cold, water, tech.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#eeeeee"
+
+  success:
+    description: Success, victory, confirmation.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#eeeeee"
+
+  rare:
+    description: Rare items, quality.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#eeeeee"
+
+  legendary:
+    description: Legendary, premium.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#ffffff"
+
+  dungeon:
+    description: Dark stone, interior.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#cccccc"
+
+  forest:
+    description: Forest zone.
+    bg: "#000000"
+    fg: "#ffffff"
+    border: "#ffffff"
+    accent: "#cccccc"

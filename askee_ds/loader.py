@@ -109,6 +109,14 @@ class Loader:
                 merged.update(data)
         return merged
 
+    def load_theme(self, name: str, themes_dir: str | Path) -> dict:
+        """Load a single theme file by name. Returns a dict (e.g. color_roles) to merge over base tokens."""
+        path = Path(themes_dir) / f"{name}.yaml"
+        if not path.is_file():
+            return {}
+        data = yaml.safe_load(path.read_text())
+        return data if isinstance(data, dict) else {}
+
     def _warn_on_errors(self, components: dict[str, Component]) -> None:
         assert self._validator is not None
         errors = self._validator.validate_all(components)

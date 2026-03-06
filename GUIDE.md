@@ -51,6 +51,13 @@ assembles the pieces into a complete layout.
 keyboard input. "This button can receive focus and is activated with
 Enter or Space." You add an `interaction` block to your component.
 
+**Theme** — A palette that overrides color roles. AskeeDS ships with
+grayscale themes (dark, light, high-contrast) and one experimental color
+theme. Use `--theme dark` or `--theme high-contrast` when you run
+`askee-ds preview` or `askee-ds compose`. The system is built
+grayscale-first for accessibility; the high-contrast theme maximizes
+readability.
+
 ---
 
 ## Your first component

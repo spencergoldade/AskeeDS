@@ -830,6 +830,33 @@ Defined in `tokens/sizing.yaml`:
 | `terminal.min_width` | 40 |
 | `terminal.min_height` | 10 |
 
+### Theme variants
+
+Theme files in `themes/` override `color_roles` so you can switch palettes
+without changing component definitions. The system is built **grayscale-first**;
+one theme adds color for experimentation.
+
+| Theme | Description |
+|-------|-------------|
+| `dark` | Grayscale: dark background, light text. Good for low light. |
+| `light` | Grayscale: light background, dark text. Good for bright environments. |
+| `high-contrast` | Grayscale: black and white, maximum contrast for accessibility. |
+| `experimental` | Full color palette. **Experimental** — may change in future releases. |
+
+Use a theme from the CLI:
+
+```bash
+askee-ds preview room-card.default --theme dark
+askee-ds compose screens/examples/adventure_main.yaml --theme high-contrast
+```
+
+From code: load base tokens from `tokens/`, then load a theme with
+`Loader.load_theme(name, themes_dir)` and merge the returned dict over
+tokens before passing to `Theme(tokens)`.
+
+**Accessibility:** Prefer `high-contrast` for users who need maximum
+readability. Grayscale themes avoid relying on color alone to convey meaning.
+
 ---
 
 ## Interaction fields

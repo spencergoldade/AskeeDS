@@ -30,13 +30,14 @@ def _default_root() -> Path:
 
 def _resolve_paths(
     args: argparse.Namespace,
-) -> tuple[Path, Path, Path]:
-    """Resolve component dir, token dir, and schema file from args or defaults."""
+) -> tuple[Path, Path, Path, Path]:
+    """Resolve component dir, token dir, schema file, and themes dir from args or defaults."""
     root = _default_root()
     comp_dir = Path(args.components) if args.components else root / "components"
     tok_dir = Path(args.tokens) if args.tokens else root / "tokens"
     schema = Path(args.schema) if args.schema else comp_dir / "_schema.yaml"
-    return comp_dir, tok_dir, schema
+    themes_dir = Path(args.themes) if getattr(args, "themes", None) else root / "themes"
+    return comp_dir, tok_dir, schema, themes_dir
 
 
 def _add_path_args(parser: argparse.ArgumentParser) -> None:
@@ -51,6 +52,18 @@ def _add_path_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--schema", metavar="FILE",
         help="Path to _schema.yaml (default: components/_schema.yaml)",
+    )
+    parser.add_argument(
+        "--themes", metavar="DIR",
+        help="Path to theme YAML directory (default: themes/)",
+    )
+
+
+def _add_theme_arg(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--theme", metavar="NAME",
+        choices=["dark", "light", "high-contrast", "experimental"],
+        help="Theme variant: dark, light, high-contrast (grayscale), or experimental (color).",
     )
 
 
@@ -83,6 +96,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Props as a JSON string. If omitted, renders with empty/default props.",
     )
     _add_path_args(prev_parser)
+    _add_theme_arg(prev_parser)
 
     # -- list -----------------------------------------------------------
     list_parser = sub.add_parser(
@@ -113,6 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         help="Override available width (default: from screen YAML or 80).",
     )
     _add_path_args(compose_parser)
+    _add_theme_arg(compose_parser)
 
     args = parser.parse_args(argv)
     if args.command is None:
@@ -133,7 +148,7 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _cmd_validate(args: argparse.Namespace) -> int:
-    comp_dir, _, schema_path = _resolve_paths(args)
+    comp_dir, _, schema_path, _ = _resolve_paths(args)
     loader = Loader()
 
     if not comp_dir.is_dir():
@@ -158,7 +173,7 @@ def _cmd_validate(args: argparse.Namespace) -> int:
 
 
 def _cmd_preview(args: argparse.Namespace) -> int:
-    comp_dir, tok_dir, _ = _resolve_paths(args)
+    comp_dir, tok_dir, _, themes_dir = _resolve_paths(args)
     loader = Loader()
 
     if not comp_dir.is_dir():
@@ -173,6 +188,10 @@ def _cmd_preview(args: argparse.Namespace) -> int:
         return 1
 
     tokens = loader.load_tokens_dir(tok_dir) if tok_dir.is_dir() else {}
+    if getattr(args, "theme", None) and themes_dir.is_dir():
+        overlay = loader.load_theme(args.theme, themes_dir)
+        if overlay:
+            tokens = {**tokens, **overlay}
     theme = Theme(tokens)
     renderer = Renderer(theme)
 
@@ -191,7 +210,7 @@ def _cmd_preview(args: argparse.Namespace) -> int:
 
 
 def _cmd_list(args: argparse.Namespace) -> int:
-    comp_dir, _, _ = _resolve_paths(args)
+    comp_dir, _, _, _ = _resolve_paths(args)
     loader = Loader()
 
     if not comp_dir.is_dir():
@@ -212,7 +231,7 @@ def _cmd_list(args: argparse.Namespace) -> int:
 
 
 def _cmd_compose(args: argparse.Namespace) -> int:
-    comp_dir, tok_dir, _ = _resolve_paths(args)
+    comp_dir, tok_dir, _, themes_dir = _resolve_paths(args)
     screen_path = Path(args.screen)
 
     if not screen_path.is_file():
@@ -225,6 +244,10 @@ def _cmd_compose(args: argparse.Namespace) -> int:
     loader = Loader()
     components = loader.load_components_dir(comp_dir)
     tokens = loader.load_tokens_dir(tok_dir) if tok_dir.is_dir() else {}
+    if getattr(args, "theme", None) and themes_dir.is_dir():
+        overlay = loader.load_theme(args.theme, themes_dir)
+        if overlay:
+            tokens = {**tokens, **overlay}
     theme = Theme(tokens)
     renderer = Renderer(theme)
     composer = Composer(renderer, components)

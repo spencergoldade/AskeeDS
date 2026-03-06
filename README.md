@@ -86,6 +86,8 @@ tokens/                     design tokens
   borders.yaml              3 border character sets (single, heavy, double)
   typography.yaml           Figlet font conventions, line width rules
   sizing.yaml               terminal defaults for adaptive width/height
+themes/                     theme variants (override color_roles)
+  dark.yaml, light.yaml, high-contrast.yaml (grayscale), experimental.yaml (color)
 screens/                    YAML screen definitions (full-screen layouts)
   _schema.yaml              meta-schema for screen files
   examples/                 17 example game screens (title, conversation, adventure, etc.)
@@ -98,13 +100,14 @@ askee_ds/                   Python package
   renderer.py               renders components from definitions
   theme.py                  resolves tokens to concrete values
   validator.py              validates components against _schema.yaml
-  cli.py                    CLI: validate, preview, list, compose
+  cli.py                    CLI: validate, preview, list, compose (--theme for preview/compose)
 tests/                      framework and legacy tests
 examples/
   quick_start.py            minimal hello-world
   all_components.py         visual catalog of all renderable components
   full_screen.py            composed game screen using Composer
   textual_app.py            live TUI demo using Textual adapter
+DESIGNER_SIZING_WORKFLOW.md designer checklist for adaptive sizing (pause point)
 ```
 
 56 components total. 24 are approved (proven, tested, and snapshot-locked);

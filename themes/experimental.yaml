@@ -1,0 +1,74 @@
+# AskeeDS — Experimental color theme
+# This theme uses full color. The design system is built grayscale-first;
+# this theme is provided for experimentation and may change in future releases.
+
+color_roles:
+  neutral:
+    description: Default theme; no strong tint.
+    bg: "#1e1e1e"
+    fg: "#d4d4d4"
+    border: "#404040"
+    accent: "#569cd6"
+
+  danger:
+    description: Red tint for threat, error, death.
+    bg: "#2d1b1b"
+    fg: "#f48771"
+    border: "#8b3a3a"
+    accent: "#f48771"
+
+  arcane:
+    description: Purple/magenta for magic, rare systems.
+    bg: "#251b2d"
+    fg: "#d4a0f0"
+    border: "#6b4a7b"
+    accent: "#d4a0f0"
+
+  nature:
+    description: Green tones for outdoors, growth, safe zones.
+    bg: "#1b2d1b"
+    fg: "#90c990"
+    border: "#4a6b4a"
+    accent: "#90c990"
+
+  frost:
+    description: Cyan/blue for cold, water, tech.
+    bg: "#1b252d"
+    fg: "#90c9d4"
+    border: "#4a6b7b"
+    accent: "#90c9d4"
+
+  success:
+    description: Green/gold for success, victory, confirmation.
+    bg: "#2d2d1b"
+    fg: "#c9c990"
+    border: "#6b6b4a"
+    accent: "#c9c990"
+
+  rare:
+    description: Blue tint for rare items, quality.
+    bg: "#1b1b2d"
+    fg: "#90a0d4"
+    border: "#4a5a8b"
+    accent: "#90a0d4"
+
+  legendary:
+    description: Gold/amber for legendary, premium.
+    bg: "#2d251b"
+    fg: "#d4c090"
+    border: "#8b7b4a"
+    accent: "#d4c090"
+
+  dungeon:
+    description: Dark stone, interior, underground.
+    bg: "#252525"
+    fg: "#a0a0a0"
+    border: "#505050"
+    accent: "#a0a0a0"
+
+  forest:
+    description: Forest zone; green-brown.
+    bg: "#1e251b"
+    fg: "#a0b890"
+    border: "#5a6b4a"
+    accent: "#a0b890"

@@ -1,0 +1,73 @@
+# AskeeDS — Light theme (grayscale)
+# Light background, dark text. Good for bright environments.
+
+color_roles:
+  neutral:
+    description: Default; no strong tint.
+    bg: "#f0f0f0"
+    fg: "#2a2a2a"
+    border: "#808080"
+    accent: "#505050"
+
+  danger:
+    description: Threat, error, death.
+    bg: "#e8e8e8"
+    fg: "#303030"
+    border: "#808080"
+    accent: "#404040"
+
+  arcane:
+    description: Magic, rare systems.
+    bg: "#e5e5e5"
+    fg: "#353535"
+    border: "#787878"
+    accent: "#454545"
+
+  nature:
+    description: Outdoors, growth, safe zones.
+    bg: "#e8e8e8"
+    fg: "#303030"
+    border: "#787878"
+    accent: "#404040"
+
+  frost:
+    description: Cold, water, tech.
+    bg: "#e5e5e5"
+    fg: "#353535"
+    border: "#787878"
+    accent: "#454545"
+
+  success:
+    description: Success, victory, confirmation.
+    bg: "#e8e8e8"
+    fg: "#323232"
+    border: "#7a7a7a"
+    accent: "#424242"
+
+  rare:
+    description: Rare items, quality.
+    bg: "#e5e5e5"
+    fg: "#353535"
+    border: "#787878"
+    accent: "#454545"
+
+  legendary:
+    description: Legendary, premium.
+    bg: "#e8e8e8"
+    fg: "#383838"
+    border: "#808080"
+    accent: "#484848"
+
+  dungeon:
+    description: Dark stone, interior.
+    bg: "#e8e8e8"
+    fg: "#404040"
+    border: "#909090"
+    accent: "#404040"
+
+  forest:
+    description: Forest zone.
+    bg: "#e6e6e6"
+    fg: "#383838"
+    border: "#787878"
+    accent: "#404040"
