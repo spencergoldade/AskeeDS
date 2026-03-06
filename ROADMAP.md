@@ -112,6 +112,19 @@ Add `askee-ds export --format json` for engines that prefer JSON:
 
 ---
 
+## Stakeholder / engine requests
+
+Requests from the Askee engine team are tracked in [STAKEHOLDER_REQUESTS.md](STAKEHOLDER_REQUESTS.md). Prioritized open work is in [BACKLOG.md](BACKLOG.md).
+
+| Request | Status |
+|--------|--------|
+| **Mod theming / component extension** | Open — document contract for per-adventure theme/component override. |
+| **hint-bar.contextual** | Open (optional) — API/component for engine-driven contextual hints. |
+| **Screen YAML / composer** | Done — Composer, `askee-ds compose`, and 17 example screens exist. |
+| **Python 3.12+** | Done. |
+
+---
+
 ## Principles
 
 - **Designer-friendly first**: YAML is the primary authoring surface.

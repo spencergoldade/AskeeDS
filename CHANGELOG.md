@@ -12,6 +12,7 @@ All notable changes to AskeeDS will be documented in this file.
 
 ### Added
 
+- **Stakeholder requests and backlog**: `STAKEHOLDER_REQUESTS.md` tracks engine-team requests (open and implemented) and workflow recommendations. `BACKLOG.md` lists open work by severity (High / Medium / Low) so the next thing to do is explicit. ROADMAP.md gained a "Stakeholder / engine requests" section linking to both.
 - **Credits logo**: Figlet wordmark for AskeeDS (basic font) with subtitle and separator in `CREDITS_LOGO.txt`. You are welcome to display it in your game or project credits. README shows the same logo at the top in a code block. `scripts/generate_credits_logo.py` regenerates the file from pyfiglet (requires `pip install -e ".[banner]"`).
 
 ### Added (v1.0.0-alpha)
