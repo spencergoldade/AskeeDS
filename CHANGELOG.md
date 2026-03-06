@@ -4,6 +4,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Credits logo**: Figlet wordmark for AskeeDS (basic font) with subtitle and separator in `CREDITS_LOGO.txt`. You are welcome to display it in your game or project credits. README shows the same logo at the top in a code block. `scripts/generate_credits_logo.py` regenerates the file from pyfiglet (requires `pip install -e ".[banner]"`).
+
 ### Added (v1.0.0-alpha)
 
 - **Deferred fill support**: **divider.horizontal** (inline with optional width/min/max), **inventory.grid**, **table.fourcolumn**, and **typography.banner** now support `width: fill` with min/max. Inline renderer pads or truncates to resolved width; grid uses resolved width to compute cell width; table scales column widths to fit; banner passes resolved width to Figlet.

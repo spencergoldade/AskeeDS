@@ -1,5 +1,16 @@
 # AskeeDS
 
+```
+ .d8b.  .d8888. db   dD d88888b d88888b d8888b. .d8888. 
+d8' `8b 88'  YP 88 ,8P' 88'     88'     88  `8D 88'  YP 
+88ooo88 `8bo.   88,8P   88ooooo 88ooooo 88   88 `8bo.   
+88~~~88   `Y8b. 88`8b   88~~~~~ 88~~~~~ 88   88   `Y8b. 
+88   88 db   8D 88 `88. 88.     88.     88  .8D db   8D 
+YP   YP `8888Y' YP   YD Y88888P Y88888P Y8888D' `8888Y' 
+--------------------------------------------------------
+    An ASCII-based design system by Spencer Goldade
+```
+
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?style=flat&logo=ko-fi)](https://ko-fi.com/spencerg1350)
 
 AskeeDS is an ASCII design system and component framework for TUI and
@@ -232,11 +243,13 @@ use, modify, and distribute it in personal and commercial projects.
 
 > AskeeDS by Spencer Goldade
 
-Add this to your game's credits screen, README, or about page. The MIT
-license requires preserving the copyright notice in source
-distributions; crediting AskeeDS in your finished product is a
-community expectation, not a legal mandate, but it helps others discover
-the project and supports continued development.
+Add this to your game's credits screen, README, or about page. You may
+also use the ASCII wordmark in `CREDITS_LOGO.txt` in your credits (e.g.
+title screen or about page); the file includes a short note that you are
+welcome to display it. The MIT license requires preserving the copyright
+notice in source distributions; crediting AskeeDS in your finished
+product is a community expectation, not a legal mandate, but it helps
+others discover the project and supports continued development.
 
 ---
 
