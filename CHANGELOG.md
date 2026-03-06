@@ -4,6 +4,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Python version**: Minimum required Python is now 3.12+ (was 3.11+). Unblocks dependent teams that require 3.12; CI already runs on 3.12.
+
 ### Added
 
 - **Credits logo**: Figlet wordmark for AskeeDS (basic font) with subtitle and separator in `CREDITS_LOGO.txt`. You are welcome to display it in your game or project credits. README shows the same logo at the top in a code block. `scripts/generate_credits_logo.py` regenerates the file from pyfiglet (requires `pip install -e ".[banner]"`).

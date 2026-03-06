@@ -3,7 +3,7 @@ name = "askee-ds"
 version = "0.2.0"
 description = "ASCII design system and component framework for TUI games."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [
   { name = "Spencer Goldade" }

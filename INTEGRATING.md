@@ -11,7 +11,7 @@ field and token lookup, see [REFERENCE.md](REFERENCE.md).
 
 ## Install
 
-AskeeDS requires Python 3.11+ and PyYAML.
+AskeeDS requires Python 3.12+ and PyYAML.
 
 ```bash
 git clone <repo-url>

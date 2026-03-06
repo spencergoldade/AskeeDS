@@ -24,6 +24,10 @@ docs/
 # ROADMAP or issues; do not expose raw tickets with internal IDs.
 tickets/
 
+# Virtual environments
+.venv/
+.venv*/
+
 # Python bytecode and cache
 __pycache__/
 *.pyc
