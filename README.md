@@ -204,6 +204,14 @@ Contributions are welcome. Before opening a pull request:
 
 ---
 
+## What you should also consider
+
+I'm still testing this thing myself.
+
+I made AskeeDS because I wanted to make some text adventure games, and the way I work is by carving off chunks (like the UI layer/design system) and getting it done. I've built many design systems in my career as a product designer, but I've yet to build a video game that uses a design system. That comes next and is also probably important context if you want to attempt to use AskeeDS yourself.
+
+---
+
 ## License and attribution
 
 Released under the [MIT License](LICENSE). Use it freely in personal and commercial projects.

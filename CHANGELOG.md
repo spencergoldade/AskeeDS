@@ -4,6 +4,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
+### Removed
+
+- **Git trailer workaround**: Removed `scripts/git-commit.sh` and the commit alias from `setup-local-git.sh`. No longer needed now that Git supports current options. If you previously ran `setup-local-git.sh`, run it once to clear the alias, or run `git config --unset alias.commit`.
+
 ### Documentation
 
 - **Mod theming and component extension contract**: INTEGRATING.md now documents how engines can let mods (e.g. per-adventure content) override or extend themes and components: theme/token merge order (base → base theme → mod theme), component dict merge (base then mod; same name = override, new name = extend), suggested mod layout (`components/`, `themes/`, `screens/`), schema conformance, and custom render type registration. REFERENCE.md links to the contract from the Theme variants section.
