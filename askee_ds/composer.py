@@ -32,6 +32,7 @@ import yaml
 
 from .loader import Component
 from .renderer import Renderer
+from .sizing import DEFAULT_HEIGHT, DEFAULT_WIDTH
 
 
 class Composer:
@@ -45,7 +46,7 @@ class Composer:
         layout_name: str,
         slots: dict,
         *,
-        available_width: int = 80,
+        available_width: int = DEFAULT_WIDTH,
         available_height: int | None = None,
     ) -> str:
         """Render a layout component with child components in its slots.
@@ -91,7 +92,7 @@ class Composer:
         if not layout:
             raise ValueError(f"Screen {screen_path} missing 'layout' field")
 
-        width = available_width or screen.get("available_width", 80)
+        width = available_width or screen.get("available_width", DEFAULT_WIDTH)
         height = available_height or screen.get("available_height")
 
         raw_slots = screen.get("slots", {})
@@ -104,7 +105,7 @@ class Composer:
         )
 
     def _resolve_screen_slots(
-        self, slots_def: dict, *, available_width: int = 80,
+        self, slots_def: dict, *, available_width: int = DEFAULT_WIDTH,
     ) -> dict:
         """Recursively resolve screen slot definitions into renderable data."""
         resolved: dict = {}
@@ -123,7 +124,7 @@ class Composer:
         return resolved
 
     def _resolve_screen_entry(
-        self, entry: object, *, available_width: int = 80,
+        self, entry: object, *, available_width: int = DEFAULT_WIDTH,
     ) -> object:
         """Resolve a single screen entry (component ref, nested layout, or text)."""
         if isinstance(entry, str):
@@ -155,7 +156,7 @@ class Composer:
             comp, props, available_width=available_width,
         )
 
-    def _resolve(self, value: object, *, available_width: int = 80) -> object:
+    def _resolve(self, value: object, *, available_width: int = DEFAULT_WIDTH) -> object:
         if isinstance(value, str):
             return value
         if isinstance(value, tuple) and len(value) == 2:

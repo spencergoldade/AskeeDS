@@ -821,12 +821,13 @@ line width rules for the `banner` render type.
 
 ### Sizing defaults
 
-Defined in `tokens/sizing.yaml`:
+Defined in `tokens/sizing.yaml`. The system targets **modern terminals**
+(not retro hardware); defaults are set for typical contemporary sizes.
 
 | Setting | Default |
 |---------|---------|
-| `terminal.default_width` | 80 |
-| `terminal.default_height` | 24 |
+| `terminal.default_width` | 100 |
+| `terminal.default_height` | 30 |
 | `terminal.min_width` | 40 |
 | `terminal.min_height` | 10 |
 

@@ -27,6 +27,7 @@ To register a custom render type:
 from __future__ import annotations
 
 from .loader import Component
+from .sizing import DEFAULT_HEIGHT, DEFAULT_WIDTH
 from .theme import Theme
 from .render_types import get as _get_render_type, register as _register
 from .render_types._registry import RenderContext
@@ -43,7 +44,7 @@ class Renderer:
         component: Component,
         props: dict,
         *,
-        available_width: int = 80,
+        available_width: int = DEFAULT_WIDTH,
         available_height: int | None = None,
     ) -> str:
         spec = component.render

@@ -7,7 +7,9 @@ text-based games. It defines game UI components — menus, HUDs, inventory
 screens, room cards, character sheets, and more — as structured YAML with
 typed props and declarative render specs. A Python framework loads these
 definitions, resolves a theme (colors, borders, bar glyphs), and produces
-real ASCII output.
+real ASCII output. **The look is retro (ASCII aesthetic); the target is
+modern terminals and equipment** — default sizing assumes contemporary
+terminal dimensions, not legacy hardware.
 
 ```
 +------------------------------------------+
@@ -93,7 +95,7 @@ tokens/                     design tokens
   colors.yaml               10 semantic color roles (neutral, danger, arcane, nature, ...)
   borders.yaml              3 border character sets (single, heavy, double)
   typography.yaml           Figlet font conventions, line width rules
-  sizing.yaml               terminal defaults for adaptive width/height
+  sizing.yaml               terminal defaults for adaptive width/height (modern default 100×30)
 themes/                     theme variants (override color_roles)
   dark.yaml, light.yaml, high-contrast.yaml (grayscale), experimental.yaml (color)
 screens/                    YAML screen definitions (full-screen layouts)

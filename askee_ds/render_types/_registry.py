@@ -9,6 +9,8 @@ if TYPE_CHECKING:
     from ..loader import Component
     from ..theme import Theme
 
+from ..sizing import DEFAULT_WIDTH
+
 
 RenderFunc = Callable[["dict", "dict", "RenderContext"], str]
 
@@ -19,7 +21,7 @@ class RenderContext:
     theme: "Theme"
     component: "Component"
     decorations: dict[str, dict]
-    available_width: int = 80
+    available_width: int = DEFAULT_WIDTH
     available_height: int | None = None
 
 

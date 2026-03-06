@@ -1,6 +1,10 @@
 # AskeeDS — Sizing Defaults
 # Terminal-level constraints for adaptive components.
 #
+# The system targets modern terminals and equipment (not retro hardware).
+# Defaults are set for typical contemporary terminal sizes; the look is
+# retro (ASCII aesthetic), the target is modern.
+#
 # Components declare how they size via their render spec:
 #   width: 44          fixed: always 44 characters
 #   width: fill        adaptive: expand to available space
@@ -9,7 +13,7 @@
 #   max_width: 60      constraint: never wider than 60
 
 terminal:
-  default_width: 80
-  default_height: 24
+  default_width: 100   # modern default (columns)
+  default_height: 30  # modern default (rows)
   min_width: 40
   min_height: 10

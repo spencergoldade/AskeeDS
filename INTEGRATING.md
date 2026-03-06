@@ -104,9 +104,11 @@ output = renderer.render(component, props)
 
 #### Adaptive sizing
 
-Pass `available_width` and `available_height` to control how adaptive
-components (those with `width: fill` or `width: content`) size
-themselves:
+AskeeDS targets **modern terminals and equipment** (not retro hardware).
+Default width is 100 columns; the look is retro (ASCII aesthetic), the
+target is modern. Pass `available_width` and `available_height` to
+control how adaptive components (those with `width: fill` or
+`width: content`) size themselves:
 
 ```python
 output = renderer.render(
@@ -336,7 +338,7 @@ Every render function receives a `RenderContext` dataclass:
 | `theme` | Theme | The active theme for color and border lookups. |
 | `component` | Component | The component being rendered. |
 | `decorations` | dict | Decoration art assets (for `art_lookup`). |
-| `available_width` | int | Available terminal width (default 80). |
+| `available_width` | int | Available terminal width (default 100). |
 | `available_height` | int or None | Available terminal height. |
 
 ---

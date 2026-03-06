@@ -124,7 +124,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     compose_parser.add_argument(
         "--width", metavar="N", type=int,
-        help="Override available width (default: from screen YAML or 80).",
+        help="Override available width (default: from screen YAML or 100).",
     )
     _add_path_args(compose_parser)
     _add_theme_arg(compose_parser)

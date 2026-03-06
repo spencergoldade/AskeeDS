@@ -12,13 +12,13 @@ Optional constraints narrow the result:
 
     from askee_ds.sizing import resolve_width
 
-    width = resolve_width(spec, available=80)
+    width = resolve_width(spec, available=100)
 """
 
 from __future__ import annotations
 
-DEFAULT_WIDTH = 80
-DEFAULT_HEIGHT = 24
+DEFAULT_WIDTH = 100
+DEFAULT_HEIGHT = 30
 
 _ABSOLUTE_MIN_WIDTH = 4
 

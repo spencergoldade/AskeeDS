@@ -4,6 +4,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Modern terminal defaults**: Default sizing is now 100×30 (columns×rows) instead of 80×24. The design system targets modern terminals and equipment; the look is retro (ASCII aesthetic), the target is modern. `tokens/sizing.yaml`, `askee_ds/sizing.py`, Renderer, Composer, and CLI use the new defaults; layout snapshot goldens for `layout.stack` and `layout.two-column` updated.
+
 ### Documentation
 
 - **CLI install and PATH**: README, INTEGRATING.md, and GUIDE.md now explain that `askee-ds` may not be on PATH after `pip install -e .` (common on macOS). Added tip to use a virtual environment so the script is on PATH, and fallback: `python3 -m askee_ds.cli <subcommand>`. Contributing section includes the fallback for the validate step.
