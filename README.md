@@ -107,13 +107,16 @@ Pick the guide that fits where you're coming from:
 
 ### Install
 
+AskeeDS requires Python 3.12+. Recommended: use the project venv so the CLI and tests work without path issues.
+
 ```bash
 git clone <this-repo-url>
 cd askeeDS
-pip install -e .
+./scripts/setup-venv.sh
+source .venv/bin/activate
 ```
 
-> **macOS tip:** If `askee-ds` isn't found after install, use a virtual environment: `python3 -m venv .venv && source .venv/bin/activate`, then re-run `pip install -e .`. Alternatively, prefix every command with `python3 -m askee_ds.cli`.
+Then run `askee-ds validate`, `askee-ds list`, etc. If you install with `pip install -e .` outside this venv and `askee-ds` isn’t on your PATH, use `python3 -m askee_ds.cli` instead (e.g. `python3 -m askee_ds.cli validate`).
 
 ### Try it
 
@@ -193,10 +196,11 @@ Tracked in [VERSION](VERSION) and [CHANGELOG.md](CHANGELOG.md), following semant
 
 Contributions are welcome. Before opening a pull request:
 
-1. Run `askee-ds validate` to check YAML components.
-2. Run `python3 -m pytest tests/ -v` to confirm all tests pass.
-3. Follow the component lifecycle — new components start as `ideated`.
-4. Update `CHANGELOG.md` under **Unreleased**.
+1. If you haven’t already, run `./scripts/setup-venv.sh` then `source .venv/bin/activate`.
+2. Run `askee-ds validate` to check YAML components.
+3. Run `python -m pytest tests/ -v` to confirm all tests pass.
+4. Follow the component lifecycle — new components start as `ideated`.
+5. Update `CHANGELOG.md` under **Unreleased**.
 
 ---
 

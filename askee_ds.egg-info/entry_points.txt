@@ -1,2 +1,0 @@
-[console_scripts]
-askee-ds = askee_ds.cli:main

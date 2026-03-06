@@ -28,6 +28,9 @@ tickets/
 .venv/
 .venv*/
 
+# Setuptools build metadata (pip install -e .)
+*.egg-info/
+
 # Python bytecode and cache
 __pycache__/
 *.pyc

@@ -7,6 +7,8 @@ All notable changes to AskeeDS will be documented in this file.
 ### Changed
 
 - **Python version**: Minimum required Python is now 3.12+ (was 3.11+). Unblocks dependent teams that require 3.12; CI already runs on 3.12.
+- **Install and contributing**: README Install section recommends `./scripts/setup-venv.sh` and `source .venv/bin/activate`; Contributing steps include activating the venv and `python -m pytest`. New `scripts/setup-venv.sh` creates a Python 3.12+ venv and installs the project with dev/rich/textual extras.
+- **Build artifacts**: `*.egg-info/` added to `.gitignore`; removed from tracking so the repo stays clean when used as a submodule or after `pip install -e .`.
 
 ### Added
 
