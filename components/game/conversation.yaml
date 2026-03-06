@@ -45,7 +45,9 @@ choice-wheel.inline:
       required: false
   render:
     type: box
-    width: 30
+    width: content
+    min_width: 30
+    max_width: 48
     border: single
     sections:
       - type: numbered_list

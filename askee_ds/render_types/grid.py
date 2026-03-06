@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from ..sizing import resolve_width
+
 if TYPE_CHECKING:
     from ._registry import RenderContext
 
@@ -14,6 +16,11 @@ def render_grid(spec: dict, props: dict, ctx: RenderContext) -> str:
     cell_width = spec.get("cell_width", 8)
     if columns < 1:
         return ""
+
+    if spec.get("width") is not None or spec.get("min_width") is not None or spec.get("max_width") is not None:
+        total_width = resolve_width(spec, ctx.available_width)
+        inner = max(1, total_width - 2)
+        cell_width = max(1, inner // columns)
 
     while len(slots) % columns != 0:
         slots.append(None)

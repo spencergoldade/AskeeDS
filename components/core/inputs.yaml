@@ -5,7 +5,7 @@
 command-input.default:
   category: core/inputs
   description: Command line with prompt; optional tab/history hint.
-  status: ideated
+  status: approved
   props:
     prompt:
       type: string
@@ -32,7 +32,7 @@ command-input.default:
 input.text:
   category: core/inputs
   description: Single-line prompt and field (bordered or prompt-only).
-  status: ideated
+  status: approved
   props:
     prompt:
       type: string
@@ -58,7 +58,7 @@ input.text:
 form.single-field:
   category: core/inputs
   description: Label + input + optional hint in one block.
-  status: ideated
+  status: approved
   props:
     label:
       type: string

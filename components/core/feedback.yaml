@@ -48,7 +48,7 @@ feedback.error:
 modal.overlay:
   category: core/feedback
   description: Centered bordered box for confirmation/dialog.
-  status: ideated
+  status: approved
   props:
     title:
       type: string
@@ -87,7 +87,7 @@ modal.overlay:
 toast.inline:
   category: core/feedback
   description: Transient one- or two-line feedback.
-  status: ideated
+  status: approved
   props:
     message:
       type: string
@@ -116,7 +116,7 @@ toast.inline:
 progress-bar.horizontal:
   category: core/feedback
   description: Horizontal bar with optional label/percent.
-  status: ideated
+  status: approved
   props:
     value:
       type: integer
@@ -151,7 +151,7 @@ progress-bar.horizontal:
 spinner.loading:
   category: core/feedback
   description: Animated loading indicator (cycle through frames in code).
-  status: ideated
+  status: approved
   props:
     style_hint:
       type: string
@@ -175,7 +175,7 @@ spinner.loading:
 feedback.mixed:
   category: core/feedback
   description: Short block summarizing a mixed success (upside and downside).
-  status: ideated
+  status: approved
   props:
     headline:
       type: string

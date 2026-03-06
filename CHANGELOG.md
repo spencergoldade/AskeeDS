@@ -4,8 +4,15 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
-### Changed
+### Added (v1.0.0-alpha)
 
+- **Deferred fill support**: **divider.horizontal** (inline with optional width/min/max), **inventory.grid**, **table.fourcolumn**, and **typography.banner** now support `width: fill` with min/max. Inline renderer pads or truncates to resolved width; grid uses resolved width to compute cell width; table scales column widths to fit; banner passes resolved width to Figlet.
+- **Render contract and RenderOutput**: INTEGRATING.md documents "What the renderer produces" (newline-separated string; optional `RenderOutput` with `lines` and `styles`). New `askee_ds.output.RenderOutput` dataclass; `Renderer.render_output()` returns it; `render()` delegates to `render_output().to_string()` for backward compatibility. REFERENCE.md links to the contract.
+
+### Changed (v1.0.0-alpha)
+
+- **VERSION**: Bumped to 1.0.0a1 (first alpha toward stable v1).
+- **CI**: Workflow now triggers on `themes/**` and `screens/**`; all steps use `python3` explicitly.
 - **Modern terminal defaults**: Default sizing is now 100×30 (columns×rows) instead of 80×24. The design system targets modern terminals and equipment; the look is retro (ASCII aesthetic), the target is modern. `tokens/sizing.yaml`, `askee_ds/sizing.py`, Renderer, Composer, and CLI use the new defaults; layout snapshot goldens for `layout.stack` and `layout.two-column` updated.
 
 ### Documentation
@@ -16,6 +23,9 @@ All notable changes to AskeeDS will be documented in this file.
 
 - **Theme variants**: Four theme files in `themes/` — `dark`, `light`, `high-contrast` (grayscale), and `experimental` (color, labeled experimental). System is grayscale-first for accessibility. `Loader.load_theme(name, themes_dir)` loads a theme overlay; merge over base tokens and pass to `Theme(tokens)`. CLI `preview` and `compose` accept `--theme dark|light|high-contrast|experimental`. Documented in REFERENCE.md (Theme variants) and GUIDE.md (vocabulary). 6 new tests in `test_themes.py`.
 - **Designer sizing workflow**: `DESIGNER_SIZING_WORKFLOW.md` at repo root — checklist for the designer to decide fill vs fixed vs content and min/max per component. Implementation pauses until the checklist is completed; then the next batch of adaptive sizing migrations follows those decisions.
+- **First batch from workflow**: Migrated **inventory.list**, **nav.vertical**, and **screen.loading** to `width: fill` with default min/max (24–50, 16–36, 30–60). Snapshot golden files updated for inventory.list and nav.vertical. Layouts already fill; divider/grid/table/banner deferred until renderer or spec support exists.
+- **Second batch from designer workflow**: **inventory.list** updated to fill 10–80 (designer override). **choice-wheel.inline** changed from fixed 30 to `width: content` with min 30, max 48. Snapshot golden files updated for both. Other components left as fixed or content-sized per checklist; divider/grid/table/banner still deferred.
+- **All components approved**: Updated every component from `status: ideated` to `status: approved`. 56 components total, all approved. Snapshot coverage remains for 24 components (canonical props + golden files); remaining 32 are approved and validated but do not yet have snapshot tests.
 - **Declarative sizing model**: Components can now declare adaptive width and height via their render spec. `width: fill` expands to available space, `width: content` sizes to content, and integer values remain fixed (backwards-compatible). Optional `min_width`, `max_width`, `min_height`, `max_height` constraints clamp the result. New `askee_ds/sizing.py` resolver, `tokens/sizing.yaml` with terminal defaults, `available_width`/`available_height` on `RenderContext`, and Renderer/Composer pass-through. 25 new sizing tests.
 - **Interaction spec**: Components can now declare interaction behavior via an `interaction` block: `focusable`, `actions` (with named keyboard bindings), and `scrollable`. Three approved interactive components annotated (`button.text`, `button.icon`, `choice-wheel.inline`). Validator enforces valid fields, key names, and action structure. Textual adapter reads `focusable` and sets `can_focus` on widgets. Replaces the old boolean `interactive` field. 11 new tests (98 total, all green).
 - **Component catalog audit**: Reviewed all 53 ideated components against stated game genres. Archived 3 speculative components (`icon.placeholder`, `quick-select.radial`, `decoration.placeholder`). Consolidated 4 near-duplicates into 2 (`notification.inline` replaces achievement+loot; `hint-bar.contextual` absorbs interactions variant). Updated `menu.main` to use proper `interaction` block. Defined proving criteria for `ideated → approved` promotion. 58 components total (10 approved, 48 ideated).

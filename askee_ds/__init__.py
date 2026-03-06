@@ -16,6 +16,7 @@ AskeeDS — ASCII design system and component framework for TUI games.
 
 from .composer import Composer
 from .loader import Component, Loader, PropDef
+from .output import RenderOutput
 from .renderer import Renderer
 from .theme import Theme
 from .validator import Validator
@@ -25,6 +26,7 @@ __all__ = [
     "Component",
     "Loader",
     "PropDef",
+    "RenderOutput",
     "Renderer",
     "Theme",
     "Validator",

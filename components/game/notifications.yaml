@@ -5,7 +5,7 @@
 notification.inline:
   category: game/notifications
   description: Bordered one-liner for achievements, loot drops, or alerts.
-  status: ideated
+  status: approved
   props:
     prefix:
       type: string

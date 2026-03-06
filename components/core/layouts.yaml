@@ -68,7 +68,7 @@ layout.two-column:
 layout.app.shell:
   category: core/layouts
   description: "Main app shell with header, sidebar, and content area."
-  status: ideated
+  status: approved
   props:
     header:
       type: string

@@ -2,7 +2,10 @@
 AskeeDS Textual demo — a live TUI showing themed components.
 
 Renders several AskeeDS components as Textual widgets with themed ANSI
-colors. Press Q to quit.
+colors. Uses the default token palette (same as the experimental theme).
+To use a grayscale theme (e.g. dark or high-contrast), merge a theme
+overlay: tokens = {**loader.load_tokens_dir("tokens/"),
+**loader.load_theme("dark", "themes")} before Theme(tokens). Press Q to quit.
 
     pip install askee-ds[textual]
     python examples/textual_app.py
@@ -45,6 +48,8 @@ class AskeeDemo(App):
         loader = Loader()
         components = loader.load_components_dir("components/")
         tokens = loader.load_tokens_dir("tokens/")
+        # Default tokens use the color palette (experimental theme). For grayscale,
+        # merge a theme: tokens = {**tokens, **loader.load_theme("dark", "themes")}
         theme = Theme(tokens)
         renderer = Renderer(theme)
         composer = Composer(renderer, components)

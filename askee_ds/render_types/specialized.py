@@ -59,11 +59,15 @@ def render_frames(spec: dict, props: dict, ctx: RenderContext) -> str:
 
 def render_banner(spec: dict, props: dict, ctx: RenderContext) -> str:
     from ..banner import render_banner_text
+    from ..sizing import resolve_width
 
     text = props.get("text", "")
     style_hint = props.get("style_hint", "splash")
     font = props.get("font")
-    result = render_banner_text(text, style_hint, font=font)
+    max_width = resolve_width(spec, ctx.available_width) if (
+        spec.get("width") is not None or spec.get("min_width") is not None or spec.get("max_width") is not None
+    ) else None
+    result = render_banner_text(text, style_hint, font=font, max_width=max_width or 80)
     if result is not None:
         return result.rstrip("\n")
     return ctx.component.art.rstrip("\n")

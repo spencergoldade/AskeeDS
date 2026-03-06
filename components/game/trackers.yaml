@@ -39,7 +39,7 @@ tracker.clock:
   description: >-
     Segment-style progress clock for countdowns, projects, or looming
     threats.
-  status: ideated
+  status: approved
   props:
     label:
       type: string
@@ -71,7 +71,7 @@ tracker.front:
   description: >-
     Horizontal multi-stage track showing an advancing front or world
     threat.
-  status: ideated
+  status: approved
   props:
     label:
       type: string

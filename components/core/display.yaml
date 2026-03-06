@@ -5,7 +5,7 @@
 tooltip.default:
   category: core/display
   description: Bordered tooltip; optional stats variant.
-  status: ideated
+  status: approved
   props:
     text:
       type: string
@@ -34,7 +34,7 @@ tooltip.default:
 table.fourcolumn:
   category: core/display
   description: Four-column bordered table; header row and data rows.
-  status: ideated
+  status: approved
   props:
     columns:
       type: array
@@ -49,6 +49,9 @@ table.fourcolumn:
       required: false
   render:
     type: table
+    width: fill
+    min_width: 20
+    max_width: 80
   art: |2
     +----------------------------------+---------+------------------------+----------------+
     |               Col1               |  Col2   |          Col3          | Numeric Column |
@@ -64,7 +67,7 @@ table.fourcolumn:
 divider.horizontal:
   category: core/display
   description: Section separator within a pane; no box.
-  status: ideated
+  status: approved
   props:
     style_hint:
       type: string
@@ -78,6 +81,9 @@ divider.horizontal:
   render:
     type: inline
     template: "------------------------------------------"
+    width: fill
+    min_width: 5
+    max_width: 80
   art: |2
     ------------------------------------------
   notes: >-
@@ -87,7 +93,7 @@ divider.horizontal:
 label.inline:
   category: core/display
   description: Short label before value (e.g. stat display).
-  status: ideated
+  status: approved
   props:
     label:
       type: string
@@ -144,7 +150,7 @@ card.simple:
 header.banner:
   category: core/display
   description: Single-line app/game title with optional trailing controls.
-  status: ideated
+  status: approved
   props:
     title:
       type: string
@@ -192,6 +198,9 @@ typography.banner:
       required: false
   render:
     type: banner
+    width: fill
+    min_width: 20
+    max_width: 72
   art: |2
       ___  ____  _  __ ______
      / _ )/ __ \/ |/ // __/ /

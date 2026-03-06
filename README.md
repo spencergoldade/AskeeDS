@@ -120,9 +120,9 @@ examples/
 DESIGNER_SIZING_WORKFLOW.md designer checklist for adaptive sizing (pause point)
 ```
 
-56 components total. 24 are approved (proven, tested, and snapshot-locked);
-32 are ideated (defined but not yet individually proven). All 56 render
-from declarative specs. 17 example game screens demonstrate real layouts.
+56 components total; all 56 are approved. All render from declarative
+specs. 24 have snapshot golden files for visual regression; 17 example
+game screens demonstrate real layouts.
 
 ---
 

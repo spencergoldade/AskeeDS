@@ -125,7 +125,7 @@ entity-list.room:
 exit-list.inline:
   category: game/exploration
   description: Exits line derived from room exits.
-  status: ideated
+  status: approved
   props:
     directions:
       type: array

@@ -2,7 +2,9 @@
 .cursor/
 profiles/
 
-# Cursor-only design templates and folders (examples, IA, research, content)
+# Design / research / content — local only. Do not un-ignore without
+# sanitizing (no editor-specific paths, no secrets). Public-facing
+# design docs belong in repo root or design/ files that are not ignored.
 design/tokens/
 design/research/
 design/ia/
@@ -11,10 +13,15 @@ design/content/
 # Local reassessment and plan docs (do not ship)
 design/DESIGN-LENS-REASSESSMENT.md
 
-# Cursor-only docs (not shipped in repo)
+# Release checklist (local for now)
+RELEASE_CHECKLIST.md
+
+# Local docs — do not un-ignore without sanitizing. Ship only
+# user-facing guides; strip internal tooling and workflow references.
 docs/
 
-# Local tickets (review/backlog; do not ship)
+# Backlog / planning — keep ignored. Surface “What’s next” via
+# ROADMAP or issues; do not expose raw tickets with internal IDs.
 tickets/
 
 # Python bytecode and cache

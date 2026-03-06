@@ -61,7 +61,8 @@ Each prop in a component's `props` block has these fields:
 ## Render types
 
 AskeeDS has 16 render types. Each one produces a different shape of
-output.
+output. The API returns a newline-separated string (or a `RenderOutput`
+with a `lines` list); see [INTEGRATING](INTEGRATING.md) for the full contract.
 
 ### `inline`
 

@@ -6,6 +6,8 @@ on:
       - "askee_ds/**"
       - "components/**"
       - "tokens/**"
+      - "themes/**"
+      - "screens/**"
       - "examples/**"
       - "tests/**"
       - ".github/workflows/tests.yml"
@@ -14,6 +16,8 @@ on:
       - "askee_ds/**"
       - "components/**"
       - "tokens/**"
+      - "themes/**"
+      - "screens/**"
       - "examples/**"
       - "tests/**"
       - ".github/workflows/tests.yml"
@@ -38,11 +42,11 @@ jobs:
           pip install -e .
 
       - name: Validate YAML components
-        run: python -m askee_ds.cli validate
+        run: python3 -m askee_ds.cli validate
 
       - name: Render all components
         run: |
-          python -c "
+          python3 -c "
           from askee_ds import Loader, Theme, Renderer
           loader = Loader()
           components = loader.load_components_dir('components/')
@@ -58,4 +62,4 @@ jobs:
           "
 
       - name: Run framework tests
-        run: python -m pytest tests/ -v
+        run: python3 -m pytest tests/ -v

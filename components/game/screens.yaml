@@ -5,7 +5,7 @@
 screen.loading:
   category: game/screens
   description: Centered loading message + optional tip.
-  status: ideated
+  status: approved
   props:
     message:
       type: string
@@ -18,7 +18,9 @@ screen.loading:
       required: false
   render:
     type: box
-    width: 44
+    width: fill
+    min_width: 30
+    max_width: 60
     border: single
     sections:
       - type: blank
@@ -43,7 +45,7 @@ screen.crafting:
   description: >-
     Crafting workbench screen with input slots, output preview, and
     resource costs.
-  status: ideated
+  status: approved
   props:
     inputs:
       type: array
@@ -100,7 +102,7 @@ screen.crafting:
 screen.death:
   category: game/screens
   description: Death screen with title, message, and actions.
-  status: ideated
+  status: approved
   props:
     message:
       type: string
@@ -141,7 +143,7 @@ screen.death:
 screen.tutorial:
   category: game/screens
   description: Small bordered hint with title, body, and dismiss button.
-  status: ideated
+  status: approved
   props:
     title:
       type: string

@@ -12,7 +12,7 @@ responsive architecture, component consolidation, snapshot testing,
 component proving, screen composition, and documentation — have been
 implemented, tested, and committed.
 
-- **56 components** (24 approved, 32 ideated) across 15 category files.
+- **56 components** (all approved) across 15 category files; 24 have snapshot golden files.
 - **157 tests** in 10 test modules, running in ~1 second.
 - **16 render types** in a pluggable registry (`askee_ds/render_types/`).
 - **24 snapshot golden files** for visual regression testing.
@@ -71,20 +71,11 @@ by name. Custom types can be added via `Renderer.register_type()`.
 These are natural next steps now that the foundation is solid.
 Priority order reflects dependencies and value.
 
-### 1. Prove more components (ideated → approved)
+### 1. (Done) All components approved
 
-32 ideated components remain. Priority candidates for the next proving
-round:
-
-- `command-input.default` — primary text adventure input
-- `exit-list.inline` — room exit display
-- `room-card.default` — already uses adaptive sizing, high-value
-- `status-bar.default` — already uses adaptive sizing, high-value
-- `choice-wheel.inline` — interactive dialogue choices
-- Layout components (`layout.app.shell`) — composition primitives
-
-Each promotion requires: renders correctly, has tests, props validated,
-serves a stated game genre, not redundant, interaction spec if interactive.
+All 56 components are now approved. Snapshot coverage exists for 24;
+adding canonical props and golden files for the remaining 32 is optional
+post-v1.
 
 ### 2. Migrate more components to adaptive sizing
 

@@ -122,6 +122,21 @@ output = renderer.render(
 Components with fixed integer widths ignore `available_width`.
 Components with `min_width` / `max_width` constraints clamp the result.
 
+#### What the renderer produces
+
+- **`render(component, props, ...)`** returns a **single string**: the full
+  ASCII output with newlines between lines. So `output.splitlines()` gives
+  you one string per line. No embedded style metadata — just characters.
+
+- **`render_output(component, props, ...)`** returns a **`RenderOutput`**
+  object: `lines` (list of strings, one per line) and optional `styles`
+  (reserved for future use). Use this when you want structured output for
+  an adapter or alternate back end (e.g. HTML, JSON). Call
+  `output.to_string()` to get the same string as `render()`.
+
+Adapters (Rich, Textual) currently work from the string; they can
+optionally use `render_output().lines` for line-by-line processing.
+
 ### Composer
 
 `Composer` assembles layout components (stacks, columns, shells) from

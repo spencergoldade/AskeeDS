@@ -46,7 +46,9 @@ nav.vertical:
       required: false
   render:
     type: box
-    width: 20
+    width: fill
+    min_width: 16
+    max_width: 36
     border: single
     sections:
       - type: active_list

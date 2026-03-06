@@ -5,7 +5,7 @@
 inventory.grid:
   category: game/inventory
   description: Grid of slots (e.g. 2x4 or 4x3) with labels.
-  status: ideated
+  status: approved
   props:
     slots:
       type: array
@@ -24,6 +24,9 @@ inventory.grid:
     prop: slots
     columns_prop: columns
     cell_width: 8
+    width: fill
+    min_width: 20
+    max_width: 80
   art: |2
     +--------+--------+--------+--------+
     | slot 1 | slot 2 | slot 3 | slot 4 |
@@ -50,7 +53,9 @@ inventory.list:
       required: false
   render:
     type: box
-    width: 30
+    width: fill
+    min_width: 10
+    max_width: 80
     border: single
     sections:
       - type: header
