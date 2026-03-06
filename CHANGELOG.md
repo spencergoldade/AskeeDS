@@ -4,6 +4,10 @@ All notable changes to AskeeDS will be documented in this file.
 
 ## [Unreleased]
 
+### Documentation
+
+- **Mod theming and component extension contract**: INTEGRATING.md now documents how engines can let mods (e.g. per-adventure content) override or extend themes and components: theme/token merge order (base → base theme → mod theme), component dict merge (base then mod; same name = override, new name = extend), suggested mod layout (`components/`, `themes/`, `screens/`), schema conformance, and custom render type registration. REFERENCE.md links to the contract from the Theme variants section.
+
 ### Changed
 
 - **Python version**: Minimum required Python is now 3.12+ (was 3.11+). Unblocks dependent teams that require 3.12; CI already runs on 3.12.

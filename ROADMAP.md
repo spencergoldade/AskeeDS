@@ -110,6 +110,27 @@ Add `askee-ds export --format json` for engines that prefer JSON:
 - Export token values as JSON
 - Export screen definitions as JSON
 
+### 7. Standalone designer prototyping tool (medium)
+
+A standalone tool so designers can quickly build **facsimiles** of AskeeDS
+interfaces with the UI components. Output is visual-only (no behavior);
+meant for layout and flow prototyping. Execution ideas:
+
+- Choose from a list of components to add to a canvas
+- Place and move components with arrow keys
+- Export or screenshot the composed facsimile for handoff or iteration
+
+### 8. More color themes (low)
+
+Add additional color theme definitions (e.g. more palettes, seasonal, or
+accessibility-focused) so products can pick a theme that fits their context.
+
+### 9. Style themes — symbol swap (low)
+
+Support style themes that swap ASCII symbols used in components (borders,
+bullets, icons) for a different look and feel while keeping the same
+structure. Enables visual variants without changing component logic.
+
 ---
 
 ## Stakeholder / engine requests
@@ -118,7 +139,7 @@ Requests from the Askee engine team are tracked in [STAKEHOLDER_REQUESTS.md](STA
 
 | Request | Status |
 |--------|--------|
-| **Mod theming / component extension** | Open — document contract for per-adventure theme/component override. |
+| **Mod theming / component extension** | Done — contract in INTEGRATING.md (theme/component merge, mod layout, schema, custom render types). |
 | **hint-bar.contextual** | Open (optional) — API/component for engine-driven contextual hints. |
 | **Screen YAML / composer** | Done — Composer, `askee-ds compose`, and 17 example screens exist. |
 | **Python 3.12+** | Done. |

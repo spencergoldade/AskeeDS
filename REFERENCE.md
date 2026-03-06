@@ -859,6 +859,10 @@ tokens before passing to `Theme(tokens)`.
 **Accessibility:** Prefer `high-contrast` for users who need maximum
 readability. Grayscale themes avoid relying on color alone to convey meaning.
 
+**Mod and adventure extension:** For the contract that lets mods (e.g.
+per-adventure content) override or extend themes and components, see
+[INTEGRATING.md](INTEGRATING.md#mod-and-adventure-extension-contract).
+
 ---
 
 ## Interaction fields

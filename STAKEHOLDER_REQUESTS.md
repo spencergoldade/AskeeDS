@@ -10,7 +10,6 @@ Engine-side work that depends on these requests is tracked in their repo (e.g. R
 
 ## Open
 
-- **Mod theming / component extension** — Mods (adventures) should be able to override or extend theme and/or components; AskeeDS has agreed to support. Document the intended contract (e.g. per-adventure theme file or component set) so the engine can plan.
 - **hint-bar.contextual** — (Optional.) Component or API for a contextual hint line so the engine can replace or augment the minimal HintBar with AskeeDS-driven hints (e.g. context-sensitive commands). See ROADMAP: stakeholder request; BACKLOG.
 - **Screen YAML / composer** — (Optional.) Ability to compose the main game view from a screen definition (e.g. `adventure_main.yaml`) for layout-as-data. **Status:** AskeeDS already provides `Composer`, `askee-ds compose`, and 17 example screens under `screens/`. If the engine needs additional contract or features, specify and we can add to BACKLOG.
 
@@ -18,6 +17,7 @@ Engine-side work that depends on these requests is tracked in their repo (e.g. R
 
 ## Implemented / closed
 
+- **Mod theming / component extension** — Documented in INTEGRATING.md: theme/token merge order, component override and extension, suggested mod layout, schema and custom render types. Engine can implement per-adventure theme and component override using that contract.
 - **Python 3.12+** — AskeeDS targets Python 3.12+. Done.
 - **Screen composition from YAML** — Composer and screen YAML exist; 17 example screens. Done.
 

@@ -358,6 +358,113 @@ Every render function receives a `RenderContext` dataclass:
 
 ---
 
+## Mod and adventure extension contract
+
+Engines that support mods (e.g. per-adventure content) can let a mod
+**override** or **extend** AskeeDS themes and components without
+forking the package. This section documents the intended contract so
+engine and mod authors can rely on consistent behavior.
+
+### Theme and token override
+
+Tokens (colors, borders, bar glyphs) are merged into a single dict
+before building a `Theme`. Merge order determines precedence: **later
+sources override earlier ones** for the same top-level key.
+
+1. **Base tokens** — Load from the AskeeDS `tokens/` directory (or your copy).
+2. **Base theme** (optional) — Load a theme file with
+   `Loader.load_theme(name, themes_dir)` and merge over base tokens
+   (e.g. `dark`, `light`, `high-contrast`).
+3. **Mod theme** (optional) — Load a theme file from the mod’s directory
+   and merge again over the result.
+
+**Merge semantics:** Shallow merge at the top level. If the mod theme
+defines `color_roles`, that entire key replaces the previous
+`color_roles`. To change only one role, the mod can either supply a
+full `color_roles` dict or the engine can deep-merge `color_roles` and
+`sets` (borders) so that per-role or per-style keys are overridden
+individually.
+
+Example (engine builds one Theme for a mod):
+
+```python
+loader = Loader()
+tokens = loader.load_tokens_dir(askee_tokens_dir)
+overlay = loader.load_theme("dark", askee_themes_dir)
+tokens = {**tokens, **overlay}
+if mod_themes_dir:
+    mod_overlay = loader.load_theme("adventure_xyz", mod_themes_dir)
+    tokens = {**tokens, **mod_overlay}
+theme = Theme(tokens)
+```
+
+Mod theme files use the same shape as AskeeDS theme files: YAML with
+top-level keys such as `color_roles`, `sets` (border styles), and
+`bar` (filled/empty glyphs). See `themes/*.yaml` in the repo for
+reference.
+
+### Component override and extension
+
+Components are stored in a single `dict[str, Component]`. The loader
+adds or overwrites by component **name** (e.g. `room-card.default`,
+`status-bar.default`). Load order matters: **later load wins** for the
+same name.
+
+1. **Base components** — Load from the AskeeDS `components/` directory
+   (or your copy).
+2. **Mod components** — Load from the mod’s component directory. Same
+   name = override (replace). New name = extension (add).
+
+Example:
+
+```python
+components = loader.load_components_dir(askee_components_dir)
+if mod_components_dir:
+    mod_components = loader.load_components_dir(mod_components_dir)
+    components = {**components, **mod_components}
+```
+
+Mod component YAML must conform to the same schema as base components
+(`components/_schema.yaml`). Validate with `askee-ds validate
+--components <mod_components_dir>` (or your engine’s validator) so
+that render specs, props, and categories remain valid.
+
+### Suggested mod layout
+
+A mod (adventure) can ship:
+
+| Path (relative to mod root) | Purpose |
+|-----------------------------|---------|
+| `components/*.yaml`         | Override or add components. Same filename/component name = override. |
+| `themes/<name>.yaml`        | Theme overlay. Engine loads by name (e.g. `adventure_xyz`) and merges over base theme. |
+| `screens/*.yaml`            | Screen definitions that reference components (base or mod). |
+
+The engine decides how to resolve mod root (e.g. by adventure id or
+manifest). AskeeDS does not dictate the manifest format or
+directory name; it only defines how to merge theme dicts and component
+dicts once paths are known.
+
+### Custom render types
+
+If a mod introduces components that use a custom render type, the
+engine must **register** that render type before rendering (e.g. with
+`from askee_ds.render_types import register`). Load order is
+unchanged: load base components, then mod components, then build
+renderer/composer with the merged component dict. Register any custom
+render types before the first `render` or `compose` call.
+
+### Summary
+
+| Concern              | Contract |
+|----------------------|----------|
+| Theme override       | Merge token dicts: base → base theme → mod theme. Shallow merge; later wins per top-level key. |
+| Component override   | Merge component dicts: base then mod. Same name = replace; new name = add. |
+| Mod layout           | Engine-defined. Suggested: `components/`, `themes/`, `screens/` under mod root. |
+| Schema               | Mod components must satisfy the same component schema as base. |
+| Custom render types  | Engine registers them before rendering; mod can use them in its component YAML. |
+
+---
+
 ## Using AskeeDS in another project
 
 ### Option A — Copy the YAML definitions
