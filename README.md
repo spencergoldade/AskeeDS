@@ -1,4 +1,4 @@
-# AskeeDS
+# AskeeDS 
 
 ```
  .d8b.  .d8888. db   dD d88888b d88888b d8888b. .d8888. 
@@ -13,7 +13,7 @@ YP   YP `8888Y' YP   YD Y88888P Y88888P Y8888D' `8888Y'
 
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-Support%20the%20project-FF5E5B?style=flat&logo=ko-fi)](https://ko-fi.com/spencerg1350)
 
-**AskeeDS is a design system for text-based games and TUIs**
+**AskeeDS is a design system for text-based games and TUIs**  
 56 components, declarative YAML, themes, and a Python renderer that turns structured data into real ASCII output.
 
 It's the UI layer your game engine doesn't have to build. You pass in the data; AskeeDS handles the look.
