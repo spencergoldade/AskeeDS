@@ -212,6 +212,50 @@ I made AskeeDS because I wanted to make some text adventure games, and the way I
 
 ---
 
+## Pyglet Rendering
+
+AskeeDS includes a Pyglet rendering pathway for full-screen standalone game windows.
+Instead of returning ASCII strings, Pyglet draw functions accumulate directly into a
+`pyglet.graphics.Batch`.
+
+### Entry point
+
+```python
+from askee_ds import render_pyglet
+
+render_pyglet(component, props, theme_state, viewport, batch, pane_id="my-pane")
+```
+
+- `viewport`: any object with `.x`, `.y`, `.width`, `.height` (int) — typically
+  `engine.bridge.pyglet_backend.Rect`
+- `theme_state`: any object with `.palette` (str), `.tint` (str), `.vignette` (bool)
+- `pane_id`: stable per-pane string; required for panes with per-frame state
+  (e.g. cursor blink)
+
+### Available Pyglet pane components
+
+| Component | font_size | Key props |
+|-----------|-----------|-----------|
+| `history-pane.default` | large | `lines: list[str]`, `max_lines: int` |
+| `input-pane.default` | large | `value: str`, `placeholder: str` |
+| `character-pane.default` | micro | `portrait_lines: list[str]`, `portrait_id: str` |
+| `stats-pane.default` | small | `stats: list[{label, value}]`, `enemy_stats: str\|None` |
+| `location-header.default` | medium | `location_name: str` |
+| `menu.main` | large | `title: str`, `items: list`, `selected_index: int` |
+| `typography.banner` | large | `text: str` |
+| `modal.overlay` | medium | `title: str`, `body: str`, `actions: list` |
+
+### Font sizes
+
+| Token | Pixels |
+|-------|--------|
+| large | 28 |
+| medium | 18 |
+| small | 14 |
+| micro | 10 |
+
+---
+
 ## License and attribution
 
 Released under the [MIT License](LICENSE). Use it freely in personal and commercial projects.
