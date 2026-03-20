@@ -46,6 +46,9 @@ def _resolve_font_size(component: Component) -> int:
 _DrawFn = Callable[[Component, dict, Any, Any, Any, str], None]
 #                   component  props  theme  viewport batch  pane_id
 
+# NOTE: Tests that register draw functions must call reload(pr) to reset this
+# dict between test runs. Python caches the module, so registrations accumulate
+# across tests without an explicit reload.
 _REGISTRY: dict[str, _DrawFn] = {}
 
 
@@ -103,6 +106,7 @@ def _draw_fallback(
 
     pyglet.text.Label(
         f"[{component.name}]",
+        font_size=_resolve_font_size(component),
         x=viewport.x,
         y=viewport.y,
         color=(120, 120, 120, 255),
