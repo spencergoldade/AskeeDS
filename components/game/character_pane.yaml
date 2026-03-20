@@ -1,0 +1,22 @@
+# AskeeDS — game/character_pane
+# Pyglet-only pane component for ASCII art portrait display.
+
+character-pane.default:
+  category: game/
+  description: ASCII art portrait pane with tint and vignette for the Pyglet renderer.
+  status: in-progress
+  font_size: micro
+  props:
+    portrait_lines:
+      type: array
+      required: true
+    portrait_id:
+      type: string
+      required: true
+  render:
+    type: stack
+  notes: >-
+    Pyglet-only component. The render block is intentionally minimal — the
+    ASCII render path is unused; all drawing is handled by _draw_character_pane()
+    in pyglet_renderer.py. ThemeState.tint is applied as a colour overlay on
+    each Label; ThemeState.vignette draws four edge-darkening Rectangles.

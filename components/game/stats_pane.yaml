@@ -1,0 +1,21 @@
+# AskeeDS — game/stats_pane
+# Pyglet-only pane component for character stats display.
+
+stats-pane.default:
+  category: game/
+  description: Compact vitals and optional enemy stats block for the Pyglet renderer.
+  status: in-progress
+  font_size: small
+  props:
+    stats:
+      type: array
+      required: true
+    enemy_stats:
+      type: string
+      required: false
+  render:
+    type: table
+  notes: >-
+    Pyglet-only component. The render block is intentionally minimal — the
+    ASCII render path is unused; all drawing is handled by _draw_stats_pane()
+    in pyglet_renderer.py. enemy_stats is rendered below a divider when present.

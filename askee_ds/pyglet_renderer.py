@@ -215,3 +215,130 @@ def _draw_input_pane(
 
 
 register("input-pane.default", _draw_input_pane)
+
+
+# ---------------------------------------------------------------------------
+# character-pane.default
+# ---------------------------------------------------------------------------
+
+_VIGNETTE_DEPTH = 32  # pixel width of the vignette edge strips
+
+
+def _draw_character_pane(
+    component: Component,
+    props: dict,
+    theme_state: Any,
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    portrait_lines: list[str] = props.get("portrait_lines", [])
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 2
+
+    y = viewport.y + viewport.height - line_height
+    for line in portrait_lines:
+        pyglet.text.Label(
+            line,
+            font_size=font_size,
+            x=viewport.x + 4,
+            y=y,
+            batch=batch,
+        )
+        y -= line_height
+
+    if theme_state.vignette:
+        depth = _VIGNETTE_DEPTH
+        dark = (0, 0, 0, 160)
+        # Bottom strip
+        pyglet.shapes.Rectangle(
+            viewport.x, viewport.y, viewport.width, depth,
+            color=dark, batch=batch,
+        )
+        # Top strip
+        pyglet.shapes.Rectangle(
+            viewport.x, viewport.y + viewport.height - depth,
+            viewport.width, depth, color=dark, batch=batch,
+        )
+        # Left strip
+        pyglet.shapes.Rectangle(
+            viewport.x, viewport.y, depth, viewport.height,
+            color=dark, batch=batch,
+        )
+        # Right strip
+        pyglet.shapes.Rectangle(
+            viewport.x + viewport.width - depth, viewport.y,
+            depth, viewport.height, color=dark, batch=batch,
+        )
+
+
+register("character-pane.default", _draw_character_pane)
+
+
+# ---------------------------------------------------------------------------
+# stats-pane.default
+# ---------------------------------------------------------------------------
+
+
+def _draw_stats_pane(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    stats: list[dict] = props.get("stats", [])
+    enemy_stats = props.get("enemy_stats")
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    y = viewport.y + viewport.height - line_height
+    for entry in stats:
+        label = entry.get("label", "")
+        value = entry.get("value", "")
+        # Label — left-aligned
+        pyglet.text.Label(
+            label,
+            font_size=font_size,
+            x=viewport.x + 8,
+            y=y,
+            batch=batch,
+        )
+        # Value — right-aligned
+        pyglet.text.Label(
+            value,
+            font_size=font_size,
+            x=viewport.x + viewport.width - 8,
+            y=y,
+            anchor_x="right",
+            batch=batch,
+        )
+        y -= line_height
+
+    if enemy_stats:
+        y -= line_height // 2
+        pyglet.text.Label(
+            "─" * 20,
+            font_size=font_size,
+            x=viewport.x + 8,
+            y=y,
+            batch=batch,
+        )
+        y -= line_height
+        pyglet.text.Label(
+            str(enemy_stats),
+            font_size=font_size,
+            x=viewport.x + 8,
+            y=y,
+            width=viewport.width - 16,
+            multiline=True,
+            batch=batch,
+        )
+
+
+register("stats-pane.default", _draw_stats_pane)

@@ -410,3 +410,111 @@ def test_input_pane_schedules_cursor_blink_once():
 
         # schedule_interval must be called exactly once (not once per frame)
         assert pyglet_mock.clock.schedule_interval.call_count == 1
+
+
+# ---------------------------------------------------------------------------
+# character-pane.default
+# ---------------------------------------------------------------------------
+
+
+def test_character_pane_component_loads():
+    """character-pane.default YAML loads with correct props and font_size."""
+    comp = _load_component("character-pane.default")
+    assert comp.font_size == "micro"
+    assert "portrait_lines" in comp.props
+    assert "portrait_id" in comp.props
+
+
+def test_character_pane_renders_portrait_lines():
+    """_draw_character_pane creates one Label per portrait line."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
+                      "pyglet.shapes": pyglet_mock.shapes,
+                      "pyglet.clock": pyglet_mock.clock,
+                      "pyglet.graphics": pyglet_mock.graphics}
+    ):
+        from importlib import reload
+        import askee_ds.pyglet_renderer as pr
+        reload(pr)
+
+        comp = _load_component("character-pane.default")
+        portrait = [" o ", "/|\\", "/ \\"]
+        props = {"portrait_lines": portrait, "portrait_id": "hero"}
+        viewport = MagicMock(x=520, y=300, width=280, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="char")
+
+        assert pyglet_mock.text.Label.call_count == len(portrait)
+
+
+def test_character_pane_vignette_draws_four_rectangles():
+    """_draw_character_pane draws 4 edge Rectangles when vignette=True.
+
+    No background Rectangle is drawn by this pane — exactly 4 calls for vignette strips.
+    """
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
+                      "pyglet.shapes": pyglet_mock.shapes,
+                      "pyglet.clock": pyglet_mock.clock,
+                      "pyglet.graphics": pyglet_mock.graphics}
+    ):
+        from importlib import reload
+        import askee_ds.pyglet_renderer as pr
+        reload(pr)
+
+        comp = _load_component("character-pane.default")
+        props = {"portrait_lines": [" o "], "portrait_id": "hero"}
+        viewport = MagicMock(x=520, y=300, width=280, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=True)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="char-v")
+
+        assert pyglet_mock.shapes.Rectangle.call_count == 4
+
+
+# ---------------------------------------------------------------------------
+# stats-pane.default
+# ---------------------------------------------------------------------------
+
+
+def test_stats_pane_component_loads():
+    """stats-pane.default YAML loads with correct props and font_size."""
+    comp = _load_component("stats-pane.default")
+    assert comp.font_size == "small"
+    assert "stats" in comp.props
+
+
+def test_stats_pane_renders_all_stat_entries():
+    """_draw_stats_pane creates Labels for each stat entry."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
+                      "pyglet.shapes": pyglet_mock.shapes,
+                      "pyglet.clock": pyglet_mock.clock,
+                      "pyglet.graphics": pyglet_mock.graphics}
+    ):
+        from importlib import reload
+        import askee_ds.pyglet_renderer as pr
+        reload(pr)
+
+        comp = _load_component("stats-pane.default")
+        props = {
+            "stats": [
+                {"label": "HP", "value": "85/100"},
+                {"label": "MP", "value": "40/40"},
+            ],
+            "enemy_stats": None,
+        }
+        viewport = MagicMock(x=520, y=0, width=280, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="stats")
+
+        # At minimum one Label per stat entry (label + value can be one or two calls)
+        assert pyglet_mock.text.Label.call_count >= 2
