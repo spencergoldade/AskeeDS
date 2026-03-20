@@ -17,7 +17,8 @@ to preserve standalone independence.
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .loader import Component
 
@@ -42,6 +43,19 @@ _CURSOR_STATE: dict[str, bool] = {}
 
 def _resolve_font_size(component: Component) -> int:
     return FONT_SIZES.get(component.font_size, _DEFAULT_FONT_SIZE)
+
+
+def _parse_tint(tint: str) -> tuple[int, int, int, int]:
+    """Parse a hex colour token to an RGBA tuple. Falls back to white."""
+    if tint and tint.startswith("#") and len(tint) == 7:
+        try:
+            r = int(tint[1:3], 16)
+            g = int(tint[3:5], 16)
+            b = int(tint[5:7], 16)
+            return (r, g, b, 255)
+        except ValueError:
+            pass
+    return (255, 255, 255, 255)
 
 
 # ---------------------------------------------------------------------------
@@ -237,6 +251,7 @@ def _draw_character_pane(
     portrait_lines: list[str] = props.get("portrait_lines", [])
     font_size = _resolve_font_size(component)
     line_height = font_size + 2
+    tint_color = _parse_tint(theme_state.tint)
 
     y = viewport.y + viewport.height - line_height
     for line in portrait_lines:
@@ -245,6 +260,7 @@ def _draw_character_pane(
             font_size=font_size,
             x=viewport.x + 4,
             y=y,
+            color=tint_color,
             batch=batch,
         )
         y -= line_height
@@ -254,23 +270,39 @@ def _draw_character_pane(
         dark = (0, 0, 0, 160)
         # Bottom strip
         pyglet.shapes.Rectangle(
-            viewport.x, viewport.y, viewport.width, depth,
-            color=dark, batch=batch,
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            depth,
+            color=dark,
+            batch=batch,
         )
         # Top strip
         pyglet.shapes.Rectangle(
-            viewport.x, viewport.y + viewport.height - depth,
-            viewport.width, depth, color=dark, batch=batch,
+            viewport.x,
+            viewport.y + viewport.height - depth,
+            viewport.width,
+            depth,
+            color=dark,
+            batch=batch,
         )
         # Left strip
         pyglet.shapes.Rectangle(
-            viewport.x, viewport.y, depth, viewport.height,
-            color=dark, batch=batch,
+            viewport.x,
+            viewport.y,
+            depth,
+            viewport.height,
+            color=dark,
+            batch=batch,
         )
         # Right strip
         pyglet.shapes.Rectangle(
-            viewport.x + viewport.width - depth, viewport.y,
-            depth, viewport.height, color=dark, batch=batch,
+            viewport.x + viewport.width - depth,
+            viewport.y,
+            depth,
+            viewport.height,
+            color=dark,
+            batch=batch,
         )
 
 

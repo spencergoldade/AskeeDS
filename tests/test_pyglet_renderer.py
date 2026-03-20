@@ -1,10 +1,14 @@
 """Tests for the Pyglet rendering pathway."""
+
 from __future__ import annotations
 
 import sys
-from unittest.mock import MagicMock
 from pathlib import Path
+from typing import TYPE_CHECKING
+from unittest.mock import MagicMock
 
+if TYPE_CHECKING:
+    from askee_ds.loader import Component
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -79,13 +83,19 @@ def test_font_sizes_all_positive_integers():
     """FONT_SIZES maps all four tokens to positive ints."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
-                      "pyglet.shapes": pyglet_mock.shapes,
-                      "pyglet.clock": pyglet_mock.clock,
-                      "pyglet.graphics": pyglet_mock.graphics}
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
     ):
         from importlib import reload
+
         import askee_ds.pyglet_renderer as pr
+
         reload(pr)
         for token in ("large", "medium", "small", "micro"):
             assert isinstance(pr.FONT_SIZES[token], int)
@@ -96,15 +106,22 @@ def test_render_pyglet_returns_none():
     """render_pyglet() must return None (it accumulates into batch, not a string)."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
-                      "pyglet.shapes": pyglet_mock.shapes,
-                      "pyglet.clock": pyglet_mock.clock,
-                      "pyglet.graphics": pyglet_mock.graphics}
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
     ):
         from importlib import reload
+
         import askee_ds.pyglet_renderer as pr
+
         reload(pr)
         from askee_ds import Loader
+
         loader = Loader()
         components = loader.load_components("""
 unknown-component.x:
@@ -118,9 +135,7 @@ unknown-component.x:
         viewport = MagicMock(x=0, y=0, width=800, height=600)
         theme = MagicMock(palette="neutral", tint="", vignette=False)
         batch = MagicMock()
-        result = pr.render_pyglet(
-            components["unknown-component.x"], {}, theme, viewport, batch
-        )
+        result = pr.render_pyglet(components["unknown-component.x"], {}, theme, viewport, batch)
         assert result is None
 
 
@@ -128,19 +143,26 @@ def test_render_pyglet_unknown_component_calls_fallback(monkeypatch):
     """Unknown component name dispatches to _draw_fallback."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
-                      "pyglet.shapes": pyglet_mock.shapes,
-                      "pyglet.clock": pyglet_mock.clock,
-                      "pyglet.graphics": pyglet_mock.graphics}
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
     ):
         from importlib import reload
+
         import askee_ds.pyglet_renderer as pr
+
         reload(pr)
 
         called = []
         pr.register("test-sentinel.x", lambda *a, **kw: called.append("registered"))
 
         from askee_ds import Loader
+
         loader = Loader()
         components = loader.load_components("""
 not-registered.y:
@@ -164,13 +186,19 @@ def test_render_pyglet_known_component_calls_registered_fn():
     """Known component name dispatches to the registered draw function."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
-                      "pyglet.shapes": pyglet_mock.shapes,
-                      "pyglet.clock": pyglet_mock.clock,
-                      "pyglet.graphics": pyglet_mock.graphics}
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
     ):
         from importlib import reload
+
         import askee_ds.pyglet_renderer as pr
+
         reload(pr)
 
         calls = []
@@ -181,6 +209,7 @@ def test_render_pyglet_known_component_calls_registered_fn():
         pr.register("my-pane.default", _my_draw)
 
         from askee_ds import Loader
+
         loader = Loader()
         components = loader.load_components("""
 my-pane.default:
@@ -195,8 +224,7 @@ my-pane.default:
         theme = MagicMock()
         batch = MagicMock()
         pr.render_pyglet(
-            components["my-pane.default"], {}, theme, viewport, batch,
-            pane_id="test-pane"
+            components["my-pane.default"], {}, theme, viewport, batch, pane_id="test-pane"
         )
         assert calls == [("my-pane.default", "test-pane")]
 
@@ -213,6 +241,7 @@ def test_render_pyglet_importable_from_package():
     so the top-level package import works without Pyglet installed.
     """
     from askee_ds import render_pyglet  # noqa: F401
+
     assert callable(render_pyglet)
 
 
@@ -221,9 +250,10 @@ def test_render_pyglet_importable_from_package():
 # ---------------------------------------------------------------------------
 
 
-def _load_component(name: str) -> "Component":
-    from askee_ds import Loader
+def _load_component(name: str) -> Component:
     from pathlib import Path
+
+    from askee_ds import Loader
 
     loader = Loader()
     components_dir = Path(__file__).resolve().parent.parent / "components"
@@ -429,13 +459,19 @@ def test_character_pane_renders_portrait_lines():
     """_draw_character_pane creates one Label per portrait line."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
-                      "pyglet.shapes": pyglet_mock.shapes,
-                      "pyglet.clock": pyglet_mock.clock,
-                      "pyglet.graphics": pyglet_mock.graphics}
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
     ):
         from importlib import reload
+
         import askee_ds.pyglet_renderer as pr
+
         reload(pr)
 
         comp = _load_component("character-pane.default")
@@ -457,13 +493,19 @@ def test_character_pane_vignette_draws_four_rectangles():
     """
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
-                      "pyglet.shapes": pyglet_mock.shapes,
-                      "pyglet.clock": pyglet_mock.clock,
-                      "pyglet.graphics": pyglet_mock.graphics}
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
     ):
         from importlib import reload
+
         import askee_ds.pyglet_renderer as pr
+
         reload(pr)
 
         comp = _load_component("character-pane.default")
@@ -493,13 +535,19 @@ def test_stats_pane_renders_all_stat_entries():
     """_draw_stats_pane creates Labels for each stat entry."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
-        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
-                      "pyglet.shapes": pyglet_mock.shapes,
-                      "pyglet.clock": pyglet_mock.clock,
-                      "pyglet.graphics": pyglet_mock.graphics}
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
     ):
         from importlib import reload
+
         import askee_ds.pyglet_renderer as pr
+
         reload(pr)
 
         comp = _load_component("stats-pane.default")
@@ -518,3 +566,114 @@ def test_stats_pane_renders_all_stat_entries():
 
         # At minimum one Label per stat entry (label + value can be one or two calls)
         assert pyglet_mock.text.Label.call_count >= 2
+
+
+def test_stats_pane_no_enemy_stats_when_none():
+    """When enemy_stats is None, only stat-row Labels are rendered (no divider/enemy block)."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("stats-pane.default")
+        stats = [{"label": "HP", "value": "10"}, {"label": "MP", "value": "5"}]
+        props = {"stats": stats, "enemy_stats": None}
+        viewport = MagicMock(x=0, y=0, width=200, height=200)
+        theme = MagicMock(palette="dark", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="stats")
+
+        # 2 stats × 2 Labels (label + value) = 4 Labels exactly
+        assert pyglet_mock.text.Label.call_count == 4
+
+
+# ---------------------------------------------------------------------------
+# character-pane.default — tint
+# ---------------------------------------------------------------------------
+
+
+def test_character_pane_tint_applies_to_labels():
+    """Hex tint is parsed and passed as color to Labels."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("character-pane.default")
+        props = {"portrait_lines": ["line1", "line2"], "portrait_id": "hero"}
+        theme = MagicMock(palette="dark", tint="#ff8800", vignette=False)
+        viewport = MagicMock(x=0, y=0, width=200, height=300)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="char")
+
+        # Each Label call should have color=(255, 136, 0, 255)
+        for call in pyglet_mock.text.Label.call_args_list:
+            assert call.kwargs.get("color") == (0xFF, 0x88, 0x00, 255)
+
+
+# ---------------------------------------------------------------------------
+# input-pane.default — cursor toggle
+# ---------------------------------------------------------------------------
+
+
+def test_input_pane_cursor_toggle_alternates():
+    """The cursor toggle callback flips _CURSOR_STATE for the pane."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("input-pane.default")
+        props = {"value": "hello", "placeholder": ""}
+        theme = MagicMock(palette="dark", tint="", vignette=False)
+        viewport = MagicMock(x=0, y=0, width=400, height=60)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="inp")
+
+        # Retrieve the toggle callback that was passed to schedule_interval
+        schedule_call = pyglet_mock.clock.schedule_interval.call_args
+        toggle_fn = schedule_call.args[0]
+        initial = pr._CURSOR_STATE.get("inp", True)
+        toggle_fn(0)  # simulate clock tick
+        assert pr._CURSOR_STATE["inp"] == (not initial)
+        toggle_fn(0)  # simulate second tick
+        assert pr._CURSOR_STATE["inp"] == initial
