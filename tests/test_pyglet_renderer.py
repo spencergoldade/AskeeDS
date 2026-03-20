@@ -199,3 +199,18 @@ my-pane.default:
             pane_id="test-pane"
         )
         assert calls == [("my-pane.default", "test-pane")]
+
+
+# ---------------------------------------------------------------------------
+# Public API export
+# ---------------------------------------------------------------------------
+
+
+def test_render_pyglet_importable_from_package():
+    """render_pyglet is importable from the top-level askee_ds package.
+
+    pyglet_renderer.py only imports pyglet lazily inside draw functions,
+    so the top-level package import works without Pyglet installed.
+    """
+    from askee_ds import render_pyglet  # noqa: F401
+    assert callable(render_pyglet)
