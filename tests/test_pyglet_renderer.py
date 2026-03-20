@@ -68,3 +68,134 @@ test-component.large:
 """
     components = loader.load_components(yaml_src)
     assert components["test-component.large"].font_size == "large"
+
+
+# ---------------------------------------------------------------------------
+# render_pyglet dispatcher
+# ---------------------------------------------------------------------------
+
+
+def test_font_sizes_all_positive_integers():
+    """FONT_SIZES maps all four tokens to positive ints."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
+                      "pyglet.shapes": pyglet_mock.shapes,
+                      "pyglet.clock": pyglet_mock.clock,
+                      "pyglet.graphics": pyglet_mock.graphics}
+    ):
+        from importlib import reload
+        import askee_ds.pyglet_renderer as pr
+        reload(pr)
+        for token in ("large", "medium", "small", "micro"):
+            assert isinstance(pr.FONT_SIZES[token], int)
+            assert pr.FONT_SIZES[token] > 0
+
+
+def test_render_pyglet_returns_none():
+    """render_pyglet() must return None (it accumulates into batch, not a string)."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
+                      "pyglet.shapes": pyglet_mock.shapes,
+                      "pyglet.clock": pyglet_mock.clock,
+                      "pyglet.graphics": pyglet_mock.graphics}
+    ):
+        from importlib import reload
+        import askee_ds.pyglet_renderer as pr
+        reload(pr)
+        from askee_ds import Loader
+        loader = Loader()
+        components = loader.load_components("""
+unknown-component.x:
+  category: game/
+  description: Unknown.
+  status: ideated
+  render:
+    type: inline
+    template: "x"
+""")
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+        result = pr.render_pyglet(
+            components["unknown-component.x"], {}, theme, viewport, batch
+        )
+        assert result is None
+
+
+def test_render_pyglet_unknown_component_calls_fallback(monkeypatch):
+    """Unknown component name dispatches to _draw_fallback."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
+                      "pyglet.shapes": pyglet_mock.shapes,
+                      "pyglet.clock": pyglet_mock.clock,
+                      "pyglet.graphics": pyglet_mock.graphics}
+    ):
+        from importlib import reload
+        import askee_ds.pyglet_renderer as pr
+        reload(pr)
+
+        called = []
+        pr.register("test-sentinel.x", lambda *a, **kw: called.append("registered"))
+
+        from askee_ds import Loader
+        loader = Loader()
+        components = loader.load_components("""
+not-registered.y:
+  category: game/
+  description: Not registered.
+  status: ideated
+  render:
+    type: inline
+    template: "y"
+""")
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+        pr.render_pyglet(components["not-registered.y"], {}, theme, viewport, batch)
+        assert called == [], "fallback should NOT call the registered sentinel"
+        # Also verify _draw_fallback actually ran (drew something)
+        assert pyglet_mock.text.Label.call_count >= 1
+
+
+def test_render_pyglet_known_component_calls_registered_fn():
+    """Known component name dispatches to the registered draw function."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules, {"pyglet": pyglet_mock, "pyglet.text": pyglet_mock.text,
+                      "pyglet.shapes": pyglet_mock.shapes,
+                      "pyglet.clock": pyglet_mock.clock,
+                      "pyglet.graphics": pyglet_mock.graphics}
+    ):
+        from importlib import reload
+        import askee_ds.pyglet_renderer as pr
+        reload(pr)
+
+        calls = []
+
+        def _my_draw(component, props, theme_state, viewport, batch, pane_id):
+            calls.append((component.name, pane_id))
+
+        pr.register("my-pane.default", _my_draw)
+
+        from askee_ds import Loader
+        loader = Loader()
+        components = loader.load_components("""
+my-pane.default:
+  category: game/
+  description: Test pane.
+  status: ideated
+  render:
+    type: inline
+    template: "x"
+""")
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock()
+        batch = MagicMock()
+        pr.render_pyglet(
+            components["my-pane.default"], {}, theme, viewport, batch,
+            pane_id="test-pane"
+        )
+        assert calls == [("my-pane.default", "test-pane")]
