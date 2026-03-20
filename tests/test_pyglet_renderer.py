@@ -214,3 +214,90 @@ def test_render_pyglet_importable_from_package():
     """
     from askee_ds import render_pyglet  # noqa: F401
     assert callable(render_pyglet)
+
+
+# ---------------------------------------------------------------------------
+# history-pane.default
+# ---------------------------------------------------------------------------
+
+
+def _load_component(name: str) -> "Component":
+    from askee_ds import Loader
+    from pathlib import Path
+
+    loader = Loader()
+    components_dir = Path(__file__).resolve().parent.parent / "components"
+    return loader.load_components_dir(components_dir)[name]
+
+
+def test_history_pane_component_loads():
+    """history-pane.default YAML loads with correct props and font_size."""
+    comp = _load_component("history-pane.default")
+    assert comp.font_size == "large"
+    assert "lines" in comp.props
+    assert "max_lines" in comp.props
+
+
+def test_history_pane_renders_visible_lines():
+    """_draw_history_pane creates one Label per visible line."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("history-pane.default")
+        props = {"lines": ["line one", "line two", "line three"], "max_lines": 2}
+        viewport = MagicMock(x=0, y=500, width=800, height=500)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="history")
+
+        # Only max_lines=2 most recent lines should be drawn
+        assert pyglet_mock.text.Label.call_count == 2
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("line two" in c for c in calls)
+        assert any("line three" in c for c in calls)
+        assert all("line one" not in c for c in calls)
+
+
+def test_history_pane_draws_background_rectangle():
+    """_draw_history_pane draws a background Rectangle for the palette colour."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("history-pane.default")
+        props = {"lines": ["a"], "max_lines": 10}
+        viewport = MagicMock(x=0, y=0, width=800, height=500)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="history")
+
+        assert pyglet_mock.shapes.Rectangle.call_count >= 1

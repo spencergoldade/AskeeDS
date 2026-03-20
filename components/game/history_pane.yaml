@@ -1,0 +1,21 @@
+# AskeeDS — game/history_pane
+# Pyglet-only pane components for narrative history display.
+
+history-pane.default:
+  category: game/
+  description: Scrollable narrative history log for the Pyglet renderer.
+  status: in-progress
+  font_size: large
+  props:
+    lines:
+      type: array
+      required: true
+    max_lines:
+      type: integer
+      required: true
+  render:
+    type: stack
+  notes: >-
+    Pyglet-only component. The render block is intentionally minimal — the
+    ASCII render path is unused; all drawing is handled by _draw_history_pane()
+    in pyglet_renderer.py.

@@ -112,3 +112,52 @@ def _draw_fallback(
         color=(120, 120, 120, 255),
         batch=batch,
     )
+
+
+# ---------------------------------------------------------------------------
+# history-pane.default
+# ---------------------------------------------------------------------------
+
+
+def _draw_history_pane(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    lines: list[str] = props.get("lines", [])
+    max_lines: int = props.get("max_lines", 20)
+    visible = lines[-max_lines:] if len(lines) > max_lines else lines
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    # Background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(20, 20, 20, 255),
+        batch=batch,
+    )
+
+    # Draw lines bottom-to-top so most recent is nearest the input pane
+    y = viewport.y + line_height
+    for line in reversed(visible):
+        pyglet.text.Label(
+            line,
+            font_size=font_size,
+            x=viewport.x + 8,
+            y=y,
+            width=viewport.width - 16,
+            multiline=True,
+            batch=batch,
+        )
+        y += line_height
+
+
+register("history-pane.default", _draw_history_pane)
