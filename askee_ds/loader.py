@@ -49,6 +49,7 @@ class Component:
     render: dict
     art: str = ""
     default_color_role: str = "neutral"
+    font_size: str = "medium"
     interaction: dict = field(default_factory=dict)
 
 
@@ -79,6 +80,7 @@ class Loader:
                 render=defn.get("render", {}),
                 art=defn.get("art", ""),
                 default_color_role=defn.get("default_color_role", "neutral"),
+                font_size=defn.get("font_size", "medium"),
                 interaction=defn.get("interaction", {}),
             )
         if self._validator:
