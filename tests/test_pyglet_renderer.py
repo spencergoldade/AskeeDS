@@ -1,15 +1,31 @@
 """Tests for the Pyglet rendering pathway."""
 from __future__ import annotations
 
+import sys
+from unittest.mock import MagicMock
 from pathlib import Path
 
-import pytest
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
 ROOT = Path(__file__).resolve().parent.parent
+
+
+def _make_pyglet_mock() -> MagicMock:
+    """Return a MagicMock that stands in for the pyglet package."""
+    mock = MagicMock()
+    mock.text = MagicMock()
+    mock.text.Label = MagicMock()
+    mock.shapes = MagicMock()
+    mock.shapes.Rectangle = MagicMock()
+    mock.clock = MagicMock()
+    mock.clock.schedule_interval = MagicMock()
+    mock.clock.unschedule = MagicMock()
+    mock.graphics = MagicMock()
+    mock.graphics.Batch = MagicMock()
+    return mock
 
 
 # ---------------------------------------------------------------------------
