@@ -1,0 +1,21 @@
+# AskeeDS — game/input_pane
+# Pyglet-only pane component for command input.
+
+input-pane.default:
+  category: game/
+  description: Single-line command input pane with blinking cursor for the Pyglet renderer.
+  status: in-progress
+  font_size: large
+  props:
+    value:
+      type: string
+      required: true
+    placeholder:
+      type: string
+      required: false
+  render:
+    type: inline
+  notes: >-
+    Pyglet-only component. The render block is intentionally minimal — the
+    ASCII render path is unused; all drawing is handled by _draw_input_pane()
+    in pyglet_renderer.py. Cursor blink is managed via pyglet.clock.

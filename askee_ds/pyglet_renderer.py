@@ -34,6 +34,11 @@ FONT_SIZES: dict[str, int] = {
 
 _DEFAULT_FONT_SIZE = FONT_SIZES["medium"]
 
+# Per-pane cursor blink state: pane_id → cursor_visible (bool)
+# NOTE: Tests that register draw functions must call reload(pr) to reset this
+# dict between test runs, same as _REGISTRY.
+_CURSOR_STATE: dict[str, bool] = {}
+
 
 def _resolve_font_size(component: Component) -> int:
     return FONT_SIZES.get(component.font_size, _DEFAULT_FONT_SIZE)
@@ -161,3 +166,52 @@ def _draw_history_pane(
 
 
 register("history-pane.default", _draw_history_pane)
+
+
+# ---------------------------------------------------------------------------
+# input-pane.default
+# ---------------------------------------------------------------------------
+
+
+def _draw_input_pane(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    value: str = props.get("value", "")
+    placeholder: str = props.get("placeholder", "")
+    font_size = _resolve_font_size(component)
+
+    # Register cursor blink callback once per pane_id
+    if pane_id not in _CURSOR_STATE:
+        _CURSOR_STATE[pane_id] = True
+
+        def _toggle(_dt: float, _pid: str = pane_id) -> None:
+            _CURSOR_STATE[_pid] = not _CURSOR_STATE[_pid]
+
+        pyglet.clock.schedule_interval(_toggle, 0.5)
+
+    cursor = "█" if _CURSOR_STATE.get(pane_id, True) else " "
+    if value:
+        display_text = f"> {value}{cursor}"
+    elif placeholder:
+        display_text = f"> {placeholder}"
+    else:
+        display_text = f"> {cursor}"
+
+    pyglet.text.Label(
+        display_text,
+        font_size=font_size,
+        x=viewport.x + 8,
+        y=viewport.y + 8,
+        width=viewport.width - 16,
+        batch=batch,
+    )
+
+
+register("input-pane.default", _draw_input_pane)

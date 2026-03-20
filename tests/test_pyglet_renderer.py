@@ -301,3 +301,112 @@ def test_history_pane_draws_background_rectangle():
         pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="history")
 
         assert pyglet_mock.shapes.Rectangle.call_count >= 1
+
+
+# ---------------------------------------------------------------------------
+# input-pane.default
+# ---------------------------------------------------------------------------
+
+
+def test_input_pane_component_loads():
+    """input-pane.default YAML loads with correct props and font_size."""
+    comp = _load_component("input-pane.default")
+    assert comp.font_size == "large"
+    assert "value" in comp.props
+    assert "placeholder" in comp.props
+
+
+def test_input_pane_renders_value():
+    """_draw_input_pane renders '> {value}' text."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("input-pane.default")
+        props = {"value": "look around", "placeholder": ""}
+        viewport = MagicMock(x=0, y=0, width=800, height=60)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="input")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("look around" in c for c in calls)
+
+
+def test_input_pane_renders_placeholder_when_empty():
+    """_draw_input_pane renders placeholder when value is empty."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("input-pane.default")
+        props = {"value": "", "placeholder": "What do you do?"}
+        viewport = MagicMock(x=0, y=0, width=800, height=60)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="input-ph")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        # Must include the "> " prompt prefix per spec ("> {placeholder}")
+        assert any("> What do you do?" in c for c in calls)
+
+
+def test_input_pane_schedules_cursor_blink_once():
+    """Cursor blink interval is scheduled exactly once per pane_id."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("input-pane.default")
+        props = {"value": "hello", "placeholder": ""}
+        viewport = MagicMock(x=0, y=0, width=800, height=60)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        # Call render twice with the same pane_id
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="input-once")
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="input-once")
+
+        # schedule_interval must be called exactly once (not once per frame)
+        assert pyglet_mock.clock.schedule_interval.call_count == 1
