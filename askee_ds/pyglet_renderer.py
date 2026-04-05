@@ -594,3 +594,197 @@ def _draw_modal_overlay(
 
 
 register("modal.overlay", _draw_modal_overlay)
+
+
+# ---------------------------------------------------------------------------
+# HP bar helpers
+# ---------------------------------------------------------------------------
+
+_HP_COLOR_GREEN = (80, 220, 80, 255)
+_HP_COLOR_YELLOW = (220, 200, 60, 255)
+_HP_COLOR_RED = (220, 60, 60, 255)
+_HP_COLOR_GREY = (120, 120, 120, 255)
+
+_HP_FILL_CHAR = "█"
+_HP_EMPTY_CHAR = "░"
+_HP_BAR_SEGMENTS = 8
+
+
+def _hp_bar_color(current: int, maximum: int) -> tuple[int, int, int, int]:
+    """Return an RGBA color tuple based on HP percentage.
+
+    Args:
+        current: Current HP value.
+        maximum: Maximum HP value.
+
+    Returns:
+        RGBA tuple: green above 50%, yellow 25–50%, red below 25%, grey if max <= 0.
+    """
+    if maximum <= 0:
+        return _HP_COLOR_GREY
+    pct = current / maximum
+    if pct > 0.50:
+        return _HP_COLOR_GREEN
+    if pct >= 0.25:
+        return _HP_COLOR_YELLOW
+    return _HP_COLOR_RED
+
+
+def _draw_hp_bar(
+    label: str,
+    current: int,
+    max_val: int,
+    x: int,
+    y: int,
+    width: int,
+    font_size: int,
+    batch: Any,
+) -> None:
+    """Draw a text-based HP bar: 'Label [████░░░░] current/max'.
+
+    Args:
+        label:     Label text placed before the bar (e.g. "HP").
+        current:   Current HP value.
+        max_val:   Maximum HP value.
+        x:         Left edge x coordinate.
+        y:         Bottom y coordinate.
+        width:     Available pixel width (unused by text layout, kept for future use).
+        font_size: Font size in pixels.
+        batch:     Pyglet batch to draw into.
+    """
+    import pyglet  # noqa: PLC0415
+
+    color = _hp_bar_color(current, max_val)
+    if max_val > 0:
+        filled = round(_HP_BAR_SEGMENTS * max(0, current) / max_val)
+    else:
+        filled = 0
+    empty = _HP_BAR_SEGMENTS - filled
+    bar = _HP_FILL_CHAR * filled + _HP_EMPTY_CHAR * empty
+    text = f"{label} [{bar}] {current}/{max_val}"
+
+    pyglet.text.Label(
+        text,
+        font_size=font_size,
+        x=x,
+        y=y,
+        width=width,
+        color=color,
+        batch=batch,
+    )
+
+
+# ---------------------------------------------------------------------------
+# combat-card.enemy
+# ---------------------------------------------------------------------------
+
+
+def _draw_combat_card_enemy(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    enemy_name: str = props.get("enemy_name", "")
+    enemy_hp: int = props.get("enemy_hp", 0)
+    enemy_hp_max: int = props.get("enemy_hp_max", 0)
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(20, 20, 20, 255),
+        batch=batch,
+    )
+
+    # Enemy name header
+    pyglet.text.Label(
+        enemy_name,
+        font_size=font_size + 2,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height,
+        width=viewport.width - 16,
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # HP bar
+    _draw_hp_bar(
+        "HP",
+        enemy_hp,
+        enemy_hp_max,
+        viewport.x + 8,
+        viewport.y + viewport.height - line_height * 2,
+        viewport.width - 16,
+        font_size,
+        batch,
+    )
+
+
+register("combat-card.enemy", _draw_combat_card_enemy)
+
+
+# ---------------------------------------------------------------------------
+# combat-card.actions
+# ---------------------------------------------------------------------------
+
+
+def _draw_combat_card_actions(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    player_hp: int = props.get("player_hp", 0)
+    player_hp_max: int = props.get("player_hp_max", 0)
+    round_num: int = props.get("round", 1)
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(20, 20, 20, 255),
+        batch=batch,
+    )
+
+    # Player HP bar
+    _draw_hp_bar(
+        "HP",
+        player_hp,
+        player_hp_max,
+        viewport.x + 8,
+        viewport.y + viewport.height - line_height,
+        viewport.width - 16,
+        font_size,
+        batch,
+    )
+
+    # Round counter
+    pyglet.text.Label(
+        f"Round {round_num}",
+        font_size=font_size,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height * 2,
+        width=viewport.width - 16,
+        color=(200, 200, 200, 255),
+        batch=batch,
+    )
+
+
+register("combat-card.actions", _draw_combat_card_actions)

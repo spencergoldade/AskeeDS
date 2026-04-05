@@ -9,7 +9,7 @@ SCHEMA_PATH = COMPONENTS_DIR / "_schema.yaml"
 
 def test_load_components_dir(components):
     assert isinstance(components, dict)
-    assert len(components) == 60
+    assert len(components) == 63
 
 
 def test_load_tokens_dir(tokens):
@@ -56,6 +56,7 @@ def test_load_components_skips_schema(components):
 
 def test_loader_with_schema_validation():
     from askee_ds import Loader
+
     validated_loader = Loader(schema_path=SCHEMA_PATH)
     result = validated_loader.load_components_dir(COMPONENTS_DIR)
-    assert len(result) == 60
+    assert len(result) == 63

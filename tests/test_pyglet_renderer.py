@@ -811,9 +811,7 @@ def test_menu_main_selected_item_is_white():
         pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="menu2")
 
         # Collect all Label calls that carry a color kwarg
-        item_calls = [
-            c for c in pyglet_mock.text.Label.call_args_list if "color" in c.kwargs
-        ]
+        item_calls = [c for c in pyglet_mock.text.Label.call_args_list if "color" in c.kwargs]
         colors = {str(c.args[0]): c.kwargs["color"] for c in item_calls if c.args}
         # "Beta" is selected (index 1) — white
         assert colors.get("> Beta") == (255, 255, 255, 255)
@@ -972,3 +970,130 @@ def test_modal_overlay_draws_dimmed_background():
         pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="modal2")
 
         assert pyglet_mock.shapes.Rectangle.call_count >= 2
+
+
+# ---------------------------------------------------------------------------
+# _hp_bar_color helper
+# ---------------------------------------------------------------------------
+
+
+def test_hp_bar_color_green_above_50_percent():
+    """_hp_bar_color returns green (high green channel) when HP > 50%."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        color = pr._hp_bar_color(80, 100)
+        # Green channel must be dominant over red channel
+        assert color[1] > color[0]
+
+
+def test_hp_bar_color_red_below_25_percent():
+    """_hp_bar_color returns red (high red channel) when HP < 25%."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        color = pr._hp_bar_color(10, 100)
+        # Red channel must be dominant over green channel
+        assert color[0] > color[1]
+
+
+# ---------------------------------------------------------------------------
+# combat-card.enemy
+# ---------------------------------------------------------------------------
+
+
+def test_combat_card_enemy_renders_name_and_hp():
+    """_draw_combat_card_enemy draws Labels containing enemy name and HP fraction."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("combat-card.enemy")
+        props = {"enemy_name": "Forest Wolf", "enemy_hp": 45, "enemy_hp_max": 80}
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="enemy-card")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("Forest Wolf" in c for c in calls)
+        assert any("45/80" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# combat-card.actions
+# ---------------------------------------------------------------------------
+
+
+def test_combat_card_actions_renders_hp_and_round():
+    """_draw_combat_card_actions draws Labels containing player HP and round number."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("combat-card.actions")
+        props = {"player_hp": 70, "player_hp_max": 100, "round": 3}
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="actions-card")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("70/100" in c for c in calls)
+        assert any("Round 3" in c for c in calls)

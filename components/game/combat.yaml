@@ -1,0 +1,46 @@
+# AskeeDS — game/combat
+# Pyglet-only pane components for combat display.
+
+combat-card.enemy:
+  category: game/
+  description: Combat card showing enemy name and HP bar for the Pyglet renderer.
+  status: in-progress
+  font_size: small
+  props:
+    enemy_name:
+      type: string
+      required: true
+    enemy_hp:
+      type: integer
+      required: true
+    enemy_hp_max:
+      type: integer
+      required: true
+  render:
+    type: inline
+    template: "{enemy_name} {enemy_hp}/{enemy_hp_max}"
+  notes: >-
+    Pyglet-only component. All drawing is handled by _draw_combat_card_enemy()
+    in pyglet_renderer.py.
+
+combat-card.actions:
+  category: game/
+  description: Combat card showing player HP bar and round counter for the Pyglet renderer.
+  status: in-progress
+  font_size: small
+  props:
+    player_hp:
+      type: integer
+      required: true
+    player_hp_max:
+      type: integer
+      required: true
+    round:
+      type: integer
+      required: true
+  render:
+    type: inline
+    template: "HP {player_hp}/{player_hp_max} Round {round}"
+  notes: >-
+    Pyglet-only component. All drawing is handled by _draw_combat_card_actions()
+    in pyglet_renderer.py.
