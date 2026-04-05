@@ -1059,6 +1059,7 @@ def test_combat_card_enemy_renders_name_and_hp():
 
         calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
         assert any("Forest Wolf" in c for c in calls)
+        assert any("Flesh" in c for c in calls)
         assert any("45/80" in c for c in calls)
 
 
@@ -1095,5 +1096,6 @@ def test_combat_card_actions_renders_hp_and_round():
         pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="actions-card")
 
         calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("Flesh" in c for c in calls)
         assert any("70/100" in c for c in calls)
         assert any("Round 3" in c for c in calls)

@@ -643,7 +643,7 @@ def _draw_hp_bar(
     """Draw a text-based HP bar: 'Label [████░░░░] current/max'.
 
     Args:
-        label:     Label text placed before the bar (e.g. "HP").
+        label:     Label text placed before the bar (e.g. "Flesh").
         current:   Current HP value.
         max_val:   Maximum HP value.
         x:         Left edge x coordinate.
@@ -692,6 +692,7 @@ def _draw_combat_card_enemy(
     enemy_name: str = props.get("enemy_name", "")
     enemy_hp: int = props.get("enemy_hp", 0)
     enemy_hp_max: int = props.get("enemy_hp_max", 0)
+    hp_label: str = props.get("hp_label", "Flesh")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
@@ -718,7 +719,7 @@ def _draw_combat_card_enemy(
 
     # HP bar
     _draw_hp_bar(
-        "HP",
+        hp_label,
         enemy_hp,
         enemy_hp_max,
         viewport.x + 8,
@@ -750,6 +751,7 @@ def _draw_combat_card_actions(
     player_hp: int = props.get("player_hp", 0)
     player_hp_max: int = props.get("player_hp_max", 0)
     round_num: int = props.get("round", 1)
+    hp_label: str = props.get("hp_label", "Flesh")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
@@ -765,7 +767,7 @@ def _draw_combat_card_actions(
 
     # Player HP bar
     _draw_hp_bar(
-        "HP",
+        hp_label,
         player_hp,
         player_hp_max,
         viewport.x + 8,

@@ -16,6 +16,9 @@ combat-card.enemy:
     enemy_hp_max:
       type: integer
       required: true
+    hp_label:
+      type: string
+      required: false
   render:
     type: inline
     template: "{enemy_name} {enemy_hp}/{enemy_hp_max}"
@@ -38,6 +41,9 @@ combat-card.actions:
     round:
       type: integer
       required: true
+    hp_label:
+      type: string
+      required: false
   render:
     type: inline
     template: "HP {player_hp}/{player_hp_max} Round {round}"
