@@ -134,6 +134,37 @@ def _draw_fallback(
 
 
 # ---------------------------------------------------------------------------
+# location-header.default
+# ---------------------------------------------------------------------------
+
+
+def _draw_location_header(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    location_name: str = props.get("location_name", "")
+    font_size = _resolve_font_size(component)
+
+    pyglet.text.Label(
+        location_name,
+        font_size=font_size,
+        x=viewport.x + 8,
+        y=viewport.y + 8,
+        width=viewport.width - 16,
+        batch=batch,
+    )
+
+
+register("location-header.default", _draw_location_header)
+
+
+# ---------------------------------------------------------------------------
 # history-pane.default
 # ---------------------------------------------------------------------------
 

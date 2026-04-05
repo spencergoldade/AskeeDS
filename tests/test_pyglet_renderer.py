@@ -601,6 +601,49 @@ def test_stats_pane_no_enemy_stats_when_none():
 
 
 # ---------------------------------------------------------------------------
+# location-header.default
+# ---------------------------------------------------------------------------
+
+
+def test_location_header_component_loads():
+    """location-header.default YAML loads with correct props and font_size."""
+    comp = _load_component("location-header.default")
+    assert comp.font_size == "medium"
+    assert "location_name" in comp.props
+
+
+def test_location_header_renders_location_name():
+    """_draw_location_header creates a Label containing the location name."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("location-header.default")
+        props = {"location_name": "The Dark Forest"}
+        viewport = MagicMock(x=0, y=550, width=520, height=50)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="loc-header")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("The Dark Forest" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
 # character-pane.default — tint
 # ---------------------------------------------------------------------------
 
