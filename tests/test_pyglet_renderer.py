@@ -1356,3 +1356,85 @@ def test_inventory_grid_renders_items_with_selection():
         assert any("> Health Potion" in c for c in calls)
         assert any("Iron Sword" in c for c in calls)
         assert not any("> Iron Sword" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# reading.book
+# ---------------------------------------------------------------------------
+
+
+def test_reading_book_renders_title_content_and_page():
+    """_draw_reading_book renders title, content text, and page indicator."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("reading.book")
+        props = {
+            "title": "The Thornwall Chronicle",
+            "content": "In the year of the great frost...",
+            "readable_type": "book",
+            "item_id": "chronicle",
+            "current_page": 2,
+            "total_pages": 5,
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="reading")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("The Thornwall Chronicle" in c for c in calls)
+        assert any("In the year of the great frost" in c for c in calls)
+        assert any("Page 2/5" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# screen.placeholder
+# ---------------------------------------------------------------------------
+
+
+def test_screen_placeholder_renders_label():
+    """_draw_screen_placeholder renders a label containing the component name."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("screen.placeholder")
+        props: dict = {}
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="placeholder")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert len(calls) >= 1
+        assert any("screen.placeholder" in c for c in calls)

@@ -1126,3 +1126,114 @@ def _draw_inventory_grid(
 
 
 register("inventory.grid", _draw_inventory_grid)
+
+
+# ---------------------------------------------------------------------------
+# reading.book
+# ---------------------------------------------------------------------------
+
+
+def _draw_reading_book(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    title: str = props.get("title", "")
+    content: str = props.get("content", "")
+    current_page: int = props.get("current_page", 1)
+    total_pages: int = props.get("total_pages", 1)
+    font_size = _resolve_font_size(component)
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(15, 15, 15, 255),
+        batch=batch,
+    )
+
+    # Title centred near top
+    pyglet.text.Label(
+        title,
+        font_size=font_size + 4,
+        x=viewport.x + viewport.width // 2,
+        y=viewport.y + viewport.height - (font_size + 4) * 2,
+        anchor_x="center",
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # Content as multiline label with 24px margins
+    margin = 24
+    pyglet.text.Label(
+        content,
+        font_size=font_size,
+        x=viewport.x + margin,
+        y=viewport.y + viewport.height - (font_size + 4) * 4,
+        width=viewport.width - margin * 2,
+        multiline=True,
+        color=(200, 200, 200, 255),
+        batch=batch,
+    )
+
+    # Page indicator centred near bottom
+    pyglet.text.Label(
+        f"Page {current_page}/{total_pages}",
+        font_size=font_size,
+        x=viewport.x + viewport.width // 2,
+        y=viewport.y + (font_size + 4) * 2,
+        anchor_x="center",
+        color=(160, 160, 160, 255),
+        batch=batch,
+    )
+
+    # Navigation hint below page indicator
+    pyglet.text.Label(
+        "next / prev / close",
+        font_size=font_size - 2,
+        x=viewport.x + viewport.width // 2,
+        y=viewport.y + font_size,
+        anchor_x="center",
+        color=(120, 120, 120, 255),
+        batch=batch,
+    )
+
+
+register("reading.book", _draw_reading_book)
+
+
+# ---------------------------------------------------------------------------
+# screen.placeholder
+# ---------------------------------------------------------------------------
+
+
+def _draw_screen_placeholder(
+    component: Component,
+    props: dict,  # noqa: ARG001
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    pyglet.text.Label(
+        f"[{component.name}]",
+        font_size=_resolve_font_size(component),
+        x=viewport.x + viewport.width // 2,
+        y=viewport.y + viewport.height // 2,
+        anchor_x="center",
+        anchor_y="center",
+        color=(120, 120, 120, 255),
+        batch=batch,
+    )
+
+
+register("screen.placeholder", _draw_screen_placeholder)

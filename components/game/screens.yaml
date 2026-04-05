@@ -175,3 +175,43 @@ screen.tutorial:
     +---------------------------------+
   notes: Use to surface onboarding hints or contextual guidance early in play.
 
+reading.book:
+  category: game/screens
+  description: Full-screen book/readable viewer with paginated content.
+  status: approved
+  props:
+    title:
+      type: string
+      required: true
+    content:
+      type: string
+      required: true
+    readable_type:
+      type: string
+      required: false
+    item_id:
+      type: string
+      required: false
+    current_page:
+      type: integer
+      required: true
+    total_pages:
+      type: integer
+      required: true
+  render:
+    type: inline
+    template: "[{title}] Page {current_page}/{total_pages}"
+  notes: >-
+    Renders a single page of readable content. Pagination is handled by
+    ReadingScreen in engine/bridge/screens/reading.py.
+
+screen.placeholder:
+  category: game/screens
+  description: Generic placeholder shown for screens not yet implemented.
+  status: ideated
+  render:
+    type: inline
+    template: "[screen.placeholder]"
+  notes: >-
+    Fallback placeholder for screens that have no dedicated draw function yet.
+
