@@ -69,3 +69,33 @@ inventory.list:
     - brass lamp (1)
     - key (2)
   notes: Use when item order and grouping matter more than spatial arrangement.
+
+merchant.stock-grid:
+  category: game/inventory
+  description: Merchant stock list with item prices and player gold display.
+  status: approved
+  props:
+    merchant_id:
+      type: string
+      required: true
+    stock:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+        price: integer
+    player_gold:
+      type: integer
+      required: true
+  render:
+    type: box
+    width: fill
+    min_width: 20
+    max_width: 80
+  art: |2
+    Stock
+    Iron Sword          50g
+    Wooden Shield       30g
+    Gold: 120
+  notes: Display a merchant's available stock alongside the player's current gold.

@@ -29,6 +29,24 @@ speech-bubble:
     Use for dialogue. Set tail to "left" for NPC speech or "right" for
     player speech. Defaults to "left" if omitted.
 
+speech-bubble.left:
+  category: game/conversation
+  description: Left-tailed speech bubble for NPC dialogue.
+  status: approved
+  props:
+    npc_id:
+      type: string
+      required: true
+    npc_speech:
+      type: string
+      required: true
+    active:
+      type: boolean
+      required: false
+  render:
+    type: bubble
+    tail: left
+
 choice-wheel.inline:
   category: game/conversation
   description: Vertical numbered options for dialog/choice flow.

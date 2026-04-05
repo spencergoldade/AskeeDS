@@ -790,3 +790,339 @@ def _draw_combat_card_actions(
 
 
 register("combat-card.actions", _draw_combat_card_actions)
+
+
+# ---------------------------------------------------------------------------
+# speech-bubble.left
+# ---------------------------------------------------------------------------
+
+
+def _draw_speech_bubble_left(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    npc_id: str = props.get("npc_id", "")
+    npc_speech: str = props.get("npc_speech", "")
+    active: bool = props.get("active", True)
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    text_color = (220, 220, 220, 255) if active else (120, 120, 120, 255)
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(30, 30, 30, 255),
+        batch=batch,
+    )
+
+    # NPC name header
+    pyglet.text.Label(
+        npc_id,
+        font_size=font_size + 2,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height,
+        width=viewport.width - 16,
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # Speech text (multiline)
+    pyglet.text.Label(
+        npc_speech,
+        font_size=font_size,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height * 2,
+        width=viewport.width - 16,
+        multiline=True,
+        color=text_color,
+        batch=batch,
+    )
+
+
+register("speech-bubble.left", _draw_speech_bubble_left)
+
+
+# ---------------------------------------------------------------------------
+# choice-wheel.inline
+# ---------------------------------------------------------------------------
+
+
+def _draw_choice_wheel_inline(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    options: list[dict] = props.get("options", [])
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(25, 25, 25, 255),
+        batch=batch,
+    )
+
+    # "Choose:" header
+    pyglet.text.Label(
+        "Choose:",
+        font_size=font_size,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height,
+        width=viewport.width - 16,
+        color=(160, 160, 160, 255),
+        batch=batch,
+    )
+
+    # Numbered options
+    for i, option in enumerate(options):
+        label_text = f"{i + 1}. {option.get('label', '')}"
+        pyglet.text.Label(
+            label_text,
+            font_size=font_size,
+            x=viewport.x + 16,
+            y=viewport.y + viewport.height - line_height * (i + 2),
+            width=viewport.width - 32,
+            color=(220, 220, 220, 255),
+            batch=batch,
+        )
+
+
+register("choice-wheel.inline", _draw_choice_wheel_inline)
+
+
+# ---------------------------------------------------------------------------
+# merchant.stock-grid
+# ---------------------------------------------------------------------------
+
+
+def _draw_merchant_stock_grid(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    stock: list[dict] = props.get("stock", [])
+    player_gold: int = props.get("player_gold", 0)
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(20, 20, 20, 255),
+        batch=batch,
+    )
+
+    # "Stock" header
+    pyglet.text.Label(
+        "Stock",
+        font_size=font_size + 2,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height,
+        width=viewport.width - 16,
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # Stock item rows
+    for i, item in enumerate(stock):
+        row_y = viewport.y + viewport.height - line_height * (i + 2)
+        pyglet.text.Label(
+            item.get("label", ""),
+            font_size=font_size,
+            x=viewport.x + 8,
+            y=row_y,
+            width=(viewport.width - 16) // 2,
+            color=(200, 200, 200, 255),
+            batch=batch,
+        )
+        pyglet.text.Label(
+            f"{item.get('price', 0)}g",
+            font_size=font_size,
+            x=viewport.x + viewport.width // 2,
+            y=row_y,
+            width=(viewport.width - 16) // 2,
+            color=(200, 180, 60, 255),
+            batch=batch,
+        )
+
+    # Player gold at bottom
+    pyglet.text.Label(
+        f"Gold: {player_gold}",
+        font_size=font_size,
+        x=viewport.x + 8,
+        y=viewport.y + 8,
+        width=viewport.width - 16,
+        color=(200, 180, 60, 255),
+        batch=batch,
+    )
+
+
+register("merchant.stock-grid", _draw_merchant_stock_grid)
+
+
+# ---------------------------------------------------------------------------
+# inventory.list
+# ---------------------------------------------------------------------------
+
+
+def _draw_inventory_list(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    sellable: list[dict] = props.get("sellable", [])
+    player_gold: int = props.get("player_gold", 0)
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(20, 20, 20, 255),
+        batch=batch,
+    )
+
+    # "Your Items" header
+    pyglet.text.Label(
+        "Your Items",
+        font_size=font_size + 2,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height,
+        width=viewport.width - 16,
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # Sellable item rows
+    for i, item in enumerate(sellable):
+        row_y = viewport.y + viewport.height - line_height * (i + 2)
+        pyglet.text.Label(
+            item.get("label", ""),
+            font_size=font_size,
+            x=viewport.x + 8,
+            y=row_y,
+            width=(viewport.width - 16) // 2,
+            color=(200, 200, 200, 255),
+            batch=batch,
+        )
+        pyglet.text.Label(
+            f"{item.get('value', 0)}g",
+            font_size=font_size,
+            x=viewport.x + viewport.width // 2,
+            y=row_y,
+            width=(viewport.width - 16) // 2,
+            color=(200, 180, 60, 255),
+            batch=batch,
+        )
+
+    # Player gold at bottom
+    pyglet.text.Label(
+        f"Gold: {player_gold}",
+        font_size=font_size,
+        x=viewport.x + 8,
+        y=viewport.y + 8,
+        width=viewport.width - 16,
+        color=(200, 180, 60, 255),
+        batch=batch,
+    )
+
+
+register("inventory.list", _draw_inventory_list)
+
+
+# ---------------------------------------------------------------------------
+# inventory.grid
+# ---------------------------------------------------------------------------
+
+
+def _draw_inventory_grid(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    items: list[dict] = props.get("items", [])
+    selected_index: int = props.get("selected_index", 0)
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(20, 20, 20, 255),
+        batch=batch,
+    )
+
+    # "Inventory" header
+    pyglet.text.Label(
+        "Inventory",
+        font_size=font_size + 2,
+        x=viewport.x + 8,
+        y=viewport.y + viewport.height - line_height,
+        width=viewport.width - 16,
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # Item rows with selection indicator
+    for i, item in enumerate(items):
+        if i == selected_index:
+            prefix = "> "
+            color = (255, 255, 255, 255)
+        else:
+            prefix = "  "
+            color = (160, 160, 160, 255)
+        pyglet.text.Label(
+            f"{prefix}{item.get('label', '')}",
+            font_size=font_size,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height * (i + 2),
+            width=viewport.width - 16,
+            color=color,
+            batch=batch,
+        )
+
+
+register("inventory.grid", _draw_inventory_grid)

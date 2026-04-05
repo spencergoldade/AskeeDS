@@ -1099,3 +1099,260 @@ def test_combat_card_actions_renders_hp_and_round():
         assert any("Flesh" in c for c in calls)
         assert any("70/100" in c for c in calls)
         assert any("Round 3" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# speech-bubble.left
+# ---------------------------------------------------------------------------
+
+
+def test_speech_bubble_renders_npc_name_and_speech():
+    """_draw_speech_bubble_left creates Labels containing npc_id and npc_speech."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("speech-bubble.left")
+        props = {"npc_id": "blacksmith", "npc_speech": "Need something forged?", "active": True}
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="speech")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("blacksmith" in c for c in calls)
+        assert any("Need something forged?" in c for c in calls)
+
+
+def test_speech_bubble_inactive_dims_text():
+    """_draw_speech_bubble_left dims text colour when active is False."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("speech-bubble.left")
+        props = {"npc_id": "guard", "npc_speech": "Move along.", "active": False}
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="speech")
+
+        # Find the call whose first positional arg contains "Move along."
+        speech_call = None
+        for call in pyglet_mock.text.Label.call_args_list:
+            args, kwargs = call
+            text_arg = args[0] if args else kwargs.get("text", "")
+            if "Move along." in str(text_arg):
+                speech_call = call
+                break
+        assert speech_call is not None, "No Label call contained 'Move along.'"
+        _, kwargs = speech_call
+        color = kwargs.get("color", (255, 255, 255, 255))
+        assert color[0] < 200, f"Expected dimmed red channel < 200, got {color[0]}"
+
+
+# ---------------------------------------------------------------------------
+# choice-wheel.inline
+# ---------------------------------------------------------------------------
+
+
+def test_choice_wheel_renders_numbered_options():
+    """_draw_choice_wheel_inline creates Labels for header and all numbered options."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("choice-wheel.inline")
+        props = {
+            "options": [
+                {"id": "greet", "label": "Hello there"},
+                {"id": "trade", "label": "Show me your wares"},
+                {"id": "bye", "label": "Goodbye"},
+            ]
+        }
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="choice")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert len(pyglet_mock.text.Label.call_args_list) >= 4
+        assert any("1." in c and "Hello there" in c for c in calls)
+        assert any("2." in c and "Show me your wares" in c for c in calls)
+        assert any("3." in c and "Goodbye" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# merchant.stock-grid
+# ---------------------------------------------------------------------------
+
+
+def test_merchant_stock_grid_renders_items_and_gold():
+    """_draw_merchant_stock_grid creates Labels for items, prices, and player gold."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("merchant.stock-grid")
+        props = {
+            "merchant_id": "merchant",
+            "stock": [
+                {"id": "sword", "label": "Iron Sword", "price": 50},
+                {"id": "shield", "label": "Wooden Shield", "price": 30},
+            ],
+            "player_gold": 120,
+        }
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="merchant")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("Iron Sword" in c for c in calls)
+        assert any("50" in c for c in calls)
+        assert any("120" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# inventory.list
+# ---------------------------------------------------------------------------
+
+
+def test_inventory_list_renders_sellable_items():
+    """_draw_inventory_list creates Labels for sellable items and player gold."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("inventory.list")
+        props = {
+            "sellable": [
+                {"id": "gem", "label": "Ruby Gem", "value": 75},
+                {"id": "herb", "label": "Healing Herb", "value": 5},
+            ],
+            "player_gold": 200,
+        }
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="inv-list")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("Ruby Gem" in c for c in calls)
+        assert any("Healing Herb" in c for c in calls)
+        assert any("200" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# inventory.grid
+# ---------------------------------------------------------------------------
+
+
+def test_inventory_grid_renders_items_with_selection():
+    """_draw_inventory_grid prefixes selected item with '> ' and plain items with spaces."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("inventory.grid")
+        props = {
+            "items": [
+                {"id": "sword", "label": "Iron Sword"},
+                {"id": "potion", "label": "Health Potion"},
+            ],
+            "selected_index": 1,
+        }
+        viewport = MagicMock(x=0, y=0, width=400, height=300)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="inv-grid")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert len(pyglet_mock.text.Label.call_args_list) >= 3
+        assert any("> Health Potion" in c for c in calls)
+        assert any("Iron Sword" in c for c in calls)
+        assert not any("> Iron Sword" in c for c in calls)
