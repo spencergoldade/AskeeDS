@@ -720,3 +720,255 @@ def test_input_pane_cursor_toggle_alternates():
         assert pr._CURSOR_STATE["inp"] == (not initial)
         toggle_fn(0)  # simulate second tick
         assert pr._CURSOR_STATE["inp"] == initial
+
+
+# ---------------------------------------------------------------------------
+# menu.main
+# ---------------------------------------------------------------------------
+
+
+def test_menu_main_component_loads():
+    """menu.main YAML loads with correct props."""
+    comp = _load_component("menu.main")
+    assert "title" in comp.props
+    assert "items" in comp.props
+
+
+def test_menu_main_draws_items():
+    """_draw_menu_main creates at least 3 Labels: title + 2 items."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("menu.main")
+        props = {
+            "title": "AskeeDS",
+            "items": [
+                {"id": "new_game", "label": "New Game"},
+                {"id": "quit", "label": "Quit"},
+            ],
+            "selected_index": 0,
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="menu")
+
+        # At minimum: 1 title label + 2 item labels
+        assert pyglet_mock.text.Label.call_count >= 3
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("AskeeDS" in c for c in calls)
+        assert any("New Game" in c for c in calls)
+        assert any("Quit" in c for c in calls)
+
+
+def test_menu_main_selected_item_is_white():
+    """Selected menu item is rendered in white; non-selected items are grey."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("menu.main")
+        props = {
+            "title": "Menu",
+            "items": [
+                {"id": "a", "label": "Alpha"},
+                {"id": "b", "label": "Beta"},
+            ],
+            "selected_index": 1,
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="menu2")
+
+        # Collect all Label calls that carry a color kwarg
+        item_calls = [
+            c for c in pyglet_mock.text.Label.call_args_list if "color" in c.kwargs
+        ]
+        colors = {str(c.args[0]): c.kwargs["color"] for c in item_calls if c.args}
+        # "Beta" is selected (index 1) — white
+        assert colors.get("> Beta") == (255, 255, 255, 255)
+        # "Alpha" is not selected — grey
+        assert colors.get("Alpha")[0] < 200  # some shade of grey
+
+
+# ---------------------------------------------------------------------------
+# typography.banner
+# ---------------------------------------------------------------------------
+
+
+def test_typography_banner_component_loads():
+    """typography.banner YAML loads with correct props."""
+    comp = _load_component("typography.banner")
+    assert "text" in comp.props
+
+
+def test_typography_banner_draws_text():
+    """_draw_typography_banner draws at least one Label containing the banner text."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("typography.banner")
+        props = {"text": "ASKEE"}
+        viewport = MagicMock(x=0, y=0, width=800, height=200)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch)
+
+        assert pyglet_mock.text.Label.call_count >= 1
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("ASKEE" in c for c in calls)
+
+
+def test_typography_banner_draws_multiline():
+    """Each newline-separated line in text is drawn as a separate Label."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("typography.banner")
+        props = {"text": "line1\nline2\nline3"}
+        viewport = MagicMock(x=0, y=0, width=800, height=200)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch)
+
+        assert pyglet_mock.text.Label.call_count == 3
+
+
+# ---------------------------------------------------------------------------
+# modal.overlay
+# ---------------------------------------------------------------------------
+
+
+def test_modal_overlay_component_loads():
+    """modal.overlay YAML loads with correct props."""
+    comp = _load_component("modal.overlay")
+    assert "title" in comp.props
+
+
+def test_modal_overlay_draws_title():
+    """_draw_modal_overlay draws at least one Label containing the title."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("modal.overlay")
+        props = {
+            "title": "Confirm Quit",
+            "body": "Are you sure?",
+            "actions": [{"label": "Yes"}, {"label": "No"}],
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="modal")
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        assert any("Confirm Quit" in c for c in calls)
+
+
+def test_modal_overlay_draws_dimmed_background():
+    """_draw_modal_overlay draws at least 2 Rectangles: dim overlay + modal box."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("modal.overlay")
+        props = {
+            "title": "Alert",
+            "body": "Something happened.",
+            "actions": [],
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="modal2")
+
+        assert pyglet_mock.shapes.Rectangle.call_count >= 2

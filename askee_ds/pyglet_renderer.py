@@ -405,3 +405,192 @@ def _draw_stats_pane(
 
 
 register("stats-pane.default", _draw_stats_pane)
+
+
+# ---------------------------------------------------------------------------
+# menu.main
+# ---------------------------------------------------------------------------
+
+
+def _draw_menu_main(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    title: str = props.get("title", "")
+    items: list[dict] = props.get("items", [])
+    selected_index: int = props.get("selected_index", 0)
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 6
+
+    # Dark background
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(20, 20, 20, 255),
+        batch=batch,
+    )
+
+    # Title centered near top
+    pyglet.text.Label(
+        title,
+        font_size=font_size + 4,
+        x=viewport.x + viewport.width // 2,
+        y=viewport.y + viewport.height - line_height * 2,
+        anchor_x="center",
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # Menu items centered below title
+    start_y = viewport.y + viewport.height - line_height * 4
+    for i, item in enumerate(items):
+        label: str = item.get("label", "")
+        if i == selected_index:
+            display_text = f"> {label}"
+            color = (255, 255, 255, 255)
+        else:
+            display_text = label
+            color = (160, 160, 160, 255)
+        pyglet.text.Label(
+            display_text,
+            font_size=font_size,
+            x=viewport.x + viewport.width // 2,
+            y=start_y - i * line_height,
+            anchor_x="center",
+            color=color,
+            batch=batch,
+        )
+
+
+register("menu.main", _draw_menu_main)
+
+
+# ---------------------------------------------------------------------------
+# typography.banner
+# ---------------------------------------------------------------------------
+
+
+def _draw_typography_banner(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    text: str = props.get("text", "")
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    lines = text.split("\n")
+    # Center block vertically: start at top and work down
+    start_y = viewport.y + viewport.height - line_height
+    for i, line in enumerate(lines):
+        pyglet.text.Label(
+            line,
+            font_size=font_size,
+            x=viewport.x + viewport.width // 2,
+            y=start_y - i * line_height,
+            anchor_x="center",
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
+
+
+register("typography.banner", _draw_typography_banner)
+
+
+# ---------------------------------------------------------------------------
+# modal.overlay
+# ---------------------------------------------------------------------------
+
+
+def _draw_modal_overlay(
+    component: Component,
+    props: dict,
+    theme_state: Any,  # noqa: ARG001
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> None:
+    import pyglet  # noqa: PLC0415
+
+    title: str = props.get("title", "")
+    body: str = props.get("body", props.get("body_text", ""))
+    actions: list[dict] = props.get("actions", [])
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 6
+
+    # Dimmed semi-transparent background over full viewport
+    pyglet.shapes.Rectangle(
+        viewport.x,
+        viewport.y,
+        viewport.width,
+        viewport.height,
+        color=(0, 0, 0, 160),
+        batch=batch,
+    )
+
+    # Modal box: 60% width, centered
+    box_width = int(viewport.width * 0.6)
+    box_height = line_height * (4 + len(actions))
+    box_x = viewport.x + (viewport.width - box_width) // 2
+    box_y = viewport.y + (viewport.height - box_height) // 2
+
+    pyglet.shapes.Rectangle(
+        box_x,
+        box_y,
+        box_width,
+        box_height,
+        color=(40, 40, 40, 255),
+        batch=batch,
+    )
+
+    # Title centered at top of box
+    pyglet.text.Label(
+        title,
+        font_size=font_size,
+        x=box_x + box_width // 2,
+        y=box_y + box_height - line_height,
+        anchor_x="center",
+        color=(255, 255, 255, 255),
+        batch=batch,
+    )
+
+    # Body text below title
+    pyglet.text.Label(
+        body,
+        font_size=font_size,
+        x=box_x + 16,
+        y=box_y + box_height - line_height * 2,
+        width=box_width - 32,
+        multiline=True,
+        color=(200, 200, 200, 255),
+        batch=batch,
+    )
+
+    # Action labels below body
+    for i, action in enumerate(actions):
+        label: str = action.get("label", "")
+        pyglet.text.Label(
+            label,
+            font_size=font_size,
+            x=box_x + box_width // 2,
+            y=box_y + box_height - line_height * (3 + i),
+            anchor_x="center",
+            color=(180, 180, 180, 255),
+            batch=batch,
+        )
+
+
+register("modal.overlay", _draw_modal_overlay)
