@@ -55,6 +55,15 @@ def _resolve_font_size(component: Component) -> int:
     return FONT_SIZES.get(component.font_size, _DEFAULT_FONT_SIZE)
 
 
+def _label(text: str, *, font_size: int, **kwargs: Any) -> Any:
+    """Create a pyglet.text.Label with project font defaults."""
+    import pyglet  # noqa: PLC0415
+
+    return pyglet.text.Label(
+        text, font_name=FONT_FAMILY, font_size=font_size, bold=False, **kwargs
+    )
+
+
 def _parse_tint(tint: str) -> tuple[int, int, int, int]:
     """Parse a hex colour token to an RGBA tuple. Falls back to white."""
     if tint and tint.startswith("#") and len(tint) == 7:
@@ -136,14 +145,10 @@ def _draw_fallback(
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
     """Render a greyed-out placeholder label for unregistered components."""
-    import pyglet  # noqa: PLC0415
-
     return [
-        pyglet.text.Label(
+        _label(
             f"[{component.name}]",
-            font_name=FONT_FAMILY,
             font_size=_resolve_font_size(component),
-            bold=False,
             x=viewport.x,
             y=viewport.y,
             color=(120, 120, 120, 255),
@@ -165,17 +170,13 @@ def _draw_location_header(
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
     location_name: str = props.get("location_name", "")
     font_size = _resolve_font_size(component)
 
     return [
-        pyglet.text.Label(
+        _label(
             location_name,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + 8,
             width=viewport.width - 16,
@@ -223,11 +224,9 @@ def _draw_history_pane(
 
     if visible:
         text = "\n".join(visible)
-        label = pyglet.text.Label(
+        label = _label(
             text,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + 8,
             width=viewport.width - 16,
@@ -281,11 +280,9 @@ def _draw_input_pane(
         display_text = f"> {cursor}"
 
     return [
-        pyglet.text.Label(
+        _label(
             display_text,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + 8,
             width=viewport.width - 16,
@@ -324,11 +321,9 @@ def _draw_character_pane(
     y = viewport.y + viewport.height - line_height
     for line in portrait_lines:
         d.append(
-            pyglet.text.Label(
+            _label(
                 line,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 4,
                 y=y,
                 color=tint_color,
@@ -404,8 +399,6 @@ def _draw_stats_pane(
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
     stats: list[dict] = props.get("stats", [])
     enemy_stats = props.get("enemy_stats")
     font_size = _resolve_font_size(component)
@@ -419,11 +412,9 @@ def _draw_stats_pane(
         value = entry.get("value", "")
         # Label — left-aligned
         d.append(
-            pyglet.text.Label(
+            _label(
                 label,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 8,
                 y=y,
                 batch=batch,
@@ -431,11 +422,9 @@ def _draw_stats_pane(
         )
         # Value — right-aligned
         d.append(
-            pyglet.text.Label(
+            _label(
                 value,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + viewport.width - 8,
                 y=y,
                 anchor_x="right",
@@ -447,11 +436,9 @@ def _draw_stats_pane(
     if enemy_stats:
         y -= line_height // 2
         d.append(
-            pyglet.text.Label(
+            _label(
                 "─" * 20,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 8,
                 y=y,
                 batch=batch,
@@ -459,11 +446,9 @@ def _draw_stats_pane(
         )
         y -= line_height
         d.append(
-            pyglet.text.Label(
+            _label(
                 str(enemy_stats),
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 8,
                 y=y,
                 width=viewport.width - 16,
@@ -515,11 +500,9 @@ def _draw_menu_main(
 
     # Title centered near top
     d.append(
-        pyglet.text.Label(
+        _label(
             title,
-            font_name=FONT_FAMILY,
             font_size=font_size + 4,
-            bold=False,
             x=viewport.x + viewport.width // 2,
             y=viewport.y + viewport.height - line_height * 2,
             anchor_x="center",
@@ -539,11 +522,9 @@ def _draw_menu_main(
             display_text = label
             color = (160, 160, 160, 255)
         d.append(
-            pyglet.text.Label(
+            _label(
                 display_text,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + viewport.width // 2,
                 y=start_y - i * line_height,
                 anchor_x="center",
@@ -571,8 +552,6 @@ def _draw_typography_banner(
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
     text: str = props.get("text", "")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
@@ -583,11 +562,9 @@ def _draw_typography_banner(
     start_y = viewport.y + viewport.height - line_height
     for i, line in enumerate(lines):
         d.append(
-            pyglet.text.Label(
+            _label(
                 line,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + viewport.width // 2,
                 y=start_y - i * line_height,
                 anchor_x="center",
@@ -656,11 +633,9 @@ def _draw_modal_overlay(
 
     # Title centered at top of box
     d.append(
-        pyglet.text.Label(
+        _label(
             title,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=box_x + box_width // 2,
             y=box_y + box_height - line_height,
             anchor_x="center",
@@ -671,11 +646,9 @@ def _draw_modal_overlay(
 
     # Body text below title
     d.append(
-        pyglet.text.Label(
+        _label(
             body,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=box_x + 16,
             y=box_y + box_height - line_height * 2,
             width=box_width - 32,
@@ -689,11 +662,9 @@ def _draw_modal_overlay(
     for i, action in enumerate(actions):
         label: str = action.get("label", "")
         d.append(
-            pyglet.text.Label(
+            _label(
                 label,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=box_x + box_width // 2,
                 y=box_y + box_height - line_height * (3 + i),
                 anchor_x="center",
@@ -766,8 +737,6 @@ def _draw_hp_bar(
         font_size: Font size in pixels.
         batch:     Pyglet batch to draw into.
     """
-    import pyglet  # noqa: PLC0415
-
     color = _hp_bar_color(current, max_val)
     if max_val > 0:
         filled = round(_HP_BAR_SEGMENTS * max(0, current) / max_val)
@@ -778,11 +747,9 @@ def _draw_hp_bar(
     text = f"{label} [{bar}] {current}/{max_val}"
 
     return [
-        pyglet.text.Label(
+        _label(
             text,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=x,
             y=y,
             width=width,
@@ -830,11 +797,9 @@ def _draw_combat_card_enemy(
 
     # Enemy name header
     d.append(
-        pyglet.text.Label(
+        _label(
             enemy_name,
-            font_name=FONT_FAMILY,
             font_size=font_size + 2,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
@@ -915,11 +880,9 @@ def _draw_combat_card_actions(
 
     # Round counter
     d.append(
-        pyglet.text.Label(
+        _label(
             f"Round {round_num}",
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height * 2,
             width=viewport.width - 16,
@@ -968,11 +931,9 @@ def _draw_speech_bubble_left(
             batch=batch,
         ),
         # NPC name header
-        pyglet.text.Label(
+        _label(
             npc_id,
-            font_name=FONT_FAMILY,
             font_size=font_size + 2,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
@@ -980,11 +941,9 @@ def _draw_speech_bubble_left(
             batch=batch,
         ),
         # Speech text (multiline)
-        pyglet.text.Label(
+        _label(
             npc_speech,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height * 2,
             width=viewport.width - 16,
@@ -1033,11 +992,9 @@ def _draw_choice_wheel_inline(
 
     # "Choose:" header
     d.append(
-        pyglet.text.Label(
+        _label(
             "Choose:",
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
@@ -1050,11 +1007,9 @@ def _draw_choice_wheel_inline(
     for i, option in enumerate(options):
         label_text = f"{i + 1}. {option.get('label', '')}"
         d.append(
-            pyglet.text.Label(
+            _label(
                 label_text,
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 16,
                 y=viewport.y + viewport.height - line_height * (i + 2),
                 width=viewport.width - 32,
@@ -1105,11 +1060,9 @@ def _draw_merchant_stock_grid(
 
     # "Stock" header
     d.append(
-        pyglet.text.Label(
+        _label(
             "Stock",
-            font_name=FONT_FAMILY,
             font_size=font_size + 2,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
@@ -1122,11 +1075,9 @@ def _draw_merchant_stock_grid(
     for i, item in enumerate(stock):
         row_y = viewport.y + viewport.height - line_height * (i + 2)
         d.append(
-            pyglet.text.Label(
+            _label(
                 item.get("label", ""),
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 8,
                 y=row_y,
                 width=(viewport.width - 16) // 2,
@@ -1135,11 +1086,9 @@ def _draw_merchant_stock_grid(
             )
         )
         d.append(
-            pyglet.text.Label(
+            _label(
                 f"{item.get('price', 0)}g",
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + viewport.width // 2,
                 y=row_y,
                 width=(viewport.width - 16) // 2,
@@ -1150,11 +1099,9 @@ def _draw_merchant_stock_grid(
 
     # Player gold at bottom
     d.append(
-        pyglet.text.Label(
+        _label(
             f"Gold: {player_gold}",
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + 8,
             width=viewport.width - 16,
@@ -1205,11 +1152,9 @@ def _draw_inventory_list(
 
     # "Your Items" header
     d.append(
-        pyglet.text.Label(
+        _label(
             "Your Items",
-            font_name=FONT_FAMILY,
             font_size=font_size + 2,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
@@ -1222,11 +1167,9 @@ def _draw_inventory_list(
     for i, item in enumerate(sellable):
         row_y = viewport.y + viewport.height - line_height * (i + 2)
         d.append(
-            pyglet.text.Label(
+            _label(
                 item.get("label", ""),
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 8,
                 y=row_y,
                 width=(viewport.width - 16) // 2,
@@ -1235,11 +1178,9 @@ def _draw_inventory_list(
             )
         )
         d.append(
-            pyglet.text.Label(
+            _label(
                 f"{item.get('value', 0)}g",
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + viewport.width // 2,
                 y=row_y,
                 width=(viewport.width - 16) // 2,
@@ -1250,11 +1191,9 @@ def _draw_inventory_list(
 
     # Player gold at bottom
     d.append(
-        pyglet.text.Label(
+        _label(
             f"Gold: {player_gold}",
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + 8,
             width=viewport.width - 16,
@@ -1305,11 +1244,9 @@ def _draw_inventory_grid(
 
     # "Inventory" header
     d.append(
-        pyglet.text.Label(
+        _label(
             "Inventory",
-            font_name=FONT_FAMILY,
             font_size=font_size + 2,
-            bold=False,
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
@@ -1327,11 +1264,9 @@ def _draw_inventory_grid(
             prefix = "  "
             color = (160, 160, 160, 255)
         d.append(
-            pyglet.text.Label(
+            _label(
                 f"{prefix}{item.get('label', '')}",
-                font_name=FONT_FAMILY,
                 font_size=font_size,
-                bold=False,
                 x=viewport.x + 8,
                 y=viewport.y + viewport.height - line_height * (i + 2),
                 width=viewport.width - 16,
@@ -1379,11 +1314,9 @@ def _draw_reading_book(
             batch=batch,
         ),
         # Title centred near top
-        pyglet.text.Label(
+        _label(
             title,
-            font_name=FONT_FAMILY,
             font_size=font_size + 4,
-            bold=False,
             x=viewport.x + viewport.width // 2,
             y=viewport.y + viewport.height - (font_size + 4) * 2,
             anchor_x="center",
@@ -1391,11 +1324,9 @@ def _draw_reading_book(
             batch=batch,
         ),
         # Content as multiline label with 24px margins
-        pyglet.text.Label(
+        _label(
             content,
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + margin,
             y=viewport.y + viewport.height - (font_size + 4) * 4,
             width=viewport.width - margin * 2,
@@ -1404,11 +1335,9 @@ def _draw_reading_book(
             batch=batch,
         ),
         # Page indicator centred near bottom
-        pyglet.text.Label(
+        _label(
             f"Page {current_page}/{total_pages}",
-            font_name=FONT_FAMILY,
             font_size=font_size,
-            bold=False,
             x=viewport.x + viewport.width // 2,
             y=viewport.y + (font_size + 4) * 2,
             anchor_x="center",
@@ -1416,11 +1345,9 @@ def _draw_reading_book(
             batch=batch,
         ),
         # Navigation hint below page indicator
-        pyglet.text.Label(
+        _label(
             "next / prev / close",
-            font_name=FONT_FAMILY,
             font_size=font_size - 2,
-            bold=False,
             x=viewport.x + viewport.width // 2,
             y=viewport.y + font_size,
             anchor_x="center",
@@ -1446,14 +1373,10 @@ def _draw_screen_placeholder(
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
     return [
-        pyglet.text.Label(
+        _label(
             f"[{component.name}]",
-            font_name=FONT_FAMILY,
             font_size=_resolve_font_size(component),
-            bold=False,
             x=viewport.x + viewport.width // 2,
             y=viewport.y + viewport.height // 2,
             anchor_x="center",

@@ -145,6 +145,7 @@ test-font.x:
         label_call = pyglet_mock.text.Label.call_args
         assert label_call.kwargs.get("font_name") == pr.FONT_FAMILY
         assert label_call.kwargs.get("bold") is False
+        assert callable(pr._label)
 
 
 def test_render_pyglet_returns_drawables_list():
