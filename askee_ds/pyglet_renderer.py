@@ -60,7 +60,7 @@ def _label(text: str, *, font_size: int, **kwargs: Any) -> Any:
     import pyglet  # noqa: PLC0415
 
     return pyglet.text.Label(
-        text, font_name=FONT_FAMILY, font_size=font_size, bold=False, **kwargs
+        text, font_name=FONT_FAMILY, font_size=font_size, **kwargs
     )
 
 

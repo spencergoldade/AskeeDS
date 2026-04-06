@@ -144,7 +144,6 @@ test-font.x:
         pr.render_pyglet(components["test-font.x"], {}, theme, viewport, batch)
         label_call = pyglet_mock.text.Label.call_args
         assert label_call.kwargs.get("font_name") == pr.FONT_FAMILY
-        assert label_call.kwargs.get("bold") is False
         assert callable(pr._label)
 
 
