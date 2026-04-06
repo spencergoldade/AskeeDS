@@ -385,6 +385,7 @@ def _draw_room_description(
                 y=viewport.y + viewport.height - 8,
                 anchor_y="top",
                 width=viewport.width - 16,
+                height=viewport.height - 16,
                 multiline=True,
                 color=palette["fg_dim"],
                 batch=batch,
