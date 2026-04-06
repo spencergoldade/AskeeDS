@@ -1403,6 +1403,177 @@ def test_reading_book_renders_title_content_and_page():
         assert any("Page 2/5" in c for c in calls)
 
 
+def test_reading_book_scroll_style():
+    """readable_type='scroll' renders scroll-specific decorations."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("reading.book")
+        props = {
+            "title": "Ancient Scroll",
+            "content": "Secrets of the old world...",
+            "readable_type": "scroll",
+            "item_id": "scroll_1",
+            "current_page": 1,
+            "total_pages": 1,
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(
+            comp, props, theme, viewport, batch, pane_id="reading",
+        )
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        # Scroll style uses curled-edge decoration chars
+        joined = " ".join(calls)
+        assert "Ancient Scroll" in joined
+        assert "~~~" in joined or "~" in joined
+
+
+def test_reading_book_letter_style():
+    """readable_type='letter' renders letter-specific decorations."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("reading.book")
+        props = {
+            "title": "A Personal Letter",
+            "content": "Dear friend...",
+            "readable_type": "letter",
+            "item_id": "letter_1",
+            "current_page": 1,
+            "total_pages": 1,
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(
+            comp, props, theme, viewport, batch, pane_id="reading",
+        )
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        joined = " ".join(calls)
+        assert "A Personal Letter" in joined
+        # Letter style uses italic/smaller font and a seal decoration
+        assert "---" in joined
+
+
+def test_reading_book_unknown_type_falls_back_to_book():
+    """Unknown readable_type falls back to book style."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("reading.book")
+        props = {
+            "title": "Strange Object",
+            "content": "Mysterious text...",
+            "readable_type": "spaceship",
+            "item_id": "obj_1",
+            "current_page": 1,
+            "total_pages": 1,
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(
+            comp, props, theme, viewport, batch, pane_id="reading",
+        )
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        joined = " ".join(calls)
+        assert "Strange Object" in joined
+        # Falls back to book: no scroll tildes or letter dashes
+        assert "Page 1/1" in joined
+
+
+def test_reading_book_empty_type_falls_back_to_book():
+    """Empty readable_type falls back to book style."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("reading.book")
+        props = {
+            "title": "Untitled",
+            "content": "Some text.",
+            "readable_type": "",
+            "item_id": "plain",
+            "current_page": 1,
+            "total_pages": 1,
+        }
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(
+            comp, props, theme, viewport, batch, pane_id="reading",
+        )
+
+        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
+        joined = " ".join(calls)
+        assert "Untitled" in joined
+        assert "Page 1/1" in joined
+
+
 # ---------------------------------------------------------------------------
 # screen.placeholder
 # ---------------------------------------------------------------------------

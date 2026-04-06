@@ -1145,9 +1145,13 @@ def _draw_reading_book(
 
     title: str = props.get("title", "")
     content: str = props.get("content", "")
+    readable_type: str = props.get("readable_type", "")
     current_page: int = props.get("current_page", 1)
     total_pages: int = props.get("total_pages", 1)
     font_size = _resolve_font_size(component)
+
+    # Select style-specific colours and decorations
+    style = _READING_STYLES.get(readable_type, _READING_STYLES["book"])
 
     # Dark background
     pyglet.shapes.Rectangle(
@@ -1155,33 +1159,63 @@ def _draw_reading_book(
         viewport.y,
         viewport.width,
         viewport.height,
-        color=(15, 15, 15, 255),
+        color=style["bg"],
         batch=batch,
     )
 
+    # Top decoration (style-specific)
+    if style["top_decoration"]:
+        pyglet.text.Label(
+            style["top_decoration"],
+            font_size=font_size - 2,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + viewport.height - font_size,
+            anchor_x="center",
+            color=style["decoration_color"],
+            batch=batch,
+        )
+
     # Title centred near top
+    title_y_offset = (font_size + 4) * 2 if not style["top_decoration"] else (
+        (font_size + 4) * 2 + font_size
+    )
     pyglet.text.Label(
         title,
         font_size=font_size + 4,
         x=viewport.x + viewport.width // 2,
-        y=viewport.y + viewport.height - (font_size + 4) * 2,
+        y=viewport.y + viewport.height - title_y_offset,
         anchor_x="center",
-        color=(255, 255, 255, 255),
+        color=style["title_color"],
         batch=batch,
     )
 
     # Content as multiline label with 24px margins
     margin = 24
+    content_y = viewport.y + viewport.height - title_y_offset - (
+        font_size + 4
+    ) * 2
     pyglet.text.Label(
         content,
         font_size=font_size,
         x=viewport.x + margin,
-        y=viewport.y + viewport.height - (font_size + 4) * 4,
+        y=content_y,
         width=viewport.width - margin * 2,
         multiline=True,
-        color=(200, 200, 200, 255),
+        color=style["content_color"],
         batch=batch,
     )
+
+    # Bottom decoration (style-specific)
+    if style["bottom_decoration"]:
+        pyglet.text.Label(
+            style["bottom_decoration"],
+            font_size=font_size - 2,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + (font_size + 4) * 4,
+            anchor_x="center",
+            color=style["decoration_color"],
+            batch=batch,
+        )
 
     # Page indicator centred near bottom
     pyglet.text.Label(
@@ -1204,6 +1238,44 @@ def _draw_reading_book(
         color=(120, 120, 120, 255),
         batch=batch,
     )
+
+
+# Style definitions for each readable_type.
+# Unknown types fall back to "book".
+_READING_STYLES: dict[str, dict] = {
+    "book": {
+        "bg": (15, 15, 15, 255),
+        "title_color": (255, 255, 255, 255),
+        "content_color": (200, 200, 200, 255),
+        "decoration_color": (100, 100, 100, 255),
+        "top_decoration": "",
+        "bottom_decoration": "",
+    },
+    "scroll": {
+        "bg": (25, 20, 10, 255),
+        "title_color": (240, 220, 170, 255),
+        "content_color": (210, 195, 150, 255),
+        "decoration_color": (160, 140, 90, 255),
+        "top_decoration": "~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~",
+        "bottom_decoration": "~~~ ~~~ ~~~ ~~~ ~~~ ~~~ ~~~",
+    },
+    "letter": {
+        "bg": (20, 18, 22, 255),
+        "title_color": (220, 210, 230, 255),
+        "content_color": (190, 180, 200, 255),
+        "decoration_color": (140, 120, 160, 255),
+        "top_decoration": "--- --- --- --- --- ---",
+        "bottom_decoration": "--- --- --- --- --- ---",
+    },
+    "journal": {
+        "bg": (18, 15, 12, 255),
+        "title_color": (230, 215, 180, 255),
+        "content_color": (200, 190, 165, 255),
+        "decoration_color": (130, 115, 80, 255),
+        "top_decoration": "=== === === === === ===",
+        "bottom_decoration": "=== === === === === ===",
+    },
+}
 
 
 register("reading.book", _draw_reading_book)
