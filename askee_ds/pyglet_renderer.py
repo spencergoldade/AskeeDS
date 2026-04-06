@@ -35,6 +35,16 @@ FONT_SIZES: dict[str, int] = {
 
 _DEFAULT_FONT_SIZE = FONT_SIZES["medium"]
 
+# Monospaced font family in preference order. Pyglet tries each name and uses
+# the first one the OS can resolve. All choices have full box-drawing, block
+# element, and line-drawing glyph coverage. Never rely on the generic
+# "monospace" alias — it resolves inconsistently across platforms.
+FONT_FAMILY: tuple[str, ...] = (
+    "DejaVu Sans Mono",
+    "Liberation Mono",
+    "Noto Sans Mono",
+)
+
 # Per-pane cursor blink state: pane_id → cursor_visible (bool)
 # NOTE: Tests that register draw functions must call reload(pr) to reset this
 # dict between test runs, same as _REGISTRY.
@@ -62,8 +72,8 @@ def _parse_tint(tint: str) -> tuple[int, int, int, int]:
 # Registry
 # ---------------------------------------------------------------------------
 
-_DrawFn = Callable[[Component, dict, Any, Any, Any, str], None]
-#                   component  props  theme  viewport batch  pane_id
+_DrawFn = Callable[[Component, dict, Any, Any, Any, str], list[Any]]
+#                   component  props  theme  viewport batch  pane_id  -> drawables
 
 # NOTE: Tests that register draw functions must call reload(pr) to reset this
 # dict between test runs. Python caches the module, so registrations accumulate
@@ -88,11 +98,16 @@ def render_pyglet(
     viewport: Any,
     batch: Any,
     pane_id: str = "",
-) -> None:
+) -> list[Any]:
     """Draw a component pane into a Pyglet batch.
 
     Dispatches to the registered draw function for component.name, or to
     _draw_fallback if no draw function is registered.
+
+    Returns a list of every Pyglet object created (Labels, Rectangles, etc.).
+    Callers **must** keep this list alive until ``batch.draw()`` has been
+    called; CPython's reference counting will otherwise destroy the objects
+    (and their vertex lists) before the batch renders them.
 
     Args:
         component:   Loaded AskeeDS Component.
@@ -104,7 +119,7 @@ def render_pyglet(
                      function that maintains per-pane state (e.g. cursor blink).
     """
     fn = _REGISTRY.get(component.name, _draw_fallback)
-    fn(component, props, theme_state, viewport, batch, pane_id)
+    return fn(component, props, theme_state, viewport, batch, pane_id)
 
 
 # ---------------------------------------------------------------------------
@@ -119,18 +134,22 @@ def _draw_fallback(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     """Render a greyed-out placeholder label for unregistered components."""
     import pyglet  # noqa: PLC0415
 
-    pyglet.text.Label(
-        f"[{component.name}]",
-        font_size=_resolve_font_size(component),
-        x=viewport.x,
-        y=viewport.y,
-        color=(120, 120, 120, 255),
-        batch=batch,
-    )
+    return [
+        pyglet.text.Label(
+            f"[{component.name}]",
+            font_name=FONT_FAMILY,
+            font_size=_resolve_font_size(component),
+            bold=False,
+            x=viewport.x,
+            y=viewport.y,
+            color=(120, 120, 120, 255),
+            batch=batch,
+        ),
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -145,20 +164,24 @@ def _draw_location_header(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     location_name: str = props.get("location_name", "")
     font_size = _resolve_font_size(component)
 
-    pyglet.text.Label(
-        location_name,
-        font_size=font_size,
-        x=viewport.x + 8,
-        y=viewport.y + 8,
-        width=viewport.width - 16,
-        batch=batch,
-    )
+    return [
+        pyglet.text.Label(
+            location_name,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + 8,
+            width=viewport.width - 16,
+            batch=batch,
+        ),
+    ]
 
 
 register("location-header.default", _draw_location_header)
@@ -176,38 +199,46 @@ def _draw_history_pane(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     lines: list[str] = props.get("lines", [])
     max_lines: int = props.get("max_lines", 20)
     visible = lines[-max_lines:] if len(lines) > max_lines else lines
     font_size = _resolve_font_size(component)
-    line_height = font_size + 4
+
+    d: list[Any] = []
 
     # Background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(20, 20, 20, 255),
-        batch=batch,
-    )
-
-    # Draw lines bottom-to-top so most recent is nearest the input pane
-    y = viewport.y + line_height
-    for line in reversed(visible):
-        pyglet.text.Label(
-            line,
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=y,
-            width=viewport.width - 16,
-            multiline=True,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(20, 20, 20, 255),
             batch=batch,
         )
-        y += line_height
+    )
+
+    if visible:
+        text = "\n".join(visible)
+        label = pyglet.text.Label(
+            text,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + 8,
+            width=viewport.width - 16,
+            height=viewport.height - 16,
+            multiline=True,
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
+        d.append(label)
+
+    return d
 
 
 register("history-pane.default", _draw_history_pane)
@@ -225,7 +256,7 @@ def _draw_input_pane(
     viewport: Any,
     batch: Any,
     pane_id: str,
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     value: str = props.get("value", "")
@@ -249,14 +280,18 @@ def _draw_input_pane(
     else:
         display_text = f"> {cursor}"
 
-    pyglet.text.Label(
-        display_text,
-        font_size=font_size,
-        x=viewport.x + 8,
-        y=viewport.y + 8,
-        width=viewport.width - 16,
-        batch=batch,
-    )
+    return [
+        pyglet.text.Label(
+            display_text,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + 8,
+            width=viewport.width - 16,
+            batch=batch,
+        ),
+    ]
 
 
 register("input-pane.default", _draw_input_pane)
@@ -276,7 +311,7 @@ def _draw_character_pane(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     portrait_lines: list[str] = props.get("portrait_lines", [])
@@ -284,15 +319,21 @@ def _draw_character_pane(
     line_height = font_size + 2
     tint_color = _parse_tint(theme_state.tint)
 
+    d: list[Any] = []
+
     y = viewport.y + viewport.height - line_height
     for line in portrait_lines:
-        pyglet.text.Label(
-            line,
-            font_size=font_size,
-            x=viewport.x + 4,
-            y=y,
-            color=tint_color,
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                line,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 4,
+                y=y,
+                color=tint_color,
+                batch=batch,
+            )
         )
         y -= line_height
 
@@ -300,41 +341,51 @@ def _draw_character_pane(
         depth = _VIGNETTE_DEPTH
         dark = (0, 0, 0, 160)
         # Bottom strip
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            depth,
-            color=dark,
-            batch=batch,
+        d.append(
+            pyglet.shapes.Rectangle(
+                viewport.x,
+                viewport.y,
+                viewport.width,
+                depth,
+                color=dark,
+                batch=batch,
+            )
         )
         # Top strip
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y + viewport.height - depth,
-            viewport.width,
-            depth,
-            color=dark,
-            batch=batch,
+        d.append(
+            pyglet.shapes.Rectangle(
+                viewport.x,
+                viewport.y + viewport.height - depth,
+                viewport.width,
+                depth,
+                color=dark,
+                batch=batch,
+            )
         )
         # Left strip
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            depth,
-            viewport.height,
-            color=dark,
-            batch=batch,
+        d.append(
+            pyglet.shapes.Rectangle(
+                viewport.x,
+                viewport.y,
+                depth,
+                viewport.height,
+                color=dark,
+                batch=batch,
+            )
         )
         # Right strip
-        pyglet.shapes.Rectangle(
-            viewport.x + viewport.width - depth,
-            viewport.y,
-            depth,
-            viewport.height,
-            color=dark,
-            batch=batch,
+        d.append(
+            pyglet.shapes.Rectangle(
+                viewport.x + viewport.width - depth,
+                viewport.y,
+                depth,
+                viewport.height,
+                color=dark,
+                batch=batch,
+            )
         )
+
+    return d
 
 
 register("character-pane.default", _draw_character_pane)
@@ -352,7 +403,7 @@ def _draw_stats_pane(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     stats: list[dict] = props.get("stats", [])
@@ -360,48 +411,68 @@ def _draw_stats_pane(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
+
     y = viewport.y + viewport.height - line_height
     for entry in stats:
         label = entry.get("label", "")
         value = entry.get("value", "")
         # Label — left-aligned
-        pyglet.text.Label(
-            label,
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=y,
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                label,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 8,
+                y=y,
+                batch=batch,
+            )
         )
         # Value — right-aligned
-        pyglet.text.Label(
-            value,
-            font_size=font_size,
-            x=viewport.x + viewport.width - 8,
-            y=y,
-            anchor_x="right",
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                value,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + viewport.width - 8,
+                y=y,
+                anchor_x="right",
+                batch=batch,
+            )
         )
         y -= line_height
 
     if enemy_stats:
         y -= line_height // 2
-        pyglet.text.Label(
-            "─" * 20,
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=y,
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                "─" * 20,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 8,
+                y=y,
+                batch=batch,
+            )
         )
         y -= line_height
-        pyglet.text.Label(
-            str(enemy_stats),
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=y,
-            width=viewport.width - 16,
-            multiline=True,
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                str(enemy_stats),
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 8,
+                y=y,
+                width=viewport.width - 16,
+                multiline=True,
+                batch=batch,
+            )
         )
+
+    return d
 
 
 register("stats-pane.default", _draw_stats_pane)
@@ -419,7 +490,7 @@ def _draw_menu_main(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     title: str = props.get("title", "")
@@ -428,25 +499,33 @@ def _draw_menu_main(
     font_size = _resolve_font_size(component)
     line_height = font_size + 6
 
+    d: list[Any] = []
+
     # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(20, 20, 20, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(20, 20, 20, 255),
+            batch=batch,
+        )
     )
 
     # Title centered near top
-    pyglet.text.Label(
-        title,
-        font_size=font_size + 4,
-        x=viewport.x + viewport.width // 2,
-        y=viewport.y + viewport.height - line_height * 2,
-        anchor_x="center",
-        color=(255, 255, 255, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            title,
+            font_name=FONT_FAMILY,
+            font_size=font_size + 4,
+            bold=False,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + viewport.height - line_height * 2,
+            anchor_x="center",
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
     )
 
     # Menu items centered below title
@@ -459,15 +538,21 @@ def _draw_menu_main(
         else:
             display_text = label
             color = (160, 160, 160, 255)
-        pyglet.text.Label(
-            display_text,
-            font_size=font_size,
-            x=viewport.x + viewport.width // 2,
-            y=start_y - i * line_height,
-            anchor_x="center",
-            color=color,
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                display_text,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + viewport.width // 2,
+                y=start_y - i * line_height,
+                anchor_x="center",
+                color=color,
+                batch=batch,
+            )
         )
+
+    return d
 
 
 register("menu.main", _draw_menu_main)
@@ -485,26 +570,33 @@ def _draw_typography_banner(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     text: str = props.get("text", "")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
     lines = text.split("\n")
     # Center block vertically: start at top and work down
     start_y = viewport.y + viewport.height - line_height
     for i, line in enumerate(lines):
-        pyglet.text.Label(
-            line,
-            font_size=font_size,
-            x=viewport.x + viewport.width // 2,
-            y=start_y - i * line_height,
-            anchor_x="center",
-            color=(255, 255, 255, 255),
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                line,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + viewport.width // 2,
+                y=start_y - i * line_height,
+                anchor_x="center",
+                color=(255, 255, 255, 255),
+                batch=batch,
+            )
         )
+
+    return d
 
 
 register("typography.banner", _draw_typography_banner)
@@ -522,7 +614,7 @@ def _draw_modal_overlay(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     title: str = props.get("title", "")
@@ -531,14 +623,18 @@ def _draw_modal_overlay(
     font_size = _resolve_font_size(component)
     line_height = font_size + 6
 
+    d: list[Any] = []
+
     # Dimmed semi-transparent background over full viewport
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(0, 0, 0, 160),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(0, 0, 0, 160),
+            batch=batch,
+        )
     )
 
     # Modal box: 60% width, centered
@@ -547,50 +643,66 @@ def _draw_modal_overlay(
     box_x = viewport.x + (viewport.width - box_width) // 2
     box_y = viewport.y + (viewport.height - box_height) // 2
 
-    pyglet.shapes.Rectangle(
-        box_x,
-        box_y,
-        box_width,
-        box_height,
-        color=(40, 40, 40, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            box_x,
+            box_y,
+            box_width,
+            box_height,
+            color=(40, 40, 40, 255),
+            batch=batch,
+        )
     )
 
     # Title centered at top of box
-    pyglet.text.Label(
-        title,
-        font_size=font_size,
-        x=box_x + box_width // 2,
-        y=box_y + box_height - line_height,
-        anchor_x="center",
-        color=(255, 255, 255, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            title,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=box_x + box_width // 2,
+            y=box_y + box_height - line_height,
+            anchor_x="center",
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
     )
 
     # Body text below title
-    pyglet.text.Label(
-        body,
-        font_size=font_size,
-        x=box_x + 16,
-        y=box_y + box_height - line_height * 2,
-        width=box_width - 32,
-        multiline=True,
-        color=(200, 200, 200, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            body,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=box_x + 16,
+            y=box_y + box_height - line_height * 2,
+            width=box_width - 32,
+            multiline=True,
+            color=(200, 200, 200, 255),
+            batch=batch,
+        )
     )
 
     # Action labels below body
     for i, action in enumerate(actions):
         label: str = action.get("label", "")
-        pyglet.text.Label(
-            label,
-            font_size=font_size,
-            x=box_x + box_width // 2,
-            y=box_y + box_height - line_height * (3 + i),
-            anchor_x="center",
-            color=(180, 180, 180, 255),
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                label,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=box_x + box_width // 2,
+                y=box_y + box_height - line_height * (3 + i),
+                anchor_x="center",
+                color=(180, 180, 180, 255),
+                batch=batch,
+            )
         )
+
+    return d
 
 
 register("modal.overlay", _draw_modal_overlay)
@@ -639,8 +751,10 @@ def _draw_hp_bar(
     width: int,
     font_size: int,
     batch: Any,
-) -> None:
+) -> list[Any]:
     """Draw a text-based HP bar: 'Label [████░░░░] current/max'.
+
+    Returns created pyglet objects so the caller can retain them.
 
     Args:
         label:     Label text placed before the bar (e.g. "Flesh").
@@ -663,15 +777,19 @@ def _draw_hp_bar(
     bar = _HP_FILL_CHAR * filled + _HP_EMPTY_CHAR * empty
     text = f"{label} [{bar}] {current}/{max_val}"
 
-    pyglet.text.Label(
-        text,
-        font_size=font_size,
-        x=x,
-        y=y,
-        width=width,
-        color=color,
-        batch=batch,
-    )
+    return [
+        pyglet.text.Label(
+            text,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=x,
+            y=y,
+            width=width,
+            color=color,
+            batch=batch,
+        ),
+    ]
 
 
 # ---------------------------------------------------------------------------
@@ -686,7 +804,7 @@ def _draw_combat_card_enemy(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     enemy_name: str = props.get("enemy_name", "")
@@ -696,38 +814,50 @@ def _draw_combat_card_enemy(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
+
     # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(20, 20, 20, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(20, 20, 20, 255),
+            batch=batch,
+        )
     )
 
     # Enemy name header
-    pyglet.text.Label(
-        enemy_name,
-        font_size=font_size + 2,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height,
-        width=viewport.width - 16,
-        color=(255, 255, 255, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            enemy_name,
+            font_name=FONT_FAMILY,
+            font_size=font_size + 2,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height,
+            width=viewport.width - 16,
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
     )
 
     # HP bar
-    _draw_hp_bar(
-        hp_label,
-        enemy_hp,
-        enemy_hp_max,
-        viewport.x + 8,
-        viewport.y + viewport.height - line_height * 2,
-        viewport.width - 16,
-        font_size,
-        batch,
+    d.extend(
+        _draw_hp_bar(
+            hp_label,
+            enemy_hp,
+            enemy_hp_max,
+            viewport.x + 8,
+            viewport.y + viewport.height - line_height * 2,
+            viewport.width - 16,
+            font_size,
+            batch,
+        )
     )
+
+    return d
 
 
 register("combat-card.enemy", _draw_combat_card_enemy)
@@ -745,7 +875,7 @@ def _draw_combat_card_actions(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     player_hp: int = props.get("player_hp", 0)
@@ -755,38 +885,50 @@ def _draw_combat_card_actions(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
+
     # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(20, 20, 20, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(20, 20, 20, 255),
+            batch=batch,
+        )
     )
 
     # Player HP bar
-    _draw_hp_bar(
-        hp_label,
-        player_hp,
-        player_hp_max,
-        viewport.x + 8,
-        viewport.y + viewport.height - line_height,
-        viewport.width - 16,
-        font_size,
-        batch,
+    d.extend(
+        _draw_hp_bar(
+            hp_label,
+            player_hp,
+            player_hp_max,
+            viewport.x + 8,
+            viewport.y + viewport.height - line_height,
+            viewport.width - 16,
+            font_size,
+            batch,
+        )
     )
 
     # Round counter
-    pyglet.text.Label(
-        f"Round {round_num}",
-        font_size=font_size,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height * 2,
-        width=viewport.width - 16,
-        color=(200, 200, 200, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            f"Round {round_num}",
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height * 2,
+            width=viewport.width - 16,
+            color=(200, 200, 200, 255),
+            batch=batch,
+        )
     )
+
+    return d
 
 
 register("combat-card.actions", _draw_combat_card_actions)
@@ -804,7 +946,7 @@ def _draw_speech_bubble_left(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     npc_id: str = props.get("npc_id", "")
@@ -815,38 +957,42 @@ def _draw_speech_bubble_left(
 
     text_color = (220, 220, 220, 255) if active else (120, 120, 120, 255)
 
-    # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(30, 30, 30, 255),
-        batch=batch,
-    )
-
-    # NPC name header
-    pyglet.text.Label(
-        npc_id,
-        font_size=font_size + 2,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height,
-        width=viewport.width - 16,
-        color=(255, 255, 255, 255),
-        batch=batch,
-    )
-
-    # Speech text (multiline)
-    pyglet.text.Label(
-        npc_speech,
-        font_size=font_size,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height * 2,
-        width=viewport.width - 16,
-        multiline=True,
-        color=text_color,
-        batch=batch,
-    )
+    return [
+        # Dark background
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(30, 30, 30, 255),
+            batch=batch,
+        ),
+        # NPC name header
+        pyglet.text.Label(
+            npc_id,
+            font_name=FONT_FAMILY,
+            font_size=font_size + 2,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height,
+            width=viewport.width - 16,
+            color=(255, 255, 255, 255),
+            batch=batch,
+        ),
+        # Speech text (multiline)
+        pyglet.text.Label(
+            npc_speech,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height * 2,
+            width=viewport.width - 16,
+            multiline=True,
+            color=text_color,
+            batch=batch,
+        ),
+    ]
 
 
 register("speech-bubble.left", _draw_speech_bubble_left)
@@ -864,46 +1010,60 @@ def _draw_choice_wheel_inline(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     options: list[dict] = props.get("options", [])
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
+
     # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(25, 25, 25, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(25, 25, 25, 255),
+            batch=batch,
+        )
     )
 
     # "Choose:" header
-    pyglet.text.Label(
-        "Choose:",
-        font_size=font_size,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height,
-        width=viewport.width - 16,
-        color=(160, 160, 160, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            "Choose:",
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height,
+            width=viewport.width - 16,
+            color=(160, 160, 160, 255),
+            batch=batch,
+        )
     )
 
     # Numbered options
     for i, option in enumerate(options):
         label_text = f"{i + 1}. {option.get('label', '')}"
-        pyglet.text.Label(
-            label_text,
-            font_size=font_size,
-            x=viewport.x + 16,
-            y=viewport.y + viewport.height - line_height * (i + 2),
-            width=viewport.width - 32,
-            color=(220, 220, 220, 255),
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                label_text,
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 16,
+                y=viewport.y + viewport.height - line_height * (i + 2),
+                width=viewport.width - 32,
+                color=(220, 220, 220, 255),
+                batch=batch,
+            )
         )
+
+    return d
 
 
 register("choice-wheel.inline", _draw_choice_wheel_inline)
@@ -921,7 +1081,7 @@ def _draw_merchant_stock_grid(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     stock: list[dict] = props.get("stock", [])
@@ -929,59 +1089,81 @@ def _draw_merchant_stock_grid(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
+
     # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(20, 20, 20, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(20, 20, 20, 255),
+            batch=batch,
+        )
     )
 
     # "Stock" header
-    pyglet.text.Label(
-        "Stock",
-        font_size=font_size + 2,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height,
-        width=viewport.width - 16,
-        color=(255, 255, 255, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            "Stock",
+            font_name=FONT_FAMILY,
+            font_size=font_size + 2,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height,
+            width=viewport.width - 16,
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
     )
 
     # Stock item rows
     for i, item in enumerate(stock):
         row_y = viewport.y + viewport.height - line_height * (i + 2)
-        pyglet.text.Label(
-            item.get("label", ""),
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=row_y,
-            width=(viewport.width - 16) // 2,
-            color=(200, 200, 200, 255),
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                item.get("label", ""),
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 8,
+                y=row_y,
+                width=(viewport.width - 16) // 2,
+                color=(200, 200, 200, 255),
+                batch=batch,
+            )
         )
-        pyglet.text.Label(
-            f"{item.get('price', 0)}g",
-            font_size=font_size,
-            x=viewport.x + viewport.width // 2,
-            y=row_y,
-            width=(viewport.width - 16) // 2,
-            color=(200, 180, 60, 255),
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                f"{item.get('price', 0)}g",
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + viewport.width // 2,
+                y=row_y,
+                width=(viewport.width - 16) // 2,
+                color=(200, 180, 60, 255),
+                batch=batch,
+            )
         )
 
     # Player gold at bottom
-    pyglet.text.Label(
-        f"Gold: {player_gold}",
-        font_size=font_size,
-        x=viewport.x + 8,
-        y=viewport.y + 8,
-        width=viewport.width - 16,
-        color=(200, 180, 60, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            f"Gold: {player_gold}",
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + 8,
+            width=viewport.width - 16,
+            color=(200, 180, 60, 255),
+            batch=batch,
+        )
     )
+
+    return d
 
 
 register("merchant.stock-grid", _draw_merchant_stock_grid)
@@ -999,7 +1181,7 @@ def _draw_inventory_list(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     sellable: list[dict] = props.get("sellable", [])
@@ -1007,59 +1189,81 @@ def _draw_inventory_list(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
+
     # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(20, 20, 20, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(20, 20, 20, 255),
+            batch=batch,
+        )
     )
 
     # "Your Items" header
-    pyglet.text.Label(
-        "Your Items",
-        font_size=font_size + 2,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height,
-        width=viewport.width - 16,
-        color=(255, 255, 255, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            "Your Items",
+            font_name=FONT_FAMILY,
+            font_size=font_size + 2,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height,
+            width=viewport.width - 16,
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
     )
 
     # Sellable item rows
     for i, item in enumerate(sellable):
         row_y = viewport.y + viewport.height - line_height * (i + 2)
-        pyglet.text.Label(
-            item.get("label", ""),
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=row_y,
-            width=(viewport.width - 16) // 2,
-            color=(200, 200, 200, 255),
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                item.get("label", ""),
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 8,
+                y=row_y,
+                width=(viewport.width - 16) // 2,
+                color=(200, 200, 200, 255),
+                batch=batch,
+            )
         )
-        pyglet.text.Label(
-            f"{item.get('value', 0)}g",
-            font_size=font_size,
-            x=viewport.x + viewport.width // 2,
-            y=row_y,
-            width=(viewport.width - 16) // 2,
-            color=(200, 180, 60, 255),
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                f"{item.get('value', 0)}g",
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + viewport.width // 2,
+                y=row_y,
+                width=(viewport.width - 16) // 2,
+                color=(200, 180, 60, 255),
+                batch=batch,
+            )
         )
 
     # Player gold at bottom
-    pyglet.text.Label(
-        f"Gold: {player_gold}",
-        font_size=font_size,
-        x=viewport.x + 8,
-        y=viewport.y + 8,
-        width=viewport.width - 16,
-        color=(200, 180, 60, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            f"Gold: {player_gold}",
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + 8,
+            width=viewport.width - 16,
+            color=(200, 180, 60, 255),
+            batch=batch,
+        )
     )
+
+    return d
 
 
 register("inventory.list", _draw_inventory_list)
@@ -1077,7 +1281,7 @@ def _draw_inventory_grid(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     items: list[dict] = props.get("items", [])
@@ -1085,25 +1289,33 @@ def _draw_inventory_grid(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
+    d: list[Any] = []
+
     # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(20, 20, 20, 255),
-        batch=batch,
+    d.append(
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(20, 20, 20, 255),
+            batch=batch,
+        )
     )
 
     # "Inventory" header
-    pyglet.text.Label(
-        "Inventory",
-        font_size=font_size + 2,
-        x=viewport.x + 8,
-        y=viewport.y + viewport.height - line_height,
-        width=viewport.width - 16,
-        color=(255, 255, 255, 255),
-        batch=batch,
+    d.append(
+        pyglet.text.Label(
+            "Inventory",
+            font_name=FONT_FAMILY,
+            font_size=font_size + 2,
+            bold=False,
+            x=viewport.x + 8,
+            y=viewport.y + viewport.height - line_height,
+            width=viewport.width - 16,
+            color=(255, 255, 255, 255),
+            batch=batch,
+        )
     )
 
     # Item rows with selection indicator
@@ -1114,15 +1326,21 @@ def _draw_inventory_grid(
         else:
             prefix = "  "
             color = (160, 160, 160, 255)
-        pyglet.text.Label(
-            f"{prefix}{item.get('label', '')}",
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=viewport.y + viewport.height - line_height * (i + 2),
-            width=viewport.width - 16,
-            color=color,
-            batch=batch,
+        d.append(
+            pyglet.text.Label(
+                f"{prefix}{item.get('label', '')}",
+                font_name=FONT_FAMILY,
+                font_size=font_size,
+                bold=False,
+                x=viewport.x + 8,
+                y=viewport.y + viewport.height - line_height * (i + 2),
+                width=viewport.width - 16,
+                color=color,
+                batch=batch,
+            )
         )
+
+    return d
 
 
 register("inventory.grid", _draw_inventory_grid)
@@ -1140,7 +1358,7 @@ def _draw_reading_book(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
     title: str = props.get("title", "")
@@ -1149,61 +1367,67 @@ def _draw_reading_book(
     total_pages: int = props.get("total_pages", 1)
     font_size = _resolve_font_size(component)
 
-    # Dark background
-    pyglet.shapes.Rectangle(
-        viewport.x,
-        viewport.y,
-        viewport.width,
-        viewport.height,
-        color=(15, 15, 15, 255),
-        batch=batch,
-    )
-
-    # Title centred near top
-    pyglet.text.Label(
-        title,
-        font_size=font_size + 4,
-        x=viewport.x + viewport.width // 2,
-        y=viewport.y + viewport.height - (font_size + 4) * 2,
-        anchor_x="center",
-        color=(255, 255, 255, 255),
-        batch=batch,
-    )
-
-    # Content as multiline label with 24px margins
     margin = 24
-    pyglet.text.Label(
-        content,
-        font_size=font_size,
-        x=viewport.x + margin,
-        y=viewport.y + viewport.height - (font_size + 4) * 4,
-        width=viewport.width - margin * 2,
-        multiline=True,
-        color=(200, 200, 200, 255),
-        batch=batch,
-    )
-
-    # Page indicator centred near bottom
-    pyglet.text.Label(
-        f"Page {current_page}/{total_pages}",
-        font_size=font_size,
-        x=viewport.x + viewport.width // 2,
-        y=viewport.y + (font_size + 4) * 2,
-        anchor_x="center",
-        color=(160, 160, 160, 255),
-        batch=batch,
-    )
-
-    # Navigation hint below page indicator
-    pyglet.text.Label(
-        "next / prev / close",
-        font_size=font_size - 2,
-        x=viewport.x + viewport.width // 2,
-        y=viewport.y + font_size,
-        anchor_x="center",
-        color=(120, 120, 120, 255),
-        batch=batch,
-    )
+    return [
+        # Dark background
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=(15, 15, 15, 255),
+            batch=batch,
+        ),
+        # Title centred near top
+        pyglet.text.Label(
+            title,
+            font_name=FONT_FAMILY,
+            font_size=font_size + 4,
+            bold=False,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + viewport.height - (font_size + 4) * 2,
+            anchor_x="center",
+            color=(255, 255, 255, 255),
+            batch=batch,
+        ),
+        # Content as multiline label with 24px margins
+        pyglet.text.Label(
+            content,
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + margin,
+            y=viewport.y + viewport.height - (font_size + 4) * 4,
+            width=viewport.width - margin * 2,
+            multiline=True,
+            color=(200, 200, 200, 255),
+            batch=batch,
+        ),
+        # Page indicator centred near bottom
+        pyglet.text.Label(
+            f"Page {current_page}/{total_pages}",
+            font_name=FONT_FAMILY,
+            font_size=font_size,
+            bold=False,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + (font_size + 4) * 2,
+            anchor_x="center",
+            color=(160, 160, 160, 255),
+            batch=batch,
+        ),
+        # Navigation hint below page indicator
+        pyglet.text.Label(
+            "next / prev / close",
+            font_name=FONT_FAMILY,
+            font_size=font_size - 2,
+            bold=False,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + font_size,
+            anchor_x="center",
+            color=(120, 120, 120, 255),
+            batch=batch,
+        ),
+    ]
 
 
 register("reading.book", _draw_reading_book)
@@ -1221,19 +1445,23 @@ def _draw_screen_placeholder(
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
-) -> None:
+) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
-    pyglet.text.Label(
-        f"[{component.name}]",
-        font_size=_resolve_font_size(component),
-        x=viewport.x + viewport.width // 2,
-        y=viewport.y + viewport.height // 2,
-        anchor_x="center",
-        anchor_y="center",
-        color=(120, 120, 120, 255),
-        batch=batch,
-    )
+    return [
+        pyglet.text.Label(
+            f"[{component.name}]",
+            font_name=FONT_FAMILY,
+            font_size=_resolve_font_size(component),
+            bold=False,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + viewport.height // 2,
+            anchor_x="center",
+            anchor_y="center",
+            color=(120, 120, 120, 255),
+            batch=batch,
+        ),
+    ]
 
 
 register("screen.placeholder", _draw_screen_placeholder)

@@ -102,8 +102,53 @@ def test_font_sizes_all_positive_integers():
             assert pr.FONT_SIZES[token] > 0
 
 
-def test_render_pyglet_returns_none():
-    """render_pyglet() must return None (it accumulates into batch, not a string)."""
+def test_font_family_is_non_empty_tuple():
+    """FONT_FAMILY is a non-empty tuple used by render_pyglet Label calls."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        assert isinstance(pr.FONT_FAMILY, tuple)
+        assert len(pr.FONT_FAMILY) >= 1
+        assert all(isinstance(name, str) and name for name in pr.FONT_FAMILY)
+
+        # Render the fallback component and verify font_name is passed
+        from askee_ds import Loader
+
+        loader = Loader()
+        components = loader.load_components("""
+test-font.x:
+  category: game/
+  description: Font test.
+  status: ideated
+  render:
+    type: inline
+    template: "x"
+""")
+        viewport = MagicMock(x=0, y=0, width=800, height=600)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+        pr.render_pyglet(components["test-font.x"], {}, theme, viewport, batch)
+        label_call = pyglet_mock.text.Label.call_args
+        assert label_call.kwargs.get("font_name") == pr.FONT_FAMILY
+        assert label_call.kwargs.get("bold") is False
+
+
+def test_render_pyglet_returns_drawables_list():
+    """render_pyglet() must return a list of drawable objects for lifetime retention."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -136,7 +181,8 @@ unknown-component.x:
         theme = MagicMock(palette="neutral", tint="", vignette=False)
         batch = MagicMock()
         result = pr.render_pyglet(components["unknown-component.x"], {}, theme, viewport, batch)
-        assert result is None
+        assert isinstance(result, list)
+        assert len(result) >= 1
 
 
 def test_render_pyglet_unknown_component_calls_fallback(monkeypatch):
@@ -159,7 +205,11 @@ def test_render_pyglet_unknown_component_calls_fallback(monkeypatch):
         reload(pr)
 
         called = []
-        pr.register("test-sentinel.x", lambda *a, **kw: called.append("registered"))
+        def _sentinel(*a, **kw):
+            called.append("registered")
+            return []
+
+        pr.register("test-sentinel.x", _sentinel)
 
         from askee_ds import Loader
 
@@ -205,6 +255,7 @@ def test_render_pyglet_known_component_calls_registered_fn():
 
         def _my_draw(component, props, theme_state, viewport, batch, pane_id):
             calls.append((component.name, pane_id))
+            return []
 
         pr.register("my-pane.default", _my_draw)
 
@@ -269,7 +320,7 @@ def test_history_pane_component_loads():
 
 
 def test_history_pane_renders_visible_lines():
-    """_draw_history_pane creates one Label per visible line."""
+    """_draw_history_pane creates a single multiline Label with visible lines."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -295,12 +346,12 @@ def test_history_pane_renders_visible_lines():
 
         pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="history")
 
-        # Only max_lines=2 most recent lines should be drawn
-        assert pyglet_mock.text.Label.call_count == 2
-        calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
-        assert any("line two" in c for c in calls)
-        assert any("line three" in c for c in calls)
-        assert all("line one" not in c for c in calls)
+        # Single multiline Label with only the 2 most recent lines
+        assert pyglet_mock.text.Label.call_count == 1
+        label_text = pyglet_mock.text.Label.call_args[0][0]
+        assert "line two" in label_text
+        assert "line three" in label_text
+        assert "line one" not in label_text
 
 
 def test_history_pane_draws_background_rectangle():
