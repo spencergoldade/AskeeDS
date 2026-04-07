@@ -165,6 +165,83 @@ def _resolve_palette(
 
 
 # ---------------------------------------------------------------------------
+# Column mapping and pane chrome
+# ---------------------------------------------------------------------------
+
+_COLUMN_MAP: dict[str, str] = {
+    "location-header.default": "left",
+    "room-description.default": "left",
+    "minimap.default": "left",
+    "history-pane.default": "middle",
+    "input-pane.default": "middle",
+    "stats-pane.default": "right",
+    "combat-card.enemy": "right",
+    "combat-card.actions": "right",
+    "inventory.grid": "right",
+    "inventory.list": "right",
+    "merchant.stock-grid": "right",
+    "menu.main": "full",
+    "typography.banner": "full",
+    "modal.overlay": "full",
+    "reading.book": "full",
+    "screen.placeholder": "full",
+    "character-pane.default": "right",
+    "speech-bubble.left": "middle",
+    "choice-wheel.inline": "middle",
+}
+
+
+def _pane_chrome(
+    component_name: str,
+    palette: dict[str, tuple[int, int, int, int]],
+    viewport: Any,
+    batch: Any,
+) -> list[Any]:
+    """Return background rectangle + optional separator for a pane."""
+    import pyglet  # noqa: PLC0415
+
+    column = _COLUMN_MAP.get(component_name, "middle")
+    is_side = column in ("left", "right")
+    bg_color = palette["bg_secondary"] if is_side else palette["bg"]
+
+    drawables: list[Any] = [
+        pyglet.shapes.Rectangle(
+            viewport.x,
+            viewport.y,
+            viewport.width,
+            viewport.height,
+            color=bg_color,
+            batch=batch,
+        ),
+    ]
+
+    if column == "left":
+        drawables.append(
+            pyglet.shapes.Rectangle(
+                viewport.x + viewport.width - 1,
+                viewport.y,
+                1,
+                viewport.height,
+                color=palette["border"],
+                batch=batch,
+            )
+        )
+    elif column == "right":
+        drawables.append(
+            pyglet.shapes.Rectangle(
+                viewport.x,
+                viewport.y,
+                1,
+                viewport.height,
+                color=palette["border"],
+                batch=batch,
+            )
+        )
+
+    return drawables
+
+
+# ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
 

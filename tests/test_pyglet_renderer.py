@@ -1607,3 +1607,69 @@ def test_resolve_palette_fallback_without_theme():
     assert palette["bg"] == (30, 30, 30, 255)
     assert palette["fg"] == (212, 212, 212, 255)
     assert palette["border"] == (64, 64, 64, 255)
+
+
+def test_pane_chrome_left_column(monkeypatch):
+    """_pane_chrome returns bg_secondary bg + right-edge separator for left panes."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "none", "vignette": 0.0})()
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 200, "height": 100})()
+    batch = mock.graphics.Batch()
+    palette = pr._resolve_palette(ts)
+
+    drawables = pr._pane_chrome("location-header.default", palette, vp, batch)
+
+    assert mock.shapes.Rectangle.call_count == 2
+    assert len(drawables) == 2
+
+
+def test_pane_chrome_middle_column(monkeypatch):
+    """_pane_chrome returns bg background only for middle panes (no separator)."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "none", "vignette": 0.0})()
+    vp = type("VP", (), {"x": 200, "y": 0, "width": 400, "height": 100})()
+    batch = mock.graphics.Batch()
+    palette = pr._resolve_palette(ts)
+
+    drawables = pr._pane_chrome("history-pane.default", palette, vp, batch)
+
+    assert mock.shapes.Rectangle.call_count == 1
+    assert len(drawables) == 1
+
+
+def test_pane_chrome_right_column(monkeypatch):
+    """_pane_chrome returns bg_secondary bg + left-edge separator for right panes."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "none", "vignette": 0.0})()
+    vp = type("VP", (), {"x": 600, "y": 0, "width": 200, "height": 100})()
+    batch = mock.graphics.Batch()
+    palette = pr._resolve_palette(ts)
+
+    drawables = pr._pane_chrome("stats-pane.default", palette, vp, batch)
+
+    assert mock.shapes.Rectangle.call_count == 2
+    assert len(drawables) == 2
