@@ -485,6 +485,7 @@ def _draw_input_pane(
             y=viewport.y + viewport.height - 8,
             anchor_y="top",
             width=viewport.width - 16,
+            color=palette["fg"],
             batch=batch,
         )
     )
