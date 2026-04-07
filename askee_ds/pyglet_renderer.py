@@ -21,6 +21,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .loader import Component
+from .theme import Theme
 
 # ---------------------------------------------------------------------------
 # Font size token → pixel size mapping
@@ -114,6 +115,53 @@ def _dim_color(
         int(rgba[2] * factor),
         255,
     )
+
+
+# ---------------------------------------------------------------------------
+# Theme integration
+# ---------------------------------------------------------------------------
+
+_THEME: Theme | None = None
+
+_FALLBACK_PALETTE: dict[str, tuple[int, int, int, int]] = {
+    "bg": (30, 30, 30, 255),
+    "bg_secondary": (37, 37, 37, 255),
+    "fg": (212, 212, 212, 255),
+    "fg_dim": (159, 159, 159, 255),
+    "fg_muted": (117, 117, 117, 255),
+    "border": (64, 64, 64, 255),
+    "accent": (86, 156, 214, 255),
+}
+
+
+def set_theme(theme: Theme) -> None:
+    """Set the module-level Theme used by all draw functions."""
+    global _THEME  # noqa: PLW0603
+    _THEME = theme
+
+
+def _resolve_palette(
+    theme_state: Any,  # noqa: ARG001
+) -> dict[str, tuple[int, int, int, int]]:
+    """Resolve the current theme state to a concrete RGBA palette dict."""
+    if _THEME is None:
+        return _FALLBACK_PALETTE
+
+    colors = _THEME.colors("neutral")
+    bg = _parse_hex(colors.get("bg", "#1e1e1e"))
+    fg = _parse_hex(colors.get("fg", "#d4d4d4"))
+    border = _parse_hex(colors.get("border", "#404040"))
+    accent = _parse_hex(colors.get("accent", "#569cd6"))
+
+    return {
+        "bg": bg,
+        "bg_secondary": _lighten(bg, 7),
+        "fg": fg,
+        "fg_dim": _dim_color(fg, 0.75),
+        "fg_muted": _dim_color(fg, 0.55),
+        "border": border,
+        "accent": accent,
+    }
 
 
 # ---------------------------------------------------------------------------

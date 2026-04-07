@@ -1536,3 +1536,74 @@ def test_dim_color_zero():
     from askee_ds.pyglet_renderer import _dim_color
 
     assert _dim_color((200, 200, 200, 255), 0.0) == (0, 0, 0, 255)
+
+
+# ---------------------------------------------------------------------------
+# Theme integration and palette resolution
+# ---------------------------------------------------------------------------
+
+
+def test_set_theme_stores_theme():
+    """set_theme stores the Theme for palette resolution."""
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds import Loader
+    from askee_ds.theme import Theme
+
+    loader = Loader()
+    tokens = loader.load_tokens_dir(str(ROOT / "tokens"))
+    theme = Theme(tokens)
+
+    pr.set_theme(theme)
+    assert pr._THEME is theme
+
+
+def test_resolve_palette_with_theme():
+    """_resolve_palette returns token-derived colours when Theme is set."""
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds import Loader
+    from askee_ds.theme import Theme
+
+    loader = Loader()
+    tokens = loader.load_tokens_dir(str(ROOT / "tokens"))
+    theme = Theme(tokens)
+    pr.set_theme(theme)
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "none", "vignette": 0.0})()
+    palette = pr._resolve_palette(ts)
+
+    assert "bg" in palette
+    assert "fg" in palette
+    assert "border" in palette
+    assert "accent" in palette
+    assert "bg_secondary" in palette
+    assert "fg_dim" in palette
+    assert "fg_muted" in palette
+    for key, val in palette.items():
+        assert len(val) == 4, f"{key} is not a 4-tuple"
+        assert val[3] == 255, f"{key} alpha is not 255"
+
+
+def test_resolve_palette_fallback_without_theme():
+    """_resolve_palette returns hardcoded fallback when no Theme is set."""
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "none", "vignette": 0.0})()
+    palette = pr._resolve_palette(ts)
+
+    assert palette["bg"] == (30, 30, 30, 255)
+    assert palette["fg"] == (212, 212, 212, 255)
+    assert palette["border"] == (64, 64, 64, 255)
