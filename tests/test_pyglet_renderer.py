@@ -1489,3 +1489,50 @@ def test_screen_placeholder_renders_label():
         calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
         assert len(calls) >= 1
         assert any("screen.placeholder" in c for c in calls)
+
+
+# ---------------------------------------------------------------------------
+# Colour helpers
+# ---------------------------------------------------------------------------
+
+
+def test_parse_hex_valid():
+    """_parse_hex converts a 7-char hex string to an RGBA tuple."""
+    from askee_ds.pyglet_renderer import _parse_hex
+
+    assert _parse_hex("#1e1e1e") == (30, 30, 30, 255)
+    assert _parse_hex("#ffffff") == (255, 255, 255, 255)
+    assert _parse_hex("#000000") == (0, 0, 0, 255)
+
+
+def test_parse_hex_invalid_falls_back():
+    """_parse_hex returns white for invalid input."""
+    from askee_ds.pyglet_renderer import _parse_hex
+
+    assert _parse_hex("") == (255, 255, 255, 255)
+    assert _parse_hex("not-hex") == (255, 255, 255, 255)
+    assert _parse_hex("#xyz") == (255, 255, 255, 255)
+
+
+def test_lighten():
+    """_lighten adds to each RGB channel, clamped at 255."""
+    from askee_ds.pyglet_renderer import _lighten
+
+    assert _lighten((30, 30, 30, 255), 7) == (37, 37, 37, 255)
+    assert _lighten((250, 250, 250, 255), 10) == (255, 255, 255, 255)
+
+
+def test_dim_color():
+    """_dim_color multiplies each RGB channel by factor."""
+    from askee_ds.pyglet_renderer import _dim_color
+
+    result = _dim_color((212, 212, 212, 255), 0.75)
+    assert result == (159, 159, 159, 255)
+    assert result[3] == 255
+
+
+def test_dim_color_zero():
+    """_dim_color with factor 0 produces black with alpha 255."""
+    from askee_ds.pyglet_renderer import _dim_color
+
+    assert _dim_color((200, 200, 200, 255), 0.0) == (0, 0, 0, 255)

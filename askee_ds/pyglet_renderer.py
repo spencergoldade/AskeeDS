@@ -79,6 +79,43 @@ def _parse_tint(tint: str) -> tuple[int, int, int, int]:
     return (255, 255, 255, 255)
 
 
+def _parse_hex(hex_str: str) -> tuple[int, int, int, int]:
+    """Convert '#rrggbb' to (r, g, b, 255). Falls back to white."""
+    if hex_str and hex_str.startswith("#") and len(hex_str) == 7:
+        try:
+            r = int(hex_str[1:3], 16)
+            g = int(hex_str[3:5], 16)
+            b = int(hex_str[5:7], 16)
+            return (r, g, b, 255)
+        except ValueError:
+            pass
+    return (255, 255, 255, 255)
+
+
+def _lighten(
+    rgba: tuple[int, int, int, int], amount: int
+) -> tuple[int, int, int, int]:
+    """Add amount to each RGB channel, clamped at 255. Alpha stays 255."""
+    return (
+        min(rgba[0] + amount, 255),
+        min(rgba[1] + amount, 255),
+        min(rgba[2] + amount, 255),
+        255,
+    )
+
+
+def _dim_color(
+    rgba: tuple[int, int, int, int], factor: float
+) -> tuple[int, int, int, int]:
+    """Multiply each RGB channel by factor. Alpha stays 255."""
+    return (
+        int(rgba[0] * factor),
+        int(rgba[1] * factor),
+        int(rgba[2] * factor),
+        255,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Registry
 # ---------------------------------------------------------------------------
