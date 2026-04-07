@@ -330,15 +330,17 @@ def _draw_fallback(
 def _draw_location_header(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
+    palette = _resolve_palette(theme_state)
     location_name: str = props.get("location_name", "")
     font_size = _resolve_font_size(component)
 
-    return [
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+    d.append(
         _label(
             location_name,
             font_size=font_size,
@@ -346,12 +348,52 @@ def _draw_location_header(
             y=viewport.y + viewport.height - 8,
             anchor_y="top",
             width=viewport.width - 16,
+            color=palette["fg"],
             batch=batch,
-        ),
-    ]
+        )
+    )
+    return d
 
 
 register("location-header.default", _draw_location_header)
+
+
+# ---------------------------------------------------------------------------
+# room-description.default
+# ---------------------------------------------------------------------------
+
+
+def _draw_room_description(
+    component: Component,
+    props: dict,
+    theme_state: Any,
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> list[Any]:
+    palette = _resolve_palette(theme_state)
+    description: str = props.get("description", "")
+    font_size = _resolve_font_size(component)
+
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+    if description:
+        d.append(
+            _label(
+                description,
+                font_size=font_size,
+                x=viewport.x + 8,
+                y=viewport.y + viewport.height - 8,
+                anchor_y="top",
+                width=viewport.width - 16,
+                multiline=True,
+                color=palette["fg_dim"],
+                batch=batch,
+            )
+        )
+    return d
+
+
+register("room-description.default", _draw_room_description)
 
 
 # ---------------------------------------------------------------------------
@@ -362,31 +404,18 @@ register("location-header.default", _draw_location_header)
 def _draw_history_pane(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     lines: list[str] = props.get("lines", [])
     max_lines: int = props.get("max_lines", 20)
     visible = lines[-max_lines:] if len(lines) > max_lines else lines
     font_size = _resolve_font_size(component)
 
-    d: list[Any] = []
-
-    # Background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(20, 20, 20, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     if visible:
         text = "\n".join(visible)
@@ -399,7 +428,7 @@ def _draw_history_pane(
             width=viewport.width - 16,
             height=viewport.height - 16,
             multiline=True,
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         )
         d.append(label)
@@ -418,13 +447,14 @@ register("history-pane.default", _draw_history_pane)
 def _draw_input_pane(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,
 ) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
+    palette = _resolve_palette(theme_state)
     value: str = props.get("value", "")
     placeholder: str = props.get("placeholder", "")
     font_size = _resolve_font_size(component)
@@ -446,7 +476,8 @@ def _draw_input_pane(
     else:
         display_text = f"> {cursor}"
 
-    return [
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+    d.append(
         _label(
             display_text,
             font_size=font_size,
@@ -455,8 +486,9 @@ def _draw_input_pane(
             anchor_y="top",
             width=viewport.width - 16,
             batch=batch,
-        ),
-    ]
+        )
+    )
+    return d
 
 
 register("input-pane.default", _draw_input_pane)
@@ -479,12 +511,13 @@ def _draw_character_pane(
 ) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
+    palette = _resolve_palette(theme_state)
     portrait_lines: list[str] = props.get("portrait_lines", [])
     font_size = _resolve_font_size(component)
     line_height = font_size + 2
     tint_color = _parse_tint(theme_state.tint)
 
-    d: list[Any] = []
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     y = viewport.y + viewport.height - line_height
     for line in portrait_lines:
@@ -562,17 +595,18 @@ register("character-pane.default", _draw_character_pane)
 def _draw_stats_pane(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
+    palette = _resolve_palette(theme_state)
     stats: list[dict] = props.get("stats", [])
     enemy_stats = props.get("enemy_stats")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     y = viewport.y + viewport.height - line_height
     for entry in stats:
@@ -585,6 +619,7 @@ def _draw_stats_pane(
                 font_size=font_size,
                 x=viewport.x + 8,
                 y=y,
+                color=palette["fg"],
                 batch=batch,
             )
         )
@@ -596,6 +631,7 @@ def _draw_stats_pane(
                 x=viewport.x + viewport.width - 8,
                 y=y,
                 anchor_x="right",
+                color=palette["fg"],
                 batch=batch,
             )
         )
@@ -609,6 +645,7 @@ def _draw_stats_pane(
                 font_size=font_size,
                 x=viewport.x + 8,
                 y=y,
+                color=palette["fg_muted"],
                 batch=batch,
             )
         )
@@ -621,6 +658,7 @@ def _draw_stats_pane(
                 y=y,
                 width=viewport.width - 16,
                 multiline=True,
+                color=palette["fg_dim"],
                 batch=batch,
             )
         )
@@ -639,32 +677,19 @@ register("stats-pane.default", _draw_stats_pane)
 def _draw_menu_main(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     title: str = props.get("title", "")
     items: list[dict] = props.get("items", [])
     selected_index: int = props.get("selected_index", 0)
     font_size = _resolve_font_size(component)
     line_height = font_size + 6
 
-    d: list[Any] = []
-
-    # Dark background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(20, 20, 20, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     # Title centered near top
     d.append(
@@ -674,7 +699,7 @@ def _draw_menu_main(
             x=viewport.x + viewport.width // 2,
             y=viewport.y + viewport.height - line_height * 2,
             anchor_x="center",
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         )
     )
@@ -685,10 +710,10 @@ def _draw_menu_main(
         label: str = item.get("label", "")
         if i == selected_index:
             display_text = f"> {label}"
-            color = (255, 255, 255, 255)
+            color = palette["fg"]
         else:
             display_text = label
-            color = (160, 160, 160, 255)
+            color = palette["fg_dim"]
         d.append(
             _label(
                 display_text,
@@ -715,16 +740,17 @@ register("menu.main", _draw_menu_main)
 def _draw_typography_banner(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
+    palette = _resolve_palette(theme_state)
     text: str = props.get("text", "")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
     lines = text.split("\n")
     # Center block vertically: start at top and work down
     start_y = viewport.y + viewport.height - line_height
@@ -736,7 +762,7 @@ def _draw_typography_banner(
                 x=viewport.x + viewport.width // 2,
                 y=start_y - i * line_height,
                 anchor_x="center",
-                color=(255, 255, 255, 255),
+                color=palette["fg"],
                 batch=batch,
             )
         )
@@ -755,13 +781,14 @@ register("typography.banner", _draw_typography_banner)
 def _draw_modal_overlay(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
     import pyglet  # noqa: PLC0415
 
+    palette = _resolve_palette(theme_state)
     title: str = props.get("title", "")
     body: str = props.get("body", props.get("body_text", ""))
     actions: list[dict] = props.get("actions", [])
@@ -794,7 +821,7 @@ def _draw_modal_overlay(
             box_y,
             box_width,
             box_height,
-            color=(40, 40, 40, 255),
+            color=palette["border"],
             batch=batch,
         )
     )
@@ -807,7 +834,7 @@ def _draw_modal_overlay(
             x=box_x + box_width // 2,
             y=box_y + box_height - line_height,
             anchor_x="center",
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         )
     )
@@ -821,7 +848,7 @@ def _draw_modal_overlay(
             y=box_y + box_height - line_height * 2,
             width=box_width - 32,
             multiline=True,
-            color=(200, 200, 200, 255),
+            color=palette["fg_dim"],
             batch=batch,
         )
     )
@@ -836,7 +863,7 @@ def _draw_modal_overlay(
                 x=box_x + box_width // 2,
                 y=box_y + box_height - line_height * (3 + i),
                 anchor_x="center",
-                color=(180, 180, 180, 255),
+                color=palette["fg_dim"],
                 batch=batch,
             )
         )
@@ -935,13 +962,12 @@ def _draw_hp_bar(
 def _draw_combat_card_enemy(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     enemy_name: str = props.get("enemy_name", "")
     enemy_hp: int = props.get("enemy_hp", 0)
     enemy_hp_max: int = props.get("enemy_hp_max", 0)
@@ -949,19 +975,7 @@ def _draw_combat_card_enemy(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
-
-    # Dark background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(20, 20, 20, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     # Enemy name header
     d.append(
@@ -971,7 +985,7 @@ def _draw_combat_card_enemy(
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         )
     )
@@ -1004,13 +1018,12 @@ register("combat-card.enemy", _draw_combat_card_enemy)
 def _draw_combat_card_actions(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     player_hp: int = props.get("player_hp", 0)
     player_hp_max: int = props.get("player_hp_max", 0)
     round_num: int = props.get("round", 1)
@@ -1018,19 +1031,7 @@ def _draw_combat_card_actions(
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
-
-    # Dark background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(20, 20, 20, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     # Player HP bar
     d.extend(
@@ -1054,7 +1055,7 @@ def _draw_combat_card_actions(
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height * 2,
             width=viewport.width - 16,
-            color=(200, 200, 200, 255),
+            color=palette["fg_dim"],
             batch=batch,
         )
     )
@@ -1073,31 +1074,22 @@ register("combat-card.actions", _draw_combat_card_actions)
 def _draw_speech_bubble_left(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     npc_id: str = props.get("npc_id", "")
     npc_speech: str = props.get("npc_speech", "")
     active: bool = props.get("active", True)
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    text_color = (220, 220, 220, 255) if active else (120, 120, 120, 255)
+    text_color = palette["fg"] if active else palette["fg_muted"]
 
-    return [
-        # Dark background
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(30, 30, 30, 255),
-            batch=batch,
-        ),
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+    d.extend([
         # NPC name header
         _label(
             npc_id,
@@ -1105,7 +1097,7 @@ def _draw_speech_bubble_left(
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         ),
         # Speech text (multiline)
@@ -1119,7 +1111,8 @@ def _draw_speech_bubble_left(
             color=text_color,
             batch=batch,
         ),
-    ]
+    ])
+    return d
 
 
 register("speech-bubble.left", _draw_speech_bubble_left)
@@ -1133,30 +1126,17 @@ register("speech-bubble.left", _draw_speech_bubble_left)
 def _draw_choice_wheel_inline(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     options: list[dict] = props.get("options", [])
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
-
-    # Dark background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(25, 25, 25, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     # "Choose:" header
     d.append(
@@ -1166,7 +1146,7 @@ def _draw_choice_wheel_inline(
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
-            color=(160, 160, 160, 255),
+            color=palette["fg_dim"],
             batch=batch,
         )
     )
@@ -1181,7 +1161,7 @@ def _draw_choice_wheel_inline(
                 x=viewport.x + 16,
                 y=viewport.y + viewport.height - line_height * (i + 2),
                 width=viewport.width - 32,
-                color=(220, 220, 220, 255),
+                color=palette["fg"],
                 batch=batch,
             )
         )
@@ -1200,31 +1180,18 @@ register("choice-wheel.inline", _draw_choice_wheel_inline)
 def _draw_merchant_stock_grid(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     stock: list[dict] = props.get("stock", [])
     player_gold: int = props.get("player_gold", 0)
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
-
-    # Dark background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(20, 20, 20, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     # "Stock" header
     d.append(
@@ -1234,7 +1201,7 @@ def _draw_merchant_stock_grid(
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         )
     )
@@ -1249,7 +1216,7 @@ def _draw_merchant_stock_grid(
                 x=viewport.x + 8,
                 y=row_y,
                 width=(viewport.width - 16) // 2,
-                color=(200, 200, 200, 255),
+                color=palette["fg_dim"],
                 batch=batch,
             )
         )
@@ -1292,31 +1259,18 @@ register("merchant.stock-grid", _draw_merchant_stock_grid)
 def _draw_inventory_list(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     sellable: list[dict] = props.get("sellable", [])
     player_gold: int = props.get("player_gold", 0)
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
-
-    # Dark background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(20, 20, 20, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     # "Your Items" header
     d.append(
@@ -1326,7 +1280,7 @@ def _draw_inventory_list(
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         )
     )
@@ -1341,7 +1295,7 @@ def _draw_inventory_list(
                 x=viewport.x + 8,
                 y=row_y,
                 width=(viewport.width - 16) // 2,
-                color=(200, 200, 200, 255),
+                color=palette["fg_dim"],
                 batch=batch,
             )
         )
@@ -1384,31 +1338,18 @@ register("inventory.list", _draw_inventory_list)
 def _draw_inventory_grid(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     items: list[dict] = props.get("items", [])
     selected_index: int = props.get("selected_index", 0)
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
-    d: list[Any] = []
-
-    # Dark background
-    d.append(
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(20, 20, 20, 255),
-            batch=batch,
-        )
-    )
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
     # "Inventory" header
     d.append(
@@ -1418,7 +1359,7 @@ def _draw_inventory_grid(
             x=viewport.x + 8,
             y=viewport.y + viewport.height - line_height,
             width=viewport.width - 16,
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         )
     )
@@ -1427,10 +1368,10 @@ def _draw_inventory_grid(
     for i, item in enumerate(items):
         if i == selected_index:
             prefix = "> "
-            color = (255, 255, 255, 255)
+            color = palette["fg"]
         else:
             prefix = "  "
-            color = (160, 160, 160, 255)
+            color = palette["fg_dim"]
         d.append(
             _label(
                 f"{prefix}{item.get('label', '')}",
@@ -1457,13 +1398,12 @@ register("inventory.grid", _draw_inventory_grid)
 def _draw_reading_book(
     component: Component,
     props: dict,
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    import pyglet  # noqa: PLC0415
-
+    palette = _resolve_palette(theme_state)
     title: str = props.get("title", "")
     content: str = props.get("content", "")
     current_page: int = props.get("current_page", 1)
@@ -1471,16 +1411,8 @@ def _draw_reading_book(
     font_size = _resolve_font_size(component)
 
     margin = 24
-    return [
-        # Dark background
-        pyglet.shapes.Rectangle(
-            viewport.x,
-            viewport.y,
-            viewport.width,
-            viewport.height,
-            color=(15, 15, 15, 255),
-            batch=batch,
-        ),
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+    d.extend([
         # Title centred near top
         _label(
             title,
@@ -1488,7 +1420,7 @@ def _draw_reading_book(
             x=viewport.x + viewport.width // 2,
             y=viewport.y + viewport.height - (font_size + 4) * 2,
             anchor_x="center",
-            color=(255, 255, 255, 255),
+            color=palette["fg"],
             batch=batch,
         ),
         # Content as multiline label with 24px margins
@@ -1499,7 +1431,7 @@ def _draw_reading_book(
             y=viewport.y + viewport.height - (font_size + 4) * 4,
             width=viewport.width - margin * 2,
             multiline=True,
-            color=(200, 200, 200, 255),
+            color=palette["fg_dim"],
             batch=batch,
         ),
         # Page indicator centred near bottom
@@ -1509,7 +1441,7 @@ def _draw_reading_book(
             x=viewport.x + viewport.width // 2,
             y=viewport.y + (font_size + 4) * 2,
             anchor_x="center",
-            color=(160, 160, 160, 255),
+            color=palette["fg_dim"],
             batch=batch,
         ),
         # Navigation hint below page indicator
@@ -1519,10 +1451,11 @@ def _draw_reading_book(
             x=viewport.x + viewport.width // 2,
             y=viewport.y + font_size,
             anchor_x="center",
-            color=(120, 120, 120, 255),
+            color=palette["fg_muted"],
             batch=batch,
         ),
-    ]
+    ])
+    return d
 
 
 register("reading.book", _draw_reading_book)
@@ -1536,12 +1469,14 @@ register("reading.book", _draw_reading_book)
 def _draw_screen_placeholder(
     component: Component,
     props: dict,  # noqa: ARG001
-    theme_state: Any,  # noqa: ARG001
+    theme_state: Any,
     viewport: Any,
     batch: Any,
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
-    return [
+    palette = _resolve_palette(theme_state)
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+    d.append(
         _label(
             f"[{component.name}]",
             font_size=_resolve_font_size(component),
@@ -1549,10 +1484,11 @@ def _draw_screen_placeholder(
             y=viewport.y + viewport.height // 2,
             anchor_x="center",
             anchor_y="center",
-            color=(120, 120, 120, 255),
+            color=palette["fg_muted"],
             batch=batch,
-        ),
-    ]
+        )
+    )
+    return d
 
 
 register("screen.placeholder", _draw_screen_placeholder)

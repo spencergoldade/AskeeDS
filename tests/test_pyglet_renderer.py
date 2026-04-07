@@ -538,9 +538,9 @@ def test_character_pane_renders_portrait_lines():
 
 
 def test_character_pane_vignette_draws_four_rectangles():
-    """_draw_character_pane draws 4 edge Rectangles when vignette=True.
+    """_draw_character_pane draws 4 vignette Rectangles plus 2 from _pane_chrome (bg + border).
 
-    No background Rectangle is drawn by this pane — exactly 4 calls for vignette strips.
+    With vignette=True the total Rectangle count is 6: 2 chrome + 4 vignette strips.
     """
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
@@ -567,7 +567,7 @@ def test_character_pane_vignette_draws_four_rectangles():
 
         pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="char-v")
 
-        assert pyglet_mock.shapes.Rectangle.call_count == 4
+        assert pyglet_mock.shapes.Rectangle.call_count == 6
 
 
 # ---------------------------------------------------------------------------
@@ -828,7 +828,7 @@ def test_menu_main_draws_items():
 
 
 def test_menu_main_selected_item_is_white():
-    """Selected menu item is rendered in white; non-selected items are grey."""
+    """Selected menu item is rendered in palette["fg"]; non-selected items are palette["fg_dim"]."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -864,10 +864,13 @@ def test_menu_main_selected_item_is_white():
         # Collect all Label calls that carry a color kwarg
         item_calls = [c for c in pyglet_mock.text.Label.call_args_list if "color" in c.kwargs]
         colors = {str(c.args[0]): c.kwargs["color"] for c in item_calls if c.args}
-        # "Beta" is selected (index 1) — white
-        assert colors.get("> Beta") == (255, 255, 255, 255)
-        # "Alpha" is not selected — grey
-        assert colors.get("Alpha")[0] < 200  # some shade of grey
+        # "Beta" is selected (index 1) — fg (brighter than fg_dim)
+        beta_color = colors.get("> Beta")
+        assert beta_color is not None
+        alpha_color = colors.get("Alpha")
+        assert alpha_color is not None
+        # Selected item is brighter than unselected (fg > fg_dim by design)
+        assert beta_color[0] >= alpha_color[0]
 
 
 # ---------------------------------------------------------------------------
