@@ -6,6 +6,7 @@ import pytest
 
 from askee_ds.layout import StyledLine, layout
 from askee_ds.loader import Component, PropDef
+from askee_ds.render_types.layout import _stack_lines, _columns_lines, _shell_lines
 from askee_ds.theme import Theme
 
 
@@ -44,7 +45,26 @@ def _make_component(
     )
 
 
+def _make_full_theme() -> Theme:
+    """Theme with all border keys including tj_down/tj_up for layout types."""
+    return Theme({
+        "color_roles": {
+            "neutral": {"bg": "#000", "fg": "#fff"},
+        },
+        "sets": {
+            "single": {
+                "h": "─", "v": "│",
+                "tl": "┌", "tr": "┐", "bl": "└", "br": "┘",
+                "tj_right": "├", "tj_left": "┤",
+                "tj_down": "┬", "tj_up": "┴", "cross": "┼",
+            },
+        },
+        "bar": {"filled": "█", "empty": "░"},
+    })
+
+
 THEME = _make_theme()
+FULL_THEME = _make_full_theme()
 
 
 class TestStyledLine:
@@ -182,3 +202,35 @@ class TestEdgeCases:
         lines = layout(comp, {}, THEME)
         # Empty spec defaults to inline with empty template
         assert len(lines) == 1
+
+
+class TestStackLines:
+    def test_returns_tuples_with_roles(self):
+        spec = {"border": "single", "width": 20, "prop": "blocks"}
+        props = {"blocks": ["Hello", "World"]}
+        result = _stack_lines(spec, props, FULL_THEME, available_width=80)
+        assert isinstance(result, list)
+        assert all(isinstance(t, tuple) and len(t) == 2 for t in result)
+
+    def test_border_and_body_roles(self):
+        spec = {"border": "single", "width": 20, "prop": "blocks"}
+        props = {"blocks": ["Line A"]}
+        result = _stack_lines(spec, props, FULL_THEME, available_width=80)
+        roles = [r for _, r in result]
+        assert roles[0] == "border"   # top
+        assert roles[1] == "body"     # content
+        assert roles[-1] == "border"  # bottom
+
+    def test_divider_between_blocks(self):
+        spec = {"border": "single", "width": 20, "prop": "blocks"}
+        props = {"blocks": ["A", "B"]}
+        result = _stack_lines(spec, props, FULL_THEME, available_width=80)
+        roles = [r for _, r in result]
+        # top, body-A, divider, body-B, bottom
+        assert roles == ["border", "body", "divider", "body", "border"]
+
+    def test_empty_blocks_returns_empty(self):
+        spec = {"border": "single", "width": 20, "prop": "blocks"}
+        props = {"blocks": []}
+        result = _stack_lines(spec, props, FULL_THEME, available_width=80)
+        assert result == []
