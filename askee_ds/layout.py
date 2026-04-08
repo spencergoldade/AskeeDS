@@ -1,0 +1,266 @@
+"""LayoutEngine — spec interpreter producing StyledLines.
+
+Takes a Component + props + Theme, reads the component's ``render`` spec,
+and produces ``list[StyledLine]``. Each StyledLine carries its text content
+and a semantic role so downstream renderers (Pyglet, Rich, etc.) can apply
+colours without re-parsing the layout.
+
+Supports ``type: box`` (bordered panels with typed sections) and
+``type: inline`` (single-line template interpolation). Width resolution
+uses the component's width/min_width/max_width constraints.
+
+    from askee_ds.layout import StyledLine, layout
+
+    lines = layout(component, props, theme, available_width=80)
+"""
+
+from __future__ import annotations
+
+import textwrap
+from dataclasses import dataclass
+
+from .loader import Component
+from .render_types._helpers import interpolate
+from .sizing import DEFAULT_WIDTH, resolve_width
+from .theme import Theme
+
+
+@dataclass
+class StyledLine:
+    """A single line of layout output with semantic role annotation."""
+
+    text: str
+    role: str  # header, body, border, divider, muted
+    indent: int = 0
+
+
+def layout(
+    component: Component,
+    props: dict,
+    theme: Theme,
+    available_width: int = DEFAULT_WIDTH,
+) -> list[StyledLine]:
+    """Interpret a component's render spec and produce styled lines.
+
+    Returns an empty list for unrecognised render types.
+    """
+    spec = component.render
+    rtype = spec.get("type", "inline")
+
+    if rtype == "box":
+        return _layout_box(spec, props, theme, available_width)
+    if rtype == "inline":
+        return _layout_inline(spec, props, available_width)
+
+    return []
+
+
+# -- box layout --------------------------------------------------------------
+
+
+def _layout_box(
+    spec: dict,
+    props: dict,
+    theme: Theme,
+    available_width: int,
+) -> list[StyledLine]:
+    width = resolve_width(spec, available_width)
+    bd = theme.border(spec.get("border", "single"))
+    inner = width - 2
+    lines: list[StyledLine] = []
+
+    # Top border
+    lines.append(StyledLine(
+        text=bd["tl"] + bd["h"] * inner + bd["tr"],
+        role="border",
+    ))
+
+    for section in spec.get("sections", []):
+        lines.extend(_section(section, props, inner, bd, theme))
+
+    # Bottom border
+    lines.append(StyledLine(
+        text=bd["bl"] + bd["h"] * inner + bd["br"],
+        role="border",
+    ))
+
+    return lines
+
+
+def _row_text(text: str, inner: int, bd: dict) -> str:
+    """Produce a bordered row string: │text        │"""
+    return bd["v"] + text.ljust(inner)[:inner] + bd["v"]
+
+
+def _section(
+    section: dict,
+    props: dict,
+    inner: int,
+    bd: dict,
+    theme: Theme,
+) -> list[StyledLine]:
+    stype = section.get("type", "text")
+    lines: list[StyledLine] = []
+
+    if stype == "header":
+        text = interpolate(section["text"], props)
+        lines.append(StyledLine(
+            text=_row_text(f" {text}", inner, bd),
+            role="header",
+        ))
+
+    elif stype == "divider":
+        lines.append(StyledLine(
+            text=bd["tj_right"] + bd["h"] * inner + bd["tj_left"],
+            role="divider",
+        ))
+
+    elif stype == "text":
+        text = interpolate(section["text"], props)
+        lines.append(StyledLine(
+            text=_row_text(text, inner, bd),
+            role="body",
+        ))
+
+    elif stype == "wrap":
+        raw = interpolate(section["text"], props)
+        indent = section.get("indent", 0)
+        prefix = " " * indent
+        wrapped = textwrap.wrap(
+            raw, width=inner - indent * 2, break_long_words=False,
+        )
+        for wline in wrapped or [""]:
+            lines.append(StyledLine(
+                text=_row_text(f"{prefix}{wline}", inner, bd),
+                role="body",
+                indent=indent,
+            ))
+
+    elif stype == "blank":
+        lines.append(StyledLine(
+            text=_row_text("", inner, bd),
+            role="body",
+        ))
+
+    elif stype == "list":
+        items = props.get(section.get("over", ""), [])
+        if not items and section.get("if_empty") == "hide":
+            return lines
+        label = section.get("label", "")
+        tmpl = section.get("template", "  {label}")
+        if label:
+            lines.append(StyledLine(
+                text=_row_text(f" {label}:", inner, bd),
+                role="muted",
+            ))
+        for item in items:
+            if isinstance(item, str):
+                text = interpolate(tmpl, {"": item, "label": item})
+            else:
+                text = interpolate(tmpl, item)
+            lines.append(StyledLine(
+                text=_row_text(text, inner, bd),
+                role="body",
+            ))
+
+    elif stype == "bars":
+        bar_width = section.get("bar_width", 10)
+        tmpl = section.get(
+            "template", " {label} [{bar}] {current}/{max}",
+        )
+        filled_ch, empty_ch = theme.bar_chars()
+        for item in props.get(section.get("over", ""), []):
+            cur = item.get("current", 0)
+            mx = item.get("max", 1)
+            ratio = cur / mx if mx else 0
+            n = round(ratio * bar_width)
+            bar_str = filled_ch * n + empty_ch * (bar_width - n)
+            text = interpolate(tmpl, {**item, "bar": bar_str})
+            lines.append(StyledLine(
+                text=_row_text(text, inner, bd),
+                role="body",
+            ))
+
+    elif stype == "progress":
+        bar_width = section.get("bar_width", 20)
+        tmpl = section.get(
+            "template", " {label} [{bar}] {value}/{max}",
+        )
+        filled_ch, empty_ch = theme.bar_chars()
+        val = props.get(section.get("value_prop", "value"), 0)
+        mx = props.get(section.get("max_prop", "max"), 1)
+        ratio = val / mx if mx else 0
+        n = round(ratio * bar_width)
+        bar_str = filled_ch * n + empty_ch * (bar_width - n)
+        merged = {**props, "bar": bar_str}
+        text = interpolate(tmpl, merged)
+        lines.append(StyledLine(
+            text=_row_text(text, inner, bd),
+            role="body",
+        ))
+
+    elif stype == "numbered_list":
+        items = props.get(section.get("over", ""), [])
+        tmpl = section.get("template", " {label}")
+        for i, item in enumerate(items, 1):
+            text = interpolate(f" {i}. {tmpl.lstrip()}", item)
+            lines.append(StyledLine(
+                text=_row_text(text, inner, bd),
+                role="body",
+            ))
+
+    elif stype == "checked_list":
+        items = props.get(section.get("over", ""), [])
+        check_prop = section.get("check_prop", "checked")
+        tmpl = section.get("template", "{label}")
+        for item in items:
+            mark = "x" if item.get(check_prop) else " "
+            text = f" [{mark}] " + interpolate(tmpl, item)
+            lines.append(StyledLine(
+                text=_row_text(text, inner, bd),
+                role="body",
+            ))
+
+    elif stype == "active_list":
+        items = props.get(section.get("over", ""), [])
+        active_id = props.get(
+            section.get("active_prop", "active_id"), "",
+        )
+        marker = section.get("marker", ">")
+        tmpl = section.get("template", "{label}")
+        pad = " " * len(marker)
+        for item in items:
+            item_id = item.get("id", "")
+            prefix = marker if item_id == active_id else pad
+            text = f" {prefix} " + interpolate(tmpl, item)
+            lines.append(StyledLine(
+                text=_row_text(text, inner, bd),
+                role="body",
+            ))
+
+    return lines
+
+
+# -- inline layout ------------------------------------------------------------
+
+
+def _layout_inline(
+    spec: dict,
+    props: dict,
+    available_width: int,
+) -> list[StyledLine]:
+    line = interpolate(spec.get("template", ""), props)
+    has_width_constraint = (
+        spec.get("width") is not None
+        or spec.get("min_width") is not None
+        or spec.get("max_width") is not None
+    )
+    if has_width_constraint:
+        target = resolve_width(spec, available_width)
+        if len(line) < target:
+            pad_char = line[0] if line and line.strip() else " "
+            line = line + pad_char * (target - len(line))
+        elif len(line) > target:
+            line = line[:target]
+
+    return [StyledLine(text=line, role="body")]

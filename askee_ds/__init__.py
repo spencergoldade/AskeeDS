@@ -15,6 +15,7 @@ AskeeDS — ASCII design system and component framework for TUI games.
 """
 
 from .composer import Composer
+from .layout import StyledLine, layout
 from .loader import Component, Loader, PropDef
 from .output import RenderOutput
 from .pyglet_renderer import render_pyglet
@@ -25,11 +26,13 @@ from .validator import Validator
 __all__ = [
     "Composer",
     "Component",
+    "layout",
     "Loader",
     "PropDef",
     "render_pyglet",
     "RenderOutput",
     "Renderer",
+    "StyledLine",
     "Theme",
     "Validator",
 ]
