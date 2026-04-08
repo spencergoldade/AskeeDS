@@ -283,7 +283,7 @@ def register(name: str, fn: _DrawFn) -> None:
 # ---------------------------------------------------------------------------
 
 
-_SPEC_DRIVEN_TYPES = {"box", "inline"}
+_SPEC_DRIVEN_TYPES = {"box", "inline", "join", "stack", "columns", "shell"}
 
 
 def render_pyglet(
