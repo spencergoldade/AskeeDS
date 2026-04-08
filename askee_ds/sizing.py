@@ -23,6 +23,19 @@ DEFAULT_HEIGHT = 30
 _ABSOLUTE_MIN_WIDTH = 4
 
 
+def has_width_constraint(spec: dict) -> bool:
+    """Return True if *spec* declares any width constraint.
+
+    Checks for ``width``, ``min_width``, or ``max_width`` keys with
+    non-None values.
+    """
+    return (
+        spec.get("width") is not None
+        or spec.get("min_width") is not None
+        or spec.get("max_width") is not None
+    )
+
+
 def resolve_width(spec: dict, available: int = DEFAULT_WIDTH) -> int:
     """Resolve the effective width from a render spec.
 

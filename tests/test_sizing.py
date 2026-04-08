@@ -3,11 +3,39 @@
 import pytest
 from pathlib import Path
 
-from askee_ds.sizing import resolve_width, resolve_height, DEFAULT_WIDTH
+from askee_ds.sizing import (
+    has_width_constraint,
+    resolve_width,
+    resolve_height,
+    DEFAULT_WIDTH,
+)
+
 
 ROOT = Path(__file__).resolve().parent.parent
 COMPONENTS_DIR = ROOT / "components"
 TOKENS_DIR = ROOT / "tokens"
+
+
+class TestHasWidthConstraint:
+    """has_width_constraint: returns True when width/min_width/max_width set."""
+
+    def test_empty_spec(self):
+        assert has_width_constraint({}) is False
+
+    def test_width_only(self):
+        assert has_width_constraint({"width": 40}) is True
+
+    def test_min_width_only(self):
+        assert has_width_constraint({"min_width": 20}) is True
+
+    def test_max_width_only(self):
+        assert has_width_constraint({"max_width": 60}) is True
+
+    def test_fill_string(self):
+        assert has_width_constraint({"width": "fill"}) is True
+
+    def test_unrelated_keys_ignored(self):
+        assert has_width_constraint({"height": 10, "border": "single"}) is False
 
 
 class TestResolveWidth:

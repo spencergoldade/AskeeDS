@@ -6,7 +6,7 @@ These helpers are consumed by layout.py (LayoutEngine path) and by the thin
 
 from __future__ import annotations
 
-from ..sizing import resolve_width
+from ..sizing import has_width_constraint, resolve_width
 
 
 def _table_lines(
@@ -30,11 +30,7 @@ def _table_lines(
             if i < len(col_widths):
                 col_widths[i] = max(col_widths[i], len(str(cell)))
 
-    if (
-        spec.get("width") is not None
-        or spec.get("min_width") is not None
-        or spec.get("max_width") is not None
-    ):
+    if has_width_constraint(spec):
         max_total = resolve_width(spec, available_width)
         n = len(col_widths)
         inner_budget = max_total - 2 - 2 * n
@@ -82,11 +78,7 @@ def _grid_lines(
     if columns < 1:
         return []
 
-    if (
-        spec.get("width") is not None
-        or spec.get("min_width") is not None
-        or spec.get("max_width") is not None
-    ):
+    if has_width_constraint(spec):
         total_width = resolve_width(spec, available_width)
         inner = max(1, total_width - 2)
         cell_width = max(1, inner // columns)

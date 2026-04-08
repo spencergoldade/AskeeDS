@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ._helpers import interpolate
-from ..sizing import resolve_width
+from ..sizing import has_width_constraint, resolve_width
 
 if TYPE_CHECKING:
     from ._registry import RenderContext
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 def render_inline(spec: dict, props: dict, ctx: RenderContext) -> str:
     line = interpolate(spec.get("template", ""), props)
-    if spec.get("width") is not None or spec.get("min_width") is not None or spec.get("max_width") is not None:
+    if has_width_constraint(spec):
         target = resolve_width(spec, ctx.available_width)
         if len(line) < target:
             pad_char = (line[0] if line and line.strip() else "-")
