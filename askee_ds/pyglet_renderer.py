@@ -140,6 +140,13 @@ def set_theme(theme: Theme) -> None:
     _THEME = theme
 
 
+def _get_layout_theme() -> Theme:
+    """Return the module-level Theme, or a minimal fallback for layout."""
+    if _THEME is not None:
+        return _THEME
+    return Theme({})
+
+
 def _resolve_palette(
     theme_state: Any,  # noqa: ARG001
 ) -> dict[str, tuple[int, int, int, int]]:
@@ -264,6 +271,9 @@ def register(name: str, fn: _DrawFn) -> None:
 # ---------------------------------------------------------------------------
 
 
+_SPEC_DRIVEN_TYPES = {"box", "inline"}
+
+
 def render_pyglet(
     component: Component,
     props: dict,
@@ -274,8 +284,12 @@ def render_pyglet(
 ) -> list[Any]:
     """Draw a component pane into a Pyglet batch.
 
-    Dispatches to the registered draw function for component.name, or to
-    _draw_fallback if no draw function is registered.
+    Two-tier dispatch:
+    1. If a custom draw function is registered for the component name, use it.
+    2. If the component has a render spec with a supported type, run the
+       LayoutEngine to produce StyledLines and convert them via
+       ``render_styled_lines``.
+    3. Otherwise, fall back to a grey placeholder label.
 
     Returns a list of every Pyglet object created (Labels, Rectangles, etc.).
     Callers **must** keep this list alive until ``batch.draw()`` has been
@@ -291,8 +305,25 @@ def render_pyglet(
         pane_id:     Stable per-pane identifier. Must be non-empty for any draw
                      function that maintains per-pane state (e.g. cursor blink).
     """
-    fn = _REGISTRY.get(component.name, _draw_fallback)
-    return fn(component, props, theme_state, viewport, batch, pane_id)
+    # Tier 1: custom draw function override
+    fn = _REGISTRY.get(component.name)
+    if fn is not None:
+        return fn(component, props, theme_state, viewport, batch, pane_id)
+
+    # Tier 2: spec-driven rendering via LayoutEngine
+    spec = component.render
+    if spec.get("type") in _SPEC_DRIVEN_TYPES:
+        from .layout import layout  # noqa: PLC0415
+
+        palette = _resolve_palette(theme_state)
+        char_width = viewport.width // _DEFAULT_FONT_SIZE
+        lines = layout(component, props, _get_layout_theme(), char_width)
+        return render_styled_lines(
+            lines, viewport, palette, batch, component.name,
+        )
+
+    # Tier 3: grey placeholder
+    return _draw_fallback(component, props, theme_state, viewport, batch, pane_id)
 
 
 # ---------------------------------------------------------------------------

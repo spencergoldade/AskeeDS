@@ -1789,3 +1789,151 @@ def test_render_styled_lines_positions_top_to_bottom(monkeypatch):
     # Each successive label should be lower (smaller y)
     for i in range(len(y_positions) - 1):
         assert y_positions[i] > y_positions[i + 1]
+
+
+# ---------------------------------------------------------------------------
+# Spec-driven dispatch (PYGL-16)
+# ---------------------------------------------------------------------------
+
+
+def test_spec_driven_dispatch_renders_box(monkeypatch):
+    """An unregistered component with a box render spec produces bordered output,
+    not the grey fallback."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds import Loader, Theme
+
+    loader = Loader()
+    tokens_dir = ROOT / "tokens"
+    tokens = loader.load_tokens_dir(tokens_dir)
+    theme = Theme(tokens)
+    pr.set_theme(theme)
+
+    # Create a component that is NOT registered in the draw function registry
+    components = loader.load_components("""
+unregistered-box.test:
+  category: test/
+  description: Test unregistered box component.
+  status: stable
+  render:
+    type: box
+    border: single
+    width: 30
+    sections:
+      - type: header
+        text: "{title}"
+      - type: divider
+      - type: list
+        over: items
+        template: "  {label}"
+""")
+    comp = components["unregistered-box.test"]
+
+    # Confirm it is NOT in the registry
+    assert comp.name not in pr._REGISTRY
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "", "vignette": False})()
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 400, "height": 300})()
+    batch = mock.graphics.Batch()
+
+    props = {"title": "Test Box", "items": [{"label": "Item A"}]}
+    drawables = pr.render_pyglet(comp, props, ts, vp, batch)
+
+    # Should have created multiple Labels (header, divider, list item, borders)
+    # not just the single grey fallback label
+    label_calls = mock.text.Label.call_args_list
+    assert len(label_calls) > 1
+
+    # The first label arg should NOT be the grey fallback "[unregistered-box.test]"
+    first_label_text = label_calls[0][0][0] if label_calls[0][0] else ""
+    assert first_label_text != f"[{comp.name}]"
+
+
+def test_spec_driven_dispatch_fallback_for_no_spec(monkeypatch):
+    """A component with no render spec and no custom draw function still gets
+    the grey fallback."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds import Loader
+
+    loader = Loader()
+    components = loader.load_components("""
+no-spec.test:
+  category: test/
+  description: No render spec.
+  status: stable
+  render: {}
+""")
+    comp = components["no-spec.test"]
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "", "vignette": False})()
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 400, "height": 300})()
+    batch = mock.graphics.Batch()
+
+    drawables = pr.render_pyglet(comp, {}, ts, vp, batch)
+
+    # Should produce exactly one label: the grey fallback
+    label_calls = mock.text.Label.call_args_list
+    assert len(label_calls) == 1
+    first_text = label_calls[0][0][0] if label_calls[0][0] else ""
+    assert first_text == f"[{comp.name}]"
+
+
+def test_custom_override_takes_precedence(monkeypatch):
+    """A registered custom draw function is used even when the component has
+    a valid render spec."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds import Loader
+
+    loader = Loader()
+    components = loader.load_components("""
+custom-override.test:
+  category: test/
+  description: Has spec but also custom draw.
+  status: stable
+  render:
+    type: box
+    width: 20
+    sections:
+      - type: header
+        text: "ignored"
+""")
+    comp = components["custom-override.test"]
+
+    # Register a custom draw function
+    custom_called = []
+
+    def _custom_draw(component, props, ts, vp, batch, pane_id):
+        custom_called.append(True)
+        return []
+
+    pr.register(comp.name, _custom_draw)
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "", "vignette": False})()
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 400, "height": 300})()
+    batch = mock.graphics.Batch()
+
+    pr.render_pyglet(comp, {}, ts, vp, batch)
+    assert len(custom_called) == 1
