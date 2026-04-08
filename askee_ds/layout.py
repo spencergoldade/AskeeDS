@@ -22,6 +22,8 @@ from dataclasses import dataclass
 from .loader import Component
 from .render_types._helpers import interpolate
 from .render_types.layout import _stack_lines, _columns_lines, _shell_lines
+from .render_types.structured import _table_lines, _grid_lines
+from .render_types.tree import _tree_walk
 from .sizing import DEFAULT_WIDTH, resolve_width
 from .theme import Theme
 
@@ -66,6 +68,12 @@ def layout(
         return _tuples_to_styled(
             _shell_lines(spec, props, theme, available_width),
         )
+    if rtype == "table":
+        return _tuples_to_styled(_table_lines(spec, props, available_width))
+    if rtype == "tree":
+        return _layout_tree(spec, props)
+    if rtype == "grid":
+        return _tuples_to_styled(_grid_lines(spec, props, available_width))
 
     return []
 
@@ -257,6 +265,14 @@ def _section(
 
 
 # -- join layout ---------------------------------------------------------------
+
+
+def _layout_tree(spec: dict, props: dict) -> list[StyledLine]:
+    nodes = props.get(spec.get("prop", "nodes"), [])
+    tmpl = spec.get("template", "{label}")
+    raw: list[str] = []
+    _tree_walk(nodes, tmpl, raw, "")
+    return [StyledLine(text=line, role="body") for line in raw]
 
 
 def _layout_join(spec: dict, props: dict) -> list[StyledLine]:

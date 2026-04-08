@@ -389,3 +389,79 @@ class TestShellLayout:
         headers = [ln for ln in lines if ln.role == "header"]
         assert len(headers) >= 1
         assert "Title" in headers[0].text
+
+
+class TestTableLayout:
+    def test_table_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "table",
+            "columns_prop": "columns",
+            "rows_prop": "rows",
+        })
+        props = {
+            "columns": ["Name", "Value"],
+            "rows": [["Sword", "100"], ["Shield", "50"]],
+        }
+        lines = layout(comp, props, THEME)
+        assert len(lines) > 0
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        borders = [ln for ln in lines if ln.role == "border"]
+        assert len(borders) >= 3  # top, header-sep, bottom
+        headers = [ln for ln in lines if ln.role == "header"]
+        assert len(headers) == 1
+        assert "Name" in headers[0].text
+
+    def test_table_empty_columns(self):
+        comp = _make_component(render={"type": "table"})
+        lines = layout(comp, {}, THEME)
+        assert lines == []
+
+
+class TestTreeLayout:
+    def test_tree_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "tree",
+            "prop": "nodes",
+            "template": "{label}",
+        })
+        props = {"nodes": [
+            {"label": "Root", "children": [
+                {"label": "Child A"},
+                {"label": "Child B"},
+            ]},
+        ]}
+        lines = layout(comp, props, THEME)
+        assert len(lines) == 3
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        assert all(ln.role == "body" for ln in lines)
+        assert "Root" in lines[0].text
+        assert "Child A" in lines[1].text
+
+    def test_tree_empty_nodes(self):
+        comp = _make_component(render={"type": "tree", "prop": "nodes"})
+        lines = layout(comp, {}, THEME)
+        assert lines == []
+
+
+class TestGridLayout:
+    def test_grid_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "grid",
+            "prop": "slots",
+            "columns_prop": "cols",
+            "cell_width": 8,
+        })
+        props = {
+            "slots": [{"label": "A"}, {"label": "B"}, {"label": "C"}],
+            "cols": 3,
+        }
+        lines = layout(comp, props, THEME)
+        assert len(lines) > 0
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        borders = [ln for ln in lines if ln.role == "border"]
+        assert len(borders) >= 2
+
+    def test_grid_empty_slots(self):
+        comp = _make_component(render={"type": "grid", "prop": "slots"})
+        lines = layout(comp, {}, THEME)
+        assert lines == []
