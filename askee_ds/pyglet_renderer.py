@@ -1494,3 +1494,66 @@ def _draw_screen_placeholder(
 
 
 register("screen.placeholder", _draw_screen_placeholder)
+
+
+# ---------------------------------------------------------------------------
+# StyledLine → Pyglet Labels
+# ---------------------------------------------------------------------------
+
+_ROLE_TO_PALETTE_KEY: dict[str, str] = {
+    "header": "fg",
+    "body": "fg_dim",
+    "border": "fg_muted",
+    "divider": "border",
+    "muted": "fg_muted",
+}
+
+
+def render_styled_lines(
+    lines: list[Any],
+    viewport: Any,
+    palette: dict[str, tuple[int, int, int, int]],
+    batch: Any,
+    component_name: str,
+) -> list[Any]:
+    """Convert LayoutEngine StyledLines to positioned Pyglet Labels.
+
+    Creates one ``pyglet.text.Label`` per StyledLine, laid out top-to-bottom
+    within the viewport. Calls ``_pane_chrome`` for the background fill and
+    column separators.
+
+    Args:
+        lines:          list[StyledLine] from ``askee_ds.layout.layout()``.
+        viewport:       Rect-like with .x, .y, .width, .height.
+        palette:        RGBA palette dict from ``_resolve_palette()``.
+        batch:          pyglet.graphics.Batch.
+        component_name: Component name for ``_pane_chrome`` column lookup.
+
+    Returns:
+        List of Pyglet objects (Labels + chrome shapes). Callers must retain
+        this list until ``batch.draw()`` completes.
+    """
+    font_size = _DEFAULT_FONT_SIZE
+    line_height = font_size + 2
+
+    d: list[Any] = _pane_chrome(component_name, palette, viewport, batch)
+
+    y = viewport.y + viewport.height - line_height
+    for styled_line in lines:
+        colour = palette.get(
+            _ROLE_TO_PALETTE_KEY.get(styled_line.role, "fg_dim"),
+            palette["fg_dim"],
+        )
+        d.append(
+            _label(
+                styled_line.text,
+                font_size=font_size,
+                x=viewport.x + 4 + styled_line.indent * font_size,
+                y=y,
+                color=colour,
+                batch=batch,
+            )
+        )
+        y -= line_height
+
+    return d

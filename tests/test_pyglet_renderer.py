@@ -1676,3 +1676,116 @@ def test_pane_chrome_right_column(monkeypatch):
 
     assert mock.shapes.Rectangle.call_count == 2
     assert len(drawables) == 2
+
+
+# ---------------------------------------------------------------------------
+# render_styled_lines
+# ---------------------------------------------------------------------------
+
+
+def test_render_styled_lines_label_count(monkeypatch):
+    """render_styled_lines creates one Label per StyledLine."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds.layout import StyledLine
+
+    lines = [
+        StyledLine(text="┌──────┐", role="border"),
+        StyledLine(text="│ Title│", role="header"),
+        StyledLine(text="│ body │", role="body"),
+        StyledLine(text="├──────┤", role="divider"),
+        StyledLine(text="│ muted│", role="muted"),
+        StyledLine(text="└──────┘", role="border"),
+    ]
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "", "vignette": False})()
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 400, "height": 300})()
+    batch = mock.graphics.Batch()
+
+    drawables = pr.render_styled_lines(
+        lines, vp, pr._resolve_palette(ts), batch, "test.default",
+    )
+
+    # _pane_chrome creates bg rect (at least 1), plus 6 labels = 7+
+    label_calls = mock.text.Label.call_args_list
+    assert len(label_calls) == 6
+
+
+def test_render_styled_lines_role_colours(monkeypatch):
+    """Each role maps to the correct palette colour."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds.layout import StyledLine
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "", "vignette": False})()
+    palette = pr._resolve_palette(ts)
+
+    expected_map = {
+        "header": palette["fg"],
+        "body": palette["fg_dim"],
+        "border": palette["fg_muted"],
+        "divider": palette["border"],
+        "muted": palette["fg_muted"],
+    }
+
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 400, "height": 300})()
+    batch = mock.graphics.Batch()
+
+    for role, expected_colour in expected_map.items():
+        mock.text.Label.reset_mock()
+        lines = [StyledLine(text="test", role=role)]
+        pr.render_styled_lines(lines, vp, palette, batch, "test.default")
+        call_kwargs = mock.text.Label.call_args.kwargs
+        assert call_kwargs["color"] == expected_colour, (
+            f"role={role}: expected {expected_colour},"
+            f" got {call_kwargs['color']}"
+        )
+
+
+def test_render_styled_lines_positions_top_to_bottom(monkeypatch):
+    """Labels are positioned top-to-bottom within the viewport."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds.layout import StyledLine
+
+    lines = [
+        StyledLine(text="line1", role="body"),
+        StyledLine(text="line2", role="body"),
+        StyledLine(text="line3", role="body"),
+    ]
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "", "vignette": False})()
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 400, "height": 300})()
+    batch = mock.graphics.Batch()
+
+    pr.render_styled_lines(
+        lines, vp, pr._resolve_palette(ts), batch, "test.default",
+    )
+
+    y_positions = [
+        call.kwargs["y"] for call in mock.text.Label.call_args_list
+    ]
+    # Each successive label should be lower (smaller y)
+    for i in range(len(y_positions) - 1):
+        assert y_positions[i] > y_positions[i + 1]
