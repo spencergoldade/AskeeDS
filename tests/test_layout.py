@@ -234,3 +234,62 @@ class TestStackLines:
         props = {"blocks": []}
         result = _stack_lines(spec, props, FULL_THEME, available_width=80)
         assert result == []
+
+
+class TestColumnsLines:
+    def test_returns_tuples_with_roles(self):
+        spec = {"border": "single", "width": 40}
+        props = {"left_content": "Left", "right_content": "Right"}
+        result = _columns_lines(spec, props, FULL_THEME, available_width=80)
+        assert isinstance(result, list)
+        assert all(isinstance(t, tuple) and len(t) == 2 for t in result)
+
+    def test_border_and_body_roles(self):
+        spec = {"border": "single", "width": 40}
+        props = {"left_content": "L", "right_content": "R"}
+        result = _columns_lines(spec, props, FULL_THEME, available_width=80)
+        roles = [r for _, r in result]
+        assert roles[0] == "border"   # top
+        assert roles[-1] == "border"  # bottom
+        assert all(r == "body" for r in roles[1:-1])
+
+    def test_uses_tj_down_and_tj_up(self):
+        spec = {"border": "single", "width": 40}
+        props = {"left_content": "L", "right_content": "R"}
+        result = _columns_lines(spec, props, FULL_THEME, available_width=80)
+        top_text = result[0][0]
+        bot_text = result[-1][0]
+        assert "┬" in top_text   # tj_down
+        assert "┴" in bot_text   # tj_up
+
+
+class TestShellLines:
+    def test_returns_tuples_with_roles(self):
+        spec = {"border": "single", "width": 50}
+        props = {"header": "Title", "sidebar": "Nav", "content": "Main"}
+        result = _shell_lines(spec, props, FULL_THEME, available_width=80)
+        assert isinstance(result, list)
+        assert all(isinstance(t, tuple) and len(t) == 2 for t in result)
+
+    def test_header_role_present(self):
+        spec = {"border": "single", "width": 50}
+        props = {"header": "Title", "sidebar": "Nav", "content": "Main"}
+        result = _shell_lines(spec, props, FULL_THEME, available_width=80)
+        roles = [r for _, r in result]
+        assert "header" in roles
+
+    def test_divider_between_header_and_body(self):
+        spec = {"border": "single", "width": 50}
+        props = {"header": "Title", "sidebar": "Nav", "content": "Main"}
+        result = _shell_lines(spec, props, FULL_THEME, available_width=80)
+        roles = [r for _, r in result]
+        # border, header, divider, body..., border
+        assert roles[0] == "border"
+        assert roles[1] == "header"
+        assert roles[2] == "divider"
+        assert roles[-1] == "border"
+
+    def test_empty_props_no_crash(self):
+        spec = {"border": "single", "width": 50}
+        result = _shell_lines(spec, {}, FULL_THEME, available_width=80)
+        assert len(result) > 0  # at least borders + header + divider
