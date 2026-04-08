@@ -542,3 +542,74 @@ class TestBannerLayout:
         assert len(lines) > 0
         assert all(isinstance(ln, StyledLine) for ln in lines)
         assert all(ln.role == "body" for ln in lines)
+
+
+class TestClockLayout:
+    def test_clock_produces_styled_lines(self):
+        comp = _make_component(render={"type": "clock"})
+        props = {"label": "Torch", "segments": 4, "filled": 2}
+        lines = layout(comp, props, THEME)
+        assert len(lines) == 2
+        assert all(ln.role == "body" for ln in lines)
+        assert "Torch" in lines[0].text
+        assert "\u25cf\u25cf\u25cb\u25cb" in lines[1].text
+
+    def test_clock_no_label(self):
+        comp = _make_component(render={"type": "clock"})
+        props = {"segments": 3, "filled": 1}
+        lines = layout(comp, props, THEME)
+        assert len(lines) == 1
+        assert "\u25cf\u25cb\u25cb" in lines[0].text
+
+
+class TestStageTrackLayout:
+    def test_stage_track_produces_styled_lines(self):
+        comp = _make_component(render={"type": "stage_track"})
+        props = {
+            "label": "Quest",
+            "stages": [{"label": "Start"}, {"label": "End"}],
+            "current_stage_index": 0,
+        }
+        lines = layout(comp, props, THEME)
+        assert len(lines) >= 2
+        assert all(ln.role == "body" for ln in lines)
+        assert "Quest" in lines[0].text
+
+    def test_stage_track_empty(self):
+        comp = _make_component(render={"type": "stage_track"})
+        lines = layout(comp, {}, THEME)
+        assert lines == []
+
+
+class TestFramesLayout:
+    def test_frames_shows_first_frame(self):
+        comp = _make_component(render={"type": "frames", "prop": "frames"})
+        props = {"frames": ["Frame One", "Frame Two"]}
+        lines = layout(comp, props, THEME)
+        assert len(lines) == 1
+        assert lines[0].text == "Frame One"
+        assert lines[0].role == "body"
+
+    def test_frames_empty(self):
+        comp = _make_component(render={"type": "frames", "prop": "frames"})
+        lines = layout(comp, {}, THEME)
+        assert lines == []
+
+
+class TestArtLookupLayout:
+    def test_art_lookup_uses_component_art(self):
+        from askee_ds.loader import Component
+        comp = Component(
+            name="test.art", category="test", description="",
+            status="stable", props={},
+            render={"type": "art_lookup"},
+            art="###\n...",
+        )
+        lines = layout(comp, {}, THEME)
+        assert len(lines) > 0
+        assert all(ln.role == "body" for ln in lines)
+
+    def test_art_lookup_no_art(self):
+        comp = _make_component(render={"type": "art_lookup"})
+        lines = layout(comp, {}, THEME)
+        assert lines == []

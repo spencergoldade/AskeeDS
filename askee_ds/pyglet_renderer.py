@@ -286,6 +286,7 @@ def register(name: str, fn: _DrawFn) -> None:
 _SPEC_DRIVEN_TYPES = {
     "box", "inline", "join", "stack", "columns", "shell",
     "table", "tree", "grid", "bubble", "charmap", "banner",
+    "clock", "stage_track", "frames", "art_lookup",
 }
 
 

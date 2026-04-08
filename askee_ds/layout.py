@@ -82,6 +82,14 @@ def layout(
         return _tuples_to_styled(_charmap_lines(spec, props, theme))
     if rtype == "banner":
         return _layout_banner(spec, props, component, available_width)
+    if rtype == "clock":
+        return _layout_clock(spec, props)
+    if rtype == "stage_track":
+        return _layout_stage_track(spec, props)
+    if rtype == "frames":
+        return _layout_frames(spec, props)
+    if rtype == "art_lookup":
+        return _layout_art_lookup(spec, props, component)
 
     return []
 
@@ -319,6 +327,83 @@ def _layout_banner(
 
     raw = result.rstrip("\n") if result is not None else component.art.rstrip("\n")
     return [StyledLine(text=line, role="body") for line in raw.splitlines() if line]
+
+
+# -- flat render-type layout functions -----------------------------------------
+
+
+def _layout_clock(spec: dict, props: dict) -> list[StyledLine]:
+    label = props.get("label", "")
+    segments = props.get("segments", 0)
+    filled = props.get("filled", 0)
+    clock = "\u25cf" * filled + "\u25cb" * max(0, segments - filled)
+    lines: list[StyledLine] = []
+    if label:
+        lines.append(StyledLine(text=label, role="body"))
+    lines.append(StyledLine(
+        text=f"[{clock}]   {filled} / {segments}", role="body",
+    ))
+    return lines
+
+
+def _layout_stage_track(spec: dict, props: dict) -> list[StyledLine]:
+    label = props.get("label", "")
+    stages = props.get("stages", [])
+    current = props.get("current_stage_index", 0)
+    if not stages:
+        return []
+    boxes: list[str] = []
+    centers: list[int] = []
+    pos = 0
+    for i, stage in enumerate(stages):
+        stage_label = stage.get("label", stage.get("id", ""))
+        box = f"[ {stage_label} ]"
+        if i > 0:
+            boxes.append("\u2500")
+            pos += 1
+        centers.append(pos + (len(box) - 1) // 2)
+        boxes.append(box)
+        pos += len(box)
+    track_line = "".join(boxes)
+    marker_line = ""
+    if 0 <= current < len(centers):
+        marker_line = " " * centers[current] + "^"
+    lines: list[StyledLine] = []
+    if label:
+        lines.append(StyledLine(text=f"{label}:", role="body"))
+    if track_line:
+        lines.append(StyledLine(text=track_line, role="body"))
+    if marker_line:
+        lines.append(StyledLine(text=marker_line, role="body"))
+    return lines
+
+
+def _layout_frames(spec: dict, props: dict) -> list[StyledLine]:
+    frames = props.get(spec.get("prop", "frames"), [])
+    if not frames:
+        return []
+    text = str(frames[0])
+    return [StyledLine(text=line, role="body") for line in text.splitlines()]
+
+
+def _layout_art_lookup(
+    spec: dict, props: dict, component: Component,
+) -> list[StyledLine]:
+    # Decorations not available in layout path; use component art fallback.
+    art = component.art.rstrip("\n") if component.art else ""
+    if not art:
+        return []
+    width = int(props.get("width", 0))
+    height = int(props.get("height", 0))
+    lines = art.splitlines()
+    if height and len(lines) > height:
+        lines = lines[:height]
+    if width:
+        lines = [ln[:width].ljust(width) for ln in lines]
+    if height and len(lines) < height:
+        pad = width if width else (max(len(ln) for ln in lines) if lines else 0)
+        lines.extend([" " * pad] * (height - len(lines)))
+    return [StyledLine(text=ln, role="body") for ln in lines]
 
 
 # -- tuple-based layout helpers ------------------------------------------------
