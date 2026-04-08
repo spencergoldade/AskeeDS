@@ -465,3 +465,80 @@ class TestGridLayout:
         comp = _make_component(render={"type": "grid", "prop": "slots"})
         lines = layout(comp, {}, THEME)
         assert lines == []
+
+
+class TestBubbleLayout:
+    def test_bubble_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "bubble",
+            "max_width": 30,
+        })
+        props = {"text": "Hello there!", "tail": "left"}
+        lines = layout(comp, props, THEME)
+        assert len(lines) > 0
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        borders = [ln for ln in lines if ln.role == "border"]
+        assert len(borders) == 2  # top and bottom
+        body = [ln for ln in lines if ln.role == "body"]
+        assert len(body) >= 1
+        assert "Hello" in body[0].text
+
+    def test_bubble_empty_text(self):
+        comp = _make_component(render={"type": "bubble", "max_width": 30})
+        props = {"text": ""}
+        lines = layout(comp, props, THEME)
+        assert len(lines) > 0  # still renders empty bubble
+
+
+class TestCharmapLayout:
+    def test_charmap_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "charmap",
+            "prop": "grid",
+            "border": "single",
+        })
+        props = {"grid": [["#", ".", "#"], [".", "#", "."]]}
+        lines = layout(comp, props, FULL_THEME)
+        assert len(lines) > 0
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        borders = [ln for ln in lines if ln.role == "border"]
+        assert len(borders) == 2
+        body = [ln for ln in lines if ln.role == "body"]
+        assert len(body) == 2
+
+    def test_charmap_with_legend(self):
+        comp = _make_component(render={
+            "type": "charmap",
+            "prop": "grid",
+            "legend_prop": "legend_entries",
+            "border": "single",
+        })
+        props = {
+            "grid": [["#", "."]],
+            "legend_entries": [{"char": "#", "label": "Wall"}],
+        }
+        lines = layout(comp, props, FULL_THEME)
+        muted = [ln for ln in lines if ln.role == "muted"]
+        assert len(muted) == 1
+        assert "Wall" in muted[0].text
+
+    def test_charmap_empty_grid(self):
+        comp = _make_component(render={"type": "charmap", "prop": "grid"})
+        lines = layout(comp, {}, FULL_THEME)
+        assert lines == []
+
+
+class TestBannerLayout:
+    def test_banner_produces_styled_lines(self):
+        from askee_ds.loader import Component
+        comp = Component(
+            name="test.banner", category="test", description="",
+            status="stable", props={},
+            render={"type": "banner"},
+            art="FALLBACK ART",
+        )
+        props = {"text": "Hello", "style_hint": "splash"}
+        lines = layout(comp, props, THEME)
+        assert len(lines) > 0
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        assert all(ln.role == "body" for ln in lines)

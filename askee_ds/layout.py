@@ -21,6 +21,8 @@ from dataclasses import dataclass
 
 from .loader import Component
 from .render_types._helpers import interpolate
+from .render_types.bubble import _bubble_lines
+from .render_types.charmap import _charmap_lines
 from .render_types.layout import _stack_lines, _columns_lines, _shell_lines
 from .render_types.structured import _table_lines, _grid_lines
 from .render_types.tree import _tree_walk
@@ -74,6 +76,12 @@ def layout(
         return _layout_tree(spec, props)
     if rtype == "grid":
         return _tuples_to_styled(_grid_lines(spec, props, available_width))
+    if rtype == "bubble":
+        return _tuples_to_styled(_bubble_lines(spec, props))
+    if rtype == "charmap":
+        return _tuples_to_styled(_charmap_lines(spec, props, theme))
+    if rtype == "banner":
+        return _layout_banner(spec, props, component, available_width)
 
     return []
 
@@ -282,6 +290,35 @@ def _layout_join(spec: dict, props: dict) -> list[StyledLine]:
     prefix = interpolate(spec.get("prefix", ""), props)
     parts = [interpolate(tmpl, item) for item in items]
     return [StyledLine(text=prefix + sep.join(parts), role="body")]
+
+
+def _layout_banner(
+    spec: dict,
+    props: dict,
+    component: Component,
+    available_width: int,
+) -> list[StyledLine]:
+    """Render a banner using ASCII art generation or a component art fallback."""
+    text = props.get("text", "")
+    style_hint = props.get("style_hint", "splash")
+    font = props.get("font")
+    has_width_constraint = (
+        spec.get("width") is not None
+        or spec.get("min_width") is not None
+        or spec.get("max_width") is not None
+    )
+    max_width = resolve_width(spec, available_width) if has_width_constraint else available_width
+
+    result: str | None = None
+    try:
+        from .banner import render_banner_text  # noqa: PLC0415
+
+        result = render_banner_text(text, style_hint, font=font, max_width=max_width)
+    except ImportError:
+        pass
+
+    raw = result.rstrip("\n") if result is not None else component.art.rstrip("\n")
+    return [StyledLine(text=line, role="body") for line in raw.splitlines() if line]
 
 
 # -- tuple-based layout helpers ------------------------------------------------
