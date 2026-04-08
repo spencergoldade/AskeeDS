@@ -140,11 +140,23 @@ def set_theme(theme: Theme) -> None:
     _THEME = theme
 
 
+_FALLBACK_LAYOUT_TOKENS: dict = {
+    "sets": {
+        "single": {
+            "h": "─", "v": "│",
+            "tl": "┌", "tr": "┐", "bl": "└", "br": "┘",
+            "tj_right": "├", "tj_left": "┤",
+        },
+    },
+    "bar": {"filled": "█", "empty": "░"},
+}
+
+
 def _get_layout_theme() -> Theme:
     """Return the module-level Theme, or a minimal fallback for layout."""
     if _THEME is not None:
         return _THEME
-    return Theme({})
+    return Theme(_FALLBACK_LAYOUT_TOKENS)
 
 
 def _resolve_palette(
@@ -352,41 +364,6 @@ def _draw_fallback(
         ),
     ]
 
-
-# ---------------------------------------------------------------------------
-# location-header.default
-# ---------------------------------------------------------------------------
-
-
-def _draw_location_header(
-    component: Component,
-    props: dict,
-    theme_state: Any,
-    viewport: Any,
-    batch: Any,
-    pane_id: str,  # noqa: ARG001
-) -> list[Any]:
-    palette = _resolve_palette(theme_state)
-    location_name: str = props.get("location_name", "")
-    font_size = _resolve_font_size(component)
-
-    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
-    d.append(
-        _label(
-            location_name,
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=viewport.y + viewport.height - 8,
-            anchor_y="top",
-            width=viewport.width - 16,
-            color=palette["fg"],
-            batch=batch,
-        )
-    )
-    return d
-
-
-register("location-header.default", _draw_location_header)
 
 
 # ---------------------------------------------------------------------------
@@ -1151,58 +1128,6 @@ def _draw_speech_bubble_left(
 register("speech-bubble.left", _draw_speech_bubble_left)
 
 
-# ---------------------------------------------------------------------------
-# choice-wheel.inline
-# ---------------------------------------------------------------------------
-
-
-def _draw_choice_wheel_inline(
-    component: Component,
-    props: dict,
-    theme_state: Any,
-    viewport: Any,
-    batch: Any,
-    pane_id: str,  # noqa: ARG001
-) -> list[Any]:
-    palette = _resolve_palette(theme_state)
-    options: list[dict] = props.get("options", [])
-    font_size = _resolve_font_size(component)
-    line_height = font_size + 4
-
-    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
-
-    # "Choose:" header
-    d.append(
-        _label(
-            "Choose:",
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=viewport.y + viewport.height - line_height,
-            width=viewport.width - 16,
-            color=palette["fg_dim"],
-            batch=batch,
-        )
-    )
-
-    # Numbered options
-    for i, option in enumerate(options):
-        label_text = f"{i + 1}. {option.get('label', '')}"
-        d.append(
-            _label(
-                label_text,
-                font_size=font_size,
-                x=viewport.x + 16,
-                y=viewport.y + viewport.height - line_height * (i + 2),
-                width=viewport.width - 32,
-                color=palette["fg"],
-                batch=batch,
-            )
-        )
-
-    return d
-
-
-register("choice-wheel.inline", _draw_choice_wheel_inline)
 
 
 # ---------------------------------------------------------------------------
@@ -1494,37 +1419,6 @@ def _draw_reading_book(
 register("reading.book", _draw_reading_book)
 
 
-# ---------------------------------------------------------------------------
-# screen.placeholder
-# ---------------------------------------------------------------------------
-
-
-def _draw_screen_placeholder(
-    component: Component,
-    props: dict,  # noqa: ARG001
-    theme_state: Any,
-    viewport: Any,
-    batch: Any,
-    pane_id: str,  # noqa: ARG001
-) -> list[Any]:
-    palette = _resolve_palette(theme_state)
-    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
-    d.append(
-        _label(
-            f"[{component.name}]",
-            font_size=_resolve_font_size(component),
-            x=viewport.x + viewport.width // 2,
-            y=viewport.y + viewport.height // 2,
-            anchor_x="center",
-            anchor_y="center",
-            color=palette["fg_muted"],
-            batch=batch,
-        )
-    )
-    return d
-
-
-register("screen.placeholder", _draw_screen_placeholder)
 
 
 # ---------------------------------------------------------------------------

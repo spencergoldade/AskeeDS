@@ -1,7 +1,7 @@
 location-header.default:
   category: game/
   description: Location name displayed at the top of the left column.
-  status: in-progress
+  status: stable
   font_size: medium
   props:
     location_name:
@@ -9,6 +9,7 @@ location-header.default:
       required: true
   render:
     type: inline
+    template: "{location_name}"
   notes: >-
-    Pyglet renderer uses _draw_location_header() registered in
-    pyglet_renderer.py. The ASCII render path is not used.
+    Rendered via spec-driven dispatch (LayoutEngine + render_styled_lines).
+    No custom Pyglet draw function needed.

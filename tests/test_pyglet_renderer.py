@@ -664,7 +664,7 @@ def test_location_header_component_loads():
 
 
 def test_location_header_renders_location_name():
-    """_draw_location_header creates a Label containing the location name."""
+    """Spec-driven inline renders a Label containing the location name."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -1239,7 +1239,7 @@ def test_speech_bubble_inactive_dims_text():
 
 
 def test_choice_wheel_renders_numbered_options():
-    """_draw_choice_wheel_inline creates Labels for header and all numbered options."""
+    """Spec-driven box with numbered_list renders Labels for all numbered options."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -1463,7 +1463,7 @@ def test_reading_book_renders_title_content_and_page():
 
 
 def test_screen_placeholder_renders_label():
-    """_draw_screen_placeholder renders a label containing the component name."""
+    """Spec-driven inline renders a label containing the component name."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
