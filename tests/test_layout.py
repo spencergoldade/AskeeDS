@@ -293,3 +293,99 @@ class TestShellLines:
         spec = {"border": "single", "width": 50}
         result = _shell_lines(spec, {}, FULL_THEME, available_width=80)
         assert len(result) > 0  # at least borders + header + divider
+
+
+class TestJoinLayout:
+    def test_join_produces_single_styled_line(self):
+        comp = _make_component(render={
+            "type": "join",
+            "over": "exits",
+            "separator": " | ",
+            "template": "{label}",
+        })
+        props = {"exits": [{"label": "North"}, {"label": "South"}]}
+        lines = layout(comp, props, THEME)
+        assert len(lines) == 1
+        assert lines[0].role == "body"
+        assert "North" in lines[0].text
+        assert "South" in lines[0].text
+        assert " | " in lines[0].text
+
+    def test_join_with_prefix(self):
+        comp = _make_component(render={
+            "type": "join",
+            "over": "items",
+            "separator": ", ",
+            "template": "{name}",
+            "prefix": "Exits: ",
+        })
+        props = {"items": [{"name": "A"}, {"name": "B"}]}
+        lines = layout(comp, props, THEME)
+        assert lines[0].text.startswith("Exits: ")
+
+    def test_join_empty_list(self):
+        comp = _make_component(render={
+            "type": "join",
+            "over": "items",
+            "separator": ", ",
+            "template": "{label}",
+        })
+        lines = layout(comp, {}, THEME)
+        assert len(lines) == 1
+        assert lines[0].text == ""
+
+
+class TestStackLayout:
+    def test_stack_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "stack",
+            "border": "single",
+            "width": 20,
+            "prop": "blocks",
+        })
+        props = {"blocks": ["Hello", "World"]}
+        lines = layout(comp, props, FULL_THEME)
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        assert lines[0].role == "border"
+        assert lines[-1].role == "border"
+        body = [ln for ln in lines if ln.role == "body"]
+        assert len(body) == 2
+
+    def test_stack_empty_blocks_returns_empty(self):
+        comp = _make_component(render={
+            "type": "stack",
+            "border": "single",
+            "width": 20,
+            "prop": "blocks",
+        })
+        lines = layout(comp, {"blocks": []}, FULL_THEME)
+        assert lines == []
+
+
+class TestColumnsLayout:
+    def test_columns_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "columns",
+            "border": "single",
+            "width": 40,
+        })
+        props = {"left_content": "Left", "right_content": "Right"}
+        lines = layout(comp, props, FULL_THEME)
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        assert lines[0].role == "border"
+        assert lines[-1].role == "border"
+
+
+class TestShellLayout:
+    def test_shell_produces_styled_lines(self):
+        comp = _make_component(render={
+            "type": "shell",
+            "border": "single",
+            "width": 50,
+        })
+        props = {"header": "Title", "sidebar": "Nav", "content": "Main"}
+        lines = layout(comp, props, FULL_THEME)
+        assert all(isinstance(ln, StyledLine) for ln in lines)
+        headers = [ln for ln in lines if ln.role == "header"]
+        assert len(headers) >= 1
+        assert "Title" in headers[0].text

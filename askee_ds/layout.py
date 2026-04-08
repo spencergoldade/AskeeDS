@@ -21,6 +21,7 @@ from dataclasses import dataclass
 
 from .loader import Component
 from .render_types._helpers import interpolate
+from .render_types.layout import _stack_lines, _columns_lines, _shell_lines
 from .sizing import DEFAULT_WIDTH, resolve_width
 from .theme import Theme
 
@@ -51,6 +52,20 @@ def layout(
         return _layout_box(spec, props, theme, available_width)
     if rtype == "inline":
         return _layout_inline(spec, props, available_width)
+    if rtype == "join":
+        return _layout_join(spec, props)
+    if rtype == "stack":
+        return _tuples_to_styled(
+            _stack_lines(spec, props, theme, available_width),
+        )
+    if rtype == "columns":
+        return _tuples_to_styled(
+            _columns_lines(spec, props, theme, available_width),
+        )
+    if rtype == "shell":
+        return _tuples_to_styled(
+            _shell_lines(spec, props, theme, available_width),
+        )
 
     return []
 
@@ -239,6 +254,28 @@ def _section(
             ))
 
     return lines
+
+
+# -- join layout ---------------------------------------------------------------
+
+
+def _layout_join(spec: dict, props: dict) -> list[StyledLine]:
+    items = props.get(spec.get("over", ""), [])
+    sep = spec.get("separator", "  ")
+    tmpl = spec.get("template", "{label}")
+    prefix = interpolate(spec.get("prefix", ""), props)
+    parts = [interpolate(tmpl, item) for item in items]
+    return [StyledLine(text=prefix + sep.join(parts), role="body")]
+
+
+# -- tuple-based layout helpers ------------------------------------------------
+
+
+def _tuples_to_styled(
+    tuples: list[tuple[str, str]],
+) -> list[StyledLine]:
+    """Convert (text, role) tuples to StyledLine objects."""
+    return [StyledLine(text=text, role=role) for text, role in tuples]
 
 
 # -- inline layout ------------------------------------------------------------
