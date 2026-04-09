@@ -469,6 +469,46 @@ def test_input_pane_renders_value():
         assert any("look around" in c for c in calls)
 
 
+def test_input_pane_value_enables_multiline_wrapping():
+    """Input text must wrap within the pane width, not overflow horizontally."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        comp = _load_component("input-pane.default")
+        long_text = "a very long command that should wrap " * 5
+        props = {"value": long_text, "placeholder": ""}
+        viewport = MagicMock(x=0, y=0, width=800, height=60)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="input-wrap")
+
+        # The label containing the value must have multiline=True
+        for call in pyglet_mock.text.Label.call_args_list:
+            text_arg = call.args[0] if call.args else ""
+            if long_text[:20] in str(text_arg):
+                assert call.kwargs.get("multiline") is True, (
+                    "Input value label missing multiline=True, text will bleed"
+                )
+                break
+        else:
+            raise AssertionError("Value label not found in Label calls")
+
+
 def test_input_pane_renders_placeholder_when_empty():
     """_draw_input_pane renders placeholder when value is empty."""
     pyglet_mock = _make_pyglet_mock()
