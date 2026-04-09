@@ -492,26 +492,50 @@ def _draw_input_pane(
         pyglet.clock.schedule_interval(_toggle, 0.5)
 
     cursor = "█" if _CURSOR_STATE.get(pane_id, True) else " "
-    if value:
-        display_text = f"> {value}{cursor}"
-    elif placeholder:
-        display_text = f"> {placeholder}"
-    else:
-        display_text = f"> {cursor}"
 
     d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
-    d.append(
-        _label(
-            display_text,
-            font_size=font_size,
-            x=viewport.x + 8,
-            y=viewport.y + viewport.height - 8,
-            anchor_y="top",
-            width=viewport.width - 16,
-            color=palette["fg"],
-            batch=batch,
+
+    if value:
+        d.append(
+            _label(
+                f"> {value}{cursor}",
+                font_size=font_size,
+                x=viewport.x + 8,
+                y=viewport.y + viewport.height - 8,
+                anchor_y="top",
+                width=viewport.width - 16,
+                color=palette["fg"],
+                batch=batch,
+            )
         )
-    )
+    else:
+        # Show blinking cursor at the prompt position
+        d.append(
+            _label(
+                f"> {cursor}",
+                font_size=font_size,
+                x=viewport.x + 8,
+                y=viewport.y + viewport.height - 8,
+                anchor_y="top",
+                width=viewport.width - 16,
+                color=palette["fg"],
+                batch=batch,
+            )
+        )
+        # Show dimmed placeholder text after the cursor
+        if placeholder:
+            d.append(
+                _label(
+                    placeholder,
+                    font_size=font_size,
+                    x=viewport.x + 8 + font_size * 3,
+                    y=viewport.y + viewport.height - 8,
+                    anchor_y="top",
+                    width=viewport.width - 16 - font_size * 3,
+                    color=palette["fg_muted"],
+                    batch=batch,
+                )
+            )
     return d
 
 
