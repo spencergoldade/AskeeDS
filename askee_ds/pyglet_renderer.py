@@ -425,8 +425,18 @@ def _draw_history_pane(
     palette = _resolve_palette(theme_state)
     lines: list[str] = props.get("lines", [])
     max_lines: int = props.get("max_lines", 20)
-    visible = lines[-max_lines:] if len(lines) > max_lines else lines
     font_size = _resolve_font_size(component)
+
+    # Calculate how many lines actually fit in the viewport.
+    # Pyglet multiline Labels do not clip overflow, so we must
+    # limit the text we pass to what fits.
+    padding = 16  # 8px top + 8px bottom
+    line_height = int(font_size * 1.4)
+    usable_height = viewport.height - padding
+    fit_lines = max(1, usable_height // line_height) if usable_height > 0 else 1
+    cap = min(max_lines, fit_lines)
+
+    visible = lines[-cap:] if len(lines) > cap else lines
 
     d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
@@ -439,7 +449,7 @@ def _draw_history_pane(
             y=viewport.y + viewport.height - 8,
             anchor_y="top",
             width=viewport.width - 16,
-            height=viewport.height - 16,
+            height=viewport.height - padding,
             multiline=True,
             color=palette["fg"],
             batch=batch,

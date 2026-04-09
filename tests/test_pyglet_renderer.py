@@ -384,6 +384,47 @@ def test_history_pane_draws_background_rectangle():
         assert pyglet_mock.shapes.Rectangle.call_count >= 1
 
 
+def test_history_pane_clips_to_viewport_height():
+    """Lines that would overflow below the viewport are excluded."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        # font_size for "large" is 28; line_height ~= 28 * 1.4 = ~39px
+        # Viewport height 100px, minus 16px padding = 84px usable
+        # At ~39px per line, only ~2 lines fit
+        comp = _load_component("history-pane.default")
+        many_lines = [f"line {i}" for i in range(50)]
+        props = {"lines": many_lines, "max_lines": 50}
+        viewport = MagicMock(x=0, y=0, width=800, height=100)
+        theme = MagicMock(palette="neutral", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(
+            comp, props, theme, viewport, batch, pane_id="history"
+        )
+
+        label_text = pyglet_mock.text.Label.call_args[0][0]
+        rendered_lines = label_text.strip().split("\n")
+        # With 100px viewport, should render far fewer than 50 lines
+        assert len(rendered_lines) <= 3
+        # Should show the most recent lines (tail)
+        assert "line 49" in label_text
+
+
 # ---------------------------------------------------------------------------
 # input-pane.default
 # ---------------------------------------------------------------------------
