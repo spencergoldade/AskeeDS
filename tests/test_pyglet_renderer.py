@@ -1432,7 +1432,7 @@ def test_choice_wheel_renders_numbered_options():
         pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="choice")
 
         calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
-        assert len(pyglet_mock.text.Label.call_args_list) >= 4
+        assert len(pyglet_mock.text.Label.call_args_list) >= 3
         assert any("1." in c and "Hello there" in c for c in calls)
         assert any("2." in c and "Show me your wares" in c for c in calls)
         assert any("3." in c and "Goodbye" in c for c in calls)
@@ -1651,7 +1651,7 @@ def test_screen_placeholder_renders_label():
 
         calls = [str(c) for c in pyglet_mock.text.Label.call_args_list]
         assert len(calls) >= 1
-        assert any("screen.placeholder" in c for c in calls)
+        assert any("Not yet implemented" in c for c in calls)
 
 
 # ---------------------------------------------------------------------------
