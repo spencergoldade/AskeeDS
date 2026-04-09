@@ -76,6 +76,24 @@ room-card.default:
     Use as the main descriptive block when the player enters or examines a
     room.
 
+room-description.default:
+  category: game/exploration
+  description: Room description text block displayed below the location header.
+  status: approved
+  props:
+    description:
+      type: string
+      required: true
+    color_role:
+      type: string
+      required: false
+  render:
+    type: inline
+    template: "{description}"
+  notes: >-
+    Rendered in the left pane below the location header. The Pyglet backend
+    has a custom draw function; the spec here is a text-mode fallback.
+
 entity-list.room:
   category: game/exploration
   description: Scannable list of items and NPCs in current room.

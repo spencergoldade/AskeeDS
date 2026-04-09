@@ -205,6 +205,161 @@ reading.book:
     Renders a single page of readable content. Pagination is handled by
     ReadingScreen in engine/bridge/screens/reading.py.
 
+preset-select:
+  category: game/screens
+  description: Character creation preset selection (create-new vs premade).
+  status: approved
+  props:
+    presets:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+        description: string
+        archetype_id: string
+        lineage_id: string
+    selected_index:
+      type: integer
+      required: true
+  render:
+    type: box
+    width: fill
+    min_width: 30
+    max_width: 60
+    border: single
+    sections:
+      - type: header
+        text: "Choose a path"
+      - type: divider
+      - type: list
+        over: presets
+        template: "  {label}"
+  notes: >-
+    Entry point for character creation. Players pick a premade character or
+    start the full wizard.
+
+creation-wizard:
+  category: game/screens
+  description: Multi-panel character creation wizard (lineage, archetype, backstory, appearance).
+  status: approved
+  props:
+    active_panel:
+      type: string
+      required: true
+    lineages:
+      type: array
+      required: true
+    archetypes:
+      type: array
+      required: true
+    backstories:
+      type: array
+      required: true
+    appearance_sliders:
+      type: array
+      required: true
+    skill_options:
+      type: array
+      required: false
+    skill_picks:
+      type: array
+      required: false
+    choices:
+      type: object
+      required: true
+  render:
+    type: box
+    width: fill
+    border: single
+    sections:
+      - type: header
+        text: "Character Creation"
+      - type: divider
+      - type: text
+        text: "Panel: {active_panel}"
+  notes: >-
+    Full character creation flow. The Pyglet backend will implement a custom
+    draw function for this component.
+
+creation-summary:
+  category: game/screens
+  description: Character creation summary/confirmation screen.
+  status: approved
+  props:
+    lineage_id:
+      type: string
+      required: false
+    archetype_id:
+      type: string
+      required: false
+    backstory_id:
+      type: string
+      required: false
+    skill_picks:
+      type: array
+      required: false
+    appearance:
+      type: object
+      required: false
+    lineage_label:
+      type: string
+      required: false
+    archetype_label:
+      type: string
+      required: false
+    backstory_label:
+      type: string
+      required: false
+  render:
+    type: box
+    width: fill
+    border: single
+    sections:
+      - type: header
+        text: "Confirm Character"
+      - type: divider
+      - type: text
+        text: "Lineage: {lineage_label}"
+      - type: text
+        text: "Archetype: {archetype_label}"
+      - type: text
+        text: "Backstory: {backstory_label}"
+  notes: >-
+    Shows chosen character options before confirming and starting the game.
+
+difficulty-select:
+  category: game/screens
+  description: Difficulty profile selection screen.
+  status: approved
+  props:
+    profiles:
+      type: array
+      required: true
+      element:
+        id: string
+        label: string
+        description: string
+    selected_index:
+      type: integer
+      required: true
+  render:
+    type: box
+    width: fill
+    min_width: 30
+    max_width: 50
+    border: single
+    sections:
+      - type: header
+        text: "Select Difficulty"
+      - type: divider
+      - type: list
+        over: profiles
+        template: "  {label}"
+  notes: >-
+    Shown before gameplay begins when the game offers multiple difficulty
+    profiles.
+
 screen.placeholder:
   category: game/screens
   description: Generic placeholder shown for screens not yet implemented.
