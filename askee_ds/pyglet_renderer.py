@@ -1423,6 +1423,79 @@ def _draw_reading_book(
 register("reading.book", _draw_reading_book)
 
 
+# ---------------------------------------------------------------------------
+# choice-wheel.inline
+# ---------------------------------------------------------------------------
+
+
+def _draw_choice_wheel_inline(
+    component: Component,
+    props: dict,
+    theme_state: Any,
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> list[Any]:
+    palette = _resolve_palette(theme_state)
+    options: list[dict] = props.get("options", [])
+    font_size = _resolve_font_size(component)
+    line_height = font_size + 4
+
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+
+    for i, opt in enumerate(options):
+        label_text = opt.get("label", opt.get("id", ""))
+        d.append(
+            _label(
+                f"  {i + 1}. {label_text}",
+                font_size=font_size,
+                x=viewport.x + 8,
+                y=viewport.y + viewport.height - line_height * (i + 1),
+                width=viewport.width - 16,
+                color=palette["fg"],
+                batch=batch,
+            )
+        )
+
+    return d
+
+
+register("choice-wheel.inline", _draw_choice_wheel_inline)
+
+
+# ---------------------------------------------------------------------------
+# screen.placeholder
+# ---------------------------------------------------------------------------
+
+
+def _draw_screen_placeholder(
+    component: Component,
+    props: dict,  # noqa: ARG001
+    theme_state: Any,
+    viewport: Any,
+    batch: Any,
+    pane_id: str,  # noqa: ARG001
+) -> list[Any]:
+    palette = _resolve_palette(theme_state)
+    font_size = _resolve_font_size(component)
+
+    d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
+    d.append(
+        _label(
+            "[Not yet implemented]",
+            font_size=font_size,
+            x=viewport.x + viewport.width // 2,
+            y=viewport.y + viewport.height // 2,
+            anchor_x="center",
+            anchor_y="center",
+            color=palette["fg_muted"],
+            batch=batch,
+        )
+    )
+    return d
+
+
+register("screen.placeholder", _draw_screen_placeholder)
 
 
 # ---------------------------------------------------------------------------
