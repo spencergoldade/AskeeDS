@@ -332,10 +332,12 @@ def render_pyglet(
         from .layout import layout  # noqa: PLC0415
 
         palette = _resolve_palette(theme_state)
-        char_width = viewport.width // _DEFAULT_FONT_SIZE
+        comp_font_size = _resolve_font_size(component)
+        char_width = viewport.width // comp_font_size
         lines = layout(component, props, _get_layout_theme(), char_width)
         return render_styled_lines(
             lines, viewport, palette, batch, component.name,
+            font_size=comp_font_size,
         )
 
     # Tier 3: grey placeholder
@@ -1553,6 +1555,8 @@ def render_styled_lines(
     palette: dict[str, tuple[int, int, int, int]],
     batch: Any,
     component_name: str,
+    *,
+    font_size: int | None = None,
 ) -> list[Any]:
     """Convert LayoutEngine StyledLines to positioned Pyglet Labels.
 
@@ -1566,12 +1570,15 @@ def render_styled_lines(
         palette:        RGBA palette dict from ``_resolve_palette()``.
         batch:          pyglet.graphics.Batch.
         component_name: Component name for ``_pane_chrome`` column lookup.
+        font_size:      Override font size in pixels. When ``None``, uses
+                        the module default (medium = 18).
 
     Returns:
         List of Pyglet objects (Labels + chrome shapes). Callers must retain
         this list until ``batch.draw()`` completes.
     """
-    font_size = _DEFAULT_FONT_SIZE
+    if font_size is None:
+        font_size = _DEFAULT_FONT_SIZE
     line_height = font_size + 2
 
     d: list[Any] = _pane_chrome(component_name, palette, viewport, batch)

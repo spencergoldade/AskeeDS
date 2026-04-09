@@ -1952,6 +1952,35 @@ def test_render_styled_lines_positions_top_to_bottom(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+def test_render_styled_lines_respects_font_size_param(monkeypatch):
+    """render_styled_lines uses the provided font_size, not the default."""
+    mock = _make_pyglet_mock()
+    monkeypatch.setitem(sys.modules, "pyglet", mock)
+
+    import importlib
+
+    import askee_ds.pyglet_renderer as pr
+
+    importlib.reload(pr)
+
+    from askee_ds.layout import StyledLine
+
+    lines = [StyledLine(text="Hello", role="body")]
+
+    ts = type("TS", (), {"palette": "neutral", "tint": "", "vignette": False})()
+    vp = type("VP", (), {"x": 0, "y": 0, "width": 400, "height": 300})()
+    batch = mock.graphics.Batch()
+
+    pr.render_styled_lines(
+        lines, vp, pr._resolve_palette(ts), batch, "test.default",
+        font_size=14,
+    )
+
+    label_calls = mock.text.Label.call_args_list
+    assert len(label_calls) == 1
+    assert label_calls[0].kwargs["font_size"] == 14
+
+
 # Spec-driven dispatch (PYGL-16)
 # ---------------------------------------------------------------------------
 
