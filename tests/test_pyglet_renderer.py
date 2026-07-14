@@ -811,6 +811,63 @@ def test_stats_pane_no_enemy_stats_when_none():
         assert pyglet_mock.text.Label.call_count == 4
 
 
+def test_palette_has_distinct_flesh_and_grit_tokens():
+    """The fallback palette exposes distinct Flesh and Grit colour tokens."""
+    import askee_ds.pyglet_renderer as pr
+
+    assert "flesh" in pr._FALLBACK_PALETTE
+    assert "grit" in pr._FALLBACK_PALETTE
+    assert pr._FALLBACK_PALETTE["flesh"] != pr._FALLBACK_PALETTE["grit"]
+
+
+def test_stats_pane_entry_color_token_applied():
+    """A stat entry `color` token colours its row; Flesh and Grit differ."""
+    pyglet_mock = _make_pyglet_mock()
+    with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
+        sys.modules,
+        {
+            "pyglet": pyglet_mock,
+            "pyglet.text": pyglet_mock.text,
+            "pyglet.shapes": pyglet_mock.shapes,
+            "pyglet.clock": pyglet_mock.clock,
+            "pyglet.graphics": pyglet_mock.graphics,
+        },
+    ):
+        from importlib import reload
+
+        import askee_ds.pyglet_renderer as pr
+
+        reload(pr)
+
+        palette = pr._FALLBACK_PALETTE
+        comp = _load_component("stats-pane.default")
+        props = {
+            "stats": [
+                {"label": "Flesh", "value": "20/20", "color": "flesh"},
+                {"label": "Grit", "value": "8/12", "color": "grit"},
+                {"label": "Carrying", "value": "3 items"},
+            ],
+            "enemy_stats": None,
+        }
+        viewport = MagicMock(x=0, y=0, width=200, height=300)
+        theme = MagicMock(palette="dark", tint="", vignette=False)
+        batch = MagicMock()
+
+        pr.render_pyglet(comp, props, theme, viewport, batch, pane_id="stats")
+
+        colors_by_text: dict = {}
+        for call in pyglet_mock.text.Label.call_args_list:
+            text = call.args[0] if call.args else call.kwargs.get("text")
+            colors_by_text[text] = call.kwargs.get("color")
+
+        # Value rows carry their entry colour; the two pools are distinct.
+        assert colors_by_text["20/20"] == palette["flesh"]
+        assert colors_by_text["8/12"] == palette["grit"]
+        assert colors_by_text["20/20"] != colors_by_text["8/12"]
+        # An entry without a colour token falls back to the default fg.
+        assert colors_by_text["3 items"] == palette["fg"]
+
+
 # ---------------------------------------------------------------------------
 # location-header.default
 # ---------------------------------------------------------------------------

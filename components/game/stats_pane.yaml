@@ -18,4 +18,7 @@ stats-pane.default:
   notes: >-
     Pyglet-only component. The render block is intentionally minimal — the
     ASCII render path is unused; all drawing is handled by _draw_stats_pane()
-    in pyglet_renderer.py. enemy_stats is rendered below a divider when present.
+    in pyglet_renderer.py. Each stats entry is a mapping with `label`, `value`,
+    and an optional `color` palette token (e.g. `flesh`, `grit`) that tints the
+    row; unknown or absent tokens fall back to the default foreground.
+    enemy_stats is rendered below a divider when present.
