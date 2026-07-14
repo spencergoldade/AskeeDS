@@ -41,6 +41,9 @@ nav.vertical:
     active_id:
       type: string
       required: true
+    hovered_id:
+      type: string
+      required: false
     color_role:
       type: string
       required: false
@@ -54,11 +57,28 @@ nav.vertical:
       - type: active_list
         over: items
         active_prop: active_id
+        hover_prop: hovered_id
         marker: ">"
+        hover_marker: "»"
         template: "{label}"
+  interaction:
+    focusable: true
+    actions:
+      - name: select_next
+        keys: [down]
+        description: Move to next nav item
+      - name: select_prev
+        keys: [up]
+        description: Move to previous nav item
+      - name: confirm
+        keys: [enter]
+        description: Activate the highlighted item
   art: |2
     | Inventory
     | Map
     | Journal
     > Settings
-  notes: Use in sidebars or left panes for primary navigation between screens.
+  notes: >-
+    Use in sidebars or left panes for primary navigation between screens.
+    Items marked ``disabled`` render muted and unmarked; the item whose id
+    matches ``hovered_id`` is highlighted with the hover marker.

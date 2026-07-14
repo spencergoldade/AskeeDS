@@ -265,16 +265,31 @@ def _section(
         active_id = props.get(
             section.get("active_prop", "active_id"), "",
         )
+        hover_id = props.get(
+            section.get("hover_prop", "hovered_id"), "",
+        )
         marker = section.get("marker", ">")
+        hover_marker = section.get("hover_marker", marker)
         tmpl = section.get("template", "{label}")
-        pad = " " * len(marker)
+        width = max(len(marker), len(hover_marker))
+        pad = " " * width
         for item in items:
             item_id = item.get("id", "")
-            prefix = marker if item_id == active_id else pad
+            # Disabled items are muted and never marked; enabled items may be
+            # active (selected) or hovered (under the cursor). Active wins the
+            # marker; hover brightens an otherwise-plain row.
+            if item.get("disabled"):
+                prefix, role = pad, "muted"
+            elif item_id == active_id:
+                prefix, role = marker.ljust(width), "body"
+            elif item_id and item_id == hover_id:
+                prefix, role = hover_marker.ljust(width), "header"
+            else:
+                prefix, role = pad, "body"
             text = f" {prefix} " + interpolate(tmpl, item)
             lines.append(StyledLine(
                 text=_row_text(text, inner, bd),
-                role="body",
+                role=role,
             ))
 
     return lines

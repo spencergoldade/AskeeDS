@@ -127,12 +127,27 @@ def _render_section(
         active_id = props.get(
             section.get("active_prop", "active_id"), ""
         )
+        hover_id = props.get(
+            section.get("hover_prop", "hovered_id"), ""
+        )
         marker = section.get("marker", ">")
+        hover_marker = section.get("hover_marker", marker)
         tmpl = section.get("template", "{label}")
-        pad = " " * len(marker)
+        width = max(len(marker), len(hover_marker))
+        pad = " " * width
         for item in items:
             item_id = item.get("id", "")
-            prefix = marker if item_id == active_id else pad
+            # This ASCII path carries no per-row colour, so disabled/hover
+            # differ only by marker: disabled and plain rows are unmarked,
+            # active shows the marker, hover shows the hover marker.
+            if item.get("disabled"):
+                prefix = pad
+            elif item_id == active_id:
+                prefix = marker.ljust(width)
+            elif item_id and item_id == hover_id:
+                prefix = hover_marker.ljust(width)
+            else:
+                prefix = pad
             text = f" {prefix} " + interpolate(tmpl, item)
             lines.append(row(text, inner, bd))
 

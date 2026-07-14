@@ -155,3 +155,16 @@ class TestInteractionValidation:
         """Every approved component with interaction metadata passes validation."""
         errors = validator.validate_all(components)
         assert len(errors) == 0
+
+
+class TestNavVerticalInteraction:
+    """nav.vertical (the game's right-pane menu) is a focusable nav list (BUG-032)."""
+
+    def test_nav_vertical_focusable(self, components):
+        nav = components["nav.vertical"]
+        assert nav.interaction.get("focusable") is True
+
+    def test_nav_vertical_confirm_action(self, components):
+        nav = components["nav.vertical"]
+        names = [a["name"] for a in nav.interaction.get("actions", [])]
+        assert "confirm" in names

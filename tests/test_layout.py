@@ -613,3 +613,101 @@ class TestArtLookupLayout:
         comp = _make_component(render={"type": "art_lookup"})
         lines = layout(comp, {}, THEME)
         assert lines == []
+
+
+# ---------------------------------------------------------------------------
+# active_list: hover + disabled states (BUG-032)
+# ---------------------------------------------------------------------------
+
+
+def _active_list_component() -> Component:
+    return _make_component(
+        name="test.nav",
+        render={
+            "type": "box",
+            "width": "fill",
+            "min_width": 16,
+            "max_width": 36,
+            "border": "single",
+            "sections": [
+                {
+                    "type": "active_list",
+                    "over": "items",
+                    "active_prop": "active_id",
+                    "hover_prop": "hovered_id",
+                    "marker": ">",
+                    "hover_marker": "»",
+                    "template": "{label}",
+                }
+            ],
+        },
+    )
+
+
+def _line_for(lines, label):
+    return next(line for line in lines if label in line.text)
+
+
+class TestActiveListStates:
+    def _render(self, props):
+        return layout(_active_list_component(), props, _make_theme(), 40)
+
+    def test_active_item_keeps_marker_and_body_role(self):
+        lines = self._render(
+            {
+                "items": [{"id": "a", "label": "Alpha"}, {"id": "b", "label": "Bravo"}],
+                "active_id": "a",
+                "hovered_id": "",
+            }
+        )
+        alpha = _line_for(lines, "Alpha")
+        assert ">" in alpha.text
+        assert alpha.role == "body"
+
+    def test_hovered_enabled_item_uses_header_role_and_hover_marker(self):
+        lines = self._render(
+            {
+                "items": [{"id": "a", "label": "Alpha"}, {"id": "b", "label": "Bravo"}],
+                "active_id": "a",
+                "hovered_id": "b",
+            }
+        )
+        bravo = _line_for(lines, "Bravo")
+        assert "»" in bravo.text
+        assert bravo.role == "header"
+
+    def test_disabled_item_is_muted_without_marker(self):
+        lines = self._render(
+            {
+                "items": [{"id": "a", "label": "Alpha", "disabled": True}],
+                "active_id": "a",
+                "hovered_id": "a",
+            }
+        )
+        alpha = _line_for(lines, "Alpha")
+        assert alpha.role == "muted"
+        assert ">" not in alpha.text
+        assert "»" not in alpha.text
+
+    def test_plain_item_is_body_without_marker(self):
+        lines = self._render(
+            {
+                "items": [{"id": "a", "label": "Alpha"}, {"id": "b", "label": "Bravo"}],
+                "active_id": "a",
+                "hovered_id": "",
+            }
+        )
+        bravo = _line_for(lines, "Bravo")
+        assert bravo.role == "body"
+        assert ">" not in bravo.text
+
+    def test_backward_compatible_without_hover_or_disabled(self):
+        # No hovered_id / disabled keys: only the active item is marked.
+        lines = self._render(
+            {
+                "items": [{"id": "a", "label": "Alpha"}, {"id": "b", "label": "Bravo"}],
+                "active_id": "b",
+            }
+        )
+        assert ">" in _line_for(lines, "Bravo").text
+        assert _line_for(lines, "Alpha").role == "body"
