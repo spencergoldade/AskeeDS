@@ -38,3 +38,6 @@ __pycache__/
 
 # Local merge backup (script creates components.txt.bak)
 *.bak
+
+# AI codex index files (regenerated on session start and pre-commit)
+ai-codex/
