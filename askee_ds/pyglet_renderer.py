@@ -131,6 +131,10 @@ _FALLBACK_PALETTE: dict[str, tuple[int, int, int, int]] = {
     "fg_muted": (117, 117, 117, 255),
     "border": (64, 64, 64, 255),
     "accent": (86, 156, 214, 255),
+    # Vitality pool tokens: Flesh (physical health) and Grit (stamina/morale)
+    # are deliberately distinct hues so the dual-pool model reads at a glance.
+    "flesh": (224, 108, 117, 255),
+    "grit": (97, 175, 239, 255),
 }
 
 
@@ -180,6 +184,8 @@ def _resolve_palette(
         "fg_muted": _dim_color(fg, 0.55),
         "border": border,
         "accent": accent,
+        "flesh": _parse_hex(colors.get("flesh", "#e06c75")),
+        "grit": _parse_hex(colors.get("grit", "#61afef")),
     }
 
 
@@ -664,6 +670,9 @@ def _draw_stats_pane(
     for entry in stats:
         label = entry.get("label", "")
         value = entry.get("value", "")
+        # Optional per-entry colour token (e.g. "flesh", "grit"); falls back
+        # to the default foreground when absent or unknown.
+        row_color = palette.get(entry.get("color", ""), palette["fg"])
         # Label — left-aligned
         d.append(
             _label(
@@ -671,7 +680,7 @@ def _draw_stats_pane(
                 font_size=font_size,
                 x=viewport.x + 8,
                 y=y,
-                color=palette["fg"],
+                color=row_color,
                 batch=batch,
             )
         )
@@ -683,7 +692,7 @@ def _draw_stats_pane(
                 x=viewport.x + viewport.width - 8,
                 y=y,
                 anchor_x="right",
-                color=palette["fg"],
+                color=row_color,
                 batch=batch,
             )
         )
