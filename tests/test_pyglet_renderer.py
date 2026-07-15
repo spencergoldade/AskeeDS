@@ -1244,12 +1244,12 @@ def test_modal_overlay_draws_dimmed_background():
 
 
 # ---------------------------------------------------------------------------
-# _hp_bar_color helper
+# _vitality_bar_color helper
 # ---------------------------------------------------------------------------
 
 
-def test_hp_bar_color_green_above_50_percent():
-    """_hp_bar_color returns green (high green channel) when HP > 50%."""
+def test_vitality_bar_color_green_above_50_percent():
+    """_vitality_bar_color returns green (high green channel) when the pool is above 50%."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -1267,13 +1267,13 @@ def test_hp_bar_color_green_above_50_percent():
 
         reload(pr)
 
-        color = pr._hp_bar_color(80, 100)
+        color = pr._vitality_bar_color(80, 100)
         # Green channel must be dominant over red channel
         assert color[1] > color[0]
 
 
-def test_hp_bar_color_red_below_25_percent():
-    """_hp_bar_color returns red (high red channel) when HP < 25%."""
+def test_vitality_bar_color_red_below_25_percent():
+    """_vitality_bar_color returns red (high red channel) when the pool is below 25%."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -1291,7 +1291,7 @@ def test_hp_bar_color_red_below_25_percent():
 
         reload(pr)
 
-        color = pr._hp_bar_color(10, 100)
+        color = pr._vitality_bar_color(10, 100)
         # Red channel must be dominant over green channel
         assert color[0] > color[1]
 
@@ -1301,8 +1301,8 @@ def test_hp_bar_color_red_below_25_percent():
 # ---------------------------------------------------------------------------
 
 
-def test_combat_card_enemy_renders_name_and_hp():
-    """_draw_combat_card_enemy draws Labels containing enemy name and HP fraction."""
+def test_combat_card_enemy_renders_name_and_flesh():
+    """_draw_combat_card_enemy draws Labels containing enemy name and Flesh fraction."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -1321,7 +1321,7 @@ def test_combat_card_enemy_renders_name_and_hp():
         reload(pr)
 
         comp = _load_component("combat-card.enemy")
-        props = {"enemy_name": "Forest Wolf", "enemy_hp": 45, "enemy_hp_max": 80}
+        props = {"enemy_name": "Forest Wolf", "enemy_flesh": 45, "enemy_flesh_max": 80}
         viewport = MagicMock(x=0, y=0, width=400, height=300)
         theme = MagicMock(palette="neutral", tint="", vignette=False)
         batch = MagicMock()
@@ -1339,8 +1339,8 @@ def test_combat_card_enemy_renders_name_and_hp():
 # ---------------------------------------------------------------------------
 
 
-def test_combat_card_actions_renders_hp_and_round():
-    """_draw_combat_card_actions draws Labels containing player HP and round number."""
+def test_combat_card_actions_renders_flesh_and_round():
+    """_draw_combat_card_actions draws Labels containing player Flesh and round number."""
     pyglet_mock = _make_pyglet_mock()
     with __import__("unittest.mock", fromlist=["patch"]).patch.dict(
         sys.modules,
@@ -1359,7 +1359,7 @@ def test_combat_card_actions_renders_hp_and_round():
         reload(pr)
 
         comp = _load_component("combat-card.actions")
-        props = {"player_hp": 70, "player_hp_max": 100, "round": 3}
+        props = {"player_flesh": 70, "player_flesh_max": 100, "round": 3}
         viewport = MagicMock(x=0, y=0, width=400, height=300)
         theme = MagicMock(palette="neutral", tint="", vignette=False)
         batch = MagicMock()

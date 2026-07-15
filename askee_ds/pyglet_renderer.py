@@ -936,40 +936,40 @@ register("modal.overlay", _draw_modal_overlay)
 
 
 # ---------------------------------------------------------------------------
-# HP bar helpers
+# Vitality bar helpers
 # ---------------------------------------------------------------------------
 
-_HP_COLOR_GREEN = (80, 220, 80, 255)
-_HP_COLOR_YELLOW = (220, 200, 60, 255)
-_HP_COLOR_RED = (220, 60, 60, 255)
-_HP_COLOR_GREY = (120, 120, 120, 255)
+_VITALITY_COLOR_GREEN = (80, 220, 80, 255)
+_VITALITY_COLOR_YELLOW = (220, 200, 60, 255)
+_VITALITY_COLOR_RED = (220, 60, 60, 255)
+_VITALITY_COLOR_GREY = (120, 120, 120, 255)
 
-_HP_FILL_CHAR = "█"
-_HP_EMPTY_CHAR = "░"
-_HP_BAR_SEGMENTS = 8
+_VITALITY_FILL_CHAR = "█"
+_VITALITY_EMPTY_CHAR = "░"
+_VITALITY_BAR_SEGMENTS = 8
 
 
-def _hp_bar_color(current: int, maximum: int) -> tuple[int, int, int, int]:
-    """Return an RGBA color tuple based on HP percentage.
+def _vitality_bar_color(current: int, maximum: int) -> tuple[int, int, int, int]:
+    """Return an RGBA color tuple based on the pool's fill percentage.
 
     Args:
-        current: Current HP value.
-        maximum: Maximum HP value.
+        current: Current pool value.
+        maximum: Maximum pool value.
 
     Returns:
         RGBA tuple: green above 50%, yellow 25–50%, red below 25%, grey if max <= 0.
     """
     if maximum <= 0:
-        return _HP_COLOR_GREY
+        return _VITALITY_COLOR_GREY
     pct = current / maximum
     if pct > 0.50:
-        return _HP_COLOR_GREEN
+        return _VITALITY_COLOR_GREEN
     if pct >= 0.25:
-        return _HP_COLOR_YELLOW
-    return _HP_COLOR_RED
+        return _VITALITY_COLOR_YELLOW
+    return _VITALITY_COLOR_RED
 
 
-def _draw_hp_bar(
+def _draw_vitality_bar(
     label: str,
     current: int,
     max_val: int,
@@ -979,27 +979,27 @@ def _draw_hp_bar(
     font_size: int,
     batch: Any,
 ) -> list[Any]:
-    """Draw a text-based HP bar: 'Label [████░░░░] current/max'.
+    """Draw a text-based vitality bar: 'Label [████░░░░] current/max'.
 
     Returns created pyglet objects so the caller can retain them.
 
     Args:
         label:     Label text placed before the bar (e.g. "Flesh").
-        current:   Current HP value.
-        max_val:   Maximum HP value.
+        current:   Current pool value.
+        max_val:   Maximum pool value.
         x:         Left edge x coordinate.
         y:         Bottom y coordinate.
         width:     Available pixel width (unused by text layout, kept for future use).
         font_size: Font size in pixels.
         batch:     Pyglet batch to draw into.
     """
-    color = _hp_bar_color(current, max_val)
+    color = _vitality_bar_color(current, max_val)
     if max_val > 0:
-        filled = round(_HP_BAR_SEGMENTS * max(0, current) / max_val)
+        filled = round(_VITALITY_BAR_SEGMENTS * max(0, current) / max_val)
     else:
         filled = 0
-    empty = _HP_BAR_SEGMENTS - filled
-    bar = _HP_FILL_CHAR * filled + _HP_EMPTY_CHAR * empty
+    empty = _VITALITY_BAR_SEGMENTS - filled
+    bar = _VITALITY_FILL_CHAR * filled + _VITALITY_EMPTY_CHAR * empty
     text = f"{label} [{bar}] {current}/{max_val}"
 
     return [
@@ -1030,9 +1030,9 @@ def _draw_combat_card_enemy(
 ) -> list[Any]:
     palette = _resolve_palette(theme_state)
     enemy_name: str = props.get("enemy_name", "")
-    enemy_hp: int = props.get("enemy_hp", 0)
-    enemy_hp_max: int = props.get("enemy_hp_max", 0)
-    hp_label: str = props.get("hp_label", "Flesh")
+    enemy_flesh: int = props.get("enemy_flesh", 0)
+    enemy_flesh_max: int = props.get("enemy_flesh_max", 0)
+    bar_label: str = props.get("bar_label", "Flesh")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
@@ -1051,12 +1051,12 @@ def _draw_combat_card_enemy(
         )
     )
 
-    # HP bar
+    # Flesh bar
     d.extend(
-        _draw_hp_bar(
-            hp_label,
-            enemy_hp,
-            enemy_hp_max,
+        _draw_vitality_bar(
+            bar_label,
+            enemy_flesh,
+            enemy_flesh_max,
             viewport.x + 8,
             viewport.y + viewport.height - line_height * 2,
             viewport.width - 16,
@@ -1085,21 +1085,21 @@ def _draw_combat_card_actions(
     pane_id: str,  # noqa: ARG001
 ) -> list[Any]:
     palette = _resolve_palette(theme_state)
-    player_hp: int = props.get("player_hp", 0)
-    player_hp_max: int = props.get("player_hp_max", 0)
+    player_flesh: int = props.get("player_flesh", 0)
+    player_flesh_max: int = props.get("player_flesh_max", 0)
     round_num: int = props.get("round", 1)
-    hp_label: str = props.get("hp_label", "Flesh")
+    bar_label: str = props.get("bar_label", "Flesh")
     font_size = _resolve_font_size(component)
     line_height = font_size + 4
 
     d: list[Any] = _pane_chrome(component.name, palette, viewport, batch)
 
-    # Player HP bar
+    # Player Flesh bar
     d.extend(
-        _draw_hp_bar(
-            hp_label,
-            player_hp,
-            player_hp_max,
+        _draw_vitality_bar(
+            bar_label,
+            player_flesh,
+            player_flesh_max,
             viewport.x + 8,
             viewport.y + viewport.height - line_height,
             viewport.width - 16,
