@@ -7,13 +7,13 @@ def test_compose_stack_with_children(composer):
     output = composer.compose("layout.stack", {
         "blocks": [
             ("status-bar.default", {
-                "hp_current": 10, "hp_max": 10,
+                "flesh_current": 10, "flesh_max": 10,
                 "location": "Test", "turn_count": 1,
             }),
             "plain string block",
         ],
     })
-    assert "HP: 10/10" in output
+    assert "Flesh: 10/10" in output
     assert "plain string block" in output
 
 

@@ -4,15 +4,23 @@
 
 status-bar.default:
   category: game/hud
-  description: Single-line HUD showing HP, location, and turn.
+  description: Single-line HUD showing Flesh, location, and turn.
   status: approved
   props:
+    flesh_current:
+      type: integer
+      required: true
+    flesh_max:
+      type: integer
+      required: true
     hp_current:
       type: integer
-      required: true
+      required: false
+      deprecated: "Use flesh_current."
     hp_max:
       type: integer
-      required: true
+      required: false
+      deprecated: "Use flesh_max."
     location:
       type: string
       required: true
@@ -30,9 +38,9 @@ status-bar.default:
     border: single
     sections:
       - type: text
-        text: " HP: {hp_current}/{hp_max}  |  {location}  |  Turn {turn_count}"
+        text: " Flesh: {flesh_current}/{flesh_max}  |  {location}  |  Turn {turn_count}"
   art: |2
-    HP: 85/100  |  The Clearing  |  Turn 12
+    Flesh: 85/100  |  The Clearing  |  Turn 12
   default_color_role: neutral
   notes: >-
     Pin to the top or bottom of the screen to show core moment-to-moment
@@ -43,12 +51,20 @@ status-bar.risk:
   description: Single-line HUD with risk and luck bands.
   status: approved
   props:
+    flesh_current:
+      type: integer
+      required: true
+    flesh_max:
+      type: integer
+      required: true
     hp_current:
       type: integer
-      required: true
+      required: false
+      deprecated: "Use flesh_current."
     hp_max:
       type: integer
-      required: true
+      required: false
+      deprecated: "Use flesh_max."
     location:
       type: string
       required: true
@@ -66,13 +82,13 @@ status-bar.risk:
       required: false
   render:
     type: inline
-    template: "HP: {hp_current}/{hp_max}  |  {location}  |  Turn {turn_count}  |  Risk: {risk_level}"
+    template: "Flesh: {flesh_current}/{flesh_max}  |  {location}  |  Turn {turn_count}  |  Risk: {risk_level}"
   art: |2
-    HP: 40/100  |  The Alley  |  Turn 27  |  Risk: Hunted  |  Luck: Fading
+    Flesh: 40/100  |  The Alley  |  Turn 27  |  Risk: Hunted  |  Luck: Fading
   default_color_role: neutral
   notes: >-
     Swap in when the game tracks global danger level or player fortune
-    alongside HP.
+    alongside Flesh.
 
 hint-bar.contextual:
   category: game/hud

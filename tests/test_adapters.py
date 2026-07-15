@@ -29,11 +29,11 @@ class TestRichAdapter:
         adapter = RichAdapter(theme)
         comp = components["status-bar.default"]
         result = adapter.render_component(renderer, comp, {
-            "hp_current": 5, "hp_max": 10,
+            "flesh_current": 5, "flesh_max": 10,
             "location": "Test", "turn_count": 1,
         })
         assert isinstance(result, Text)
-        assert "HP:" in result.plain
+        assert "Flesh:" in result.plain
 
     def test_colorize_preserves_all_characters(self, theme):
         from askee_ds.adapters.rich import RichAdapter
@@ -51,7 +51,7 @@ class TestTextualAdapter:
 
         widget = AskeeWidget.from_component(
             renderer, components["status-bar.default"],
-            props={"hp_current": 5, "hp_max": 10,
+            props={"flesh_current": 5, "flesh_max": 10,
                    "location": "Test", "turn_count": 1},
             theme=theme, color_role="neutral",
         )

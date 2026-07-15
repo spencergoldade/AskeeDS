@@ -34,7 +34,7 @@ class TestComposeScreen:
     def test_adventure_main_contains_components(self, composer):
         output = composer.compose_screen(EXAMPLE_SCREEN)
         assert "The Undercroft" in output
-        assert "HP: 85/100" in output
+        assert "Flesh: 85/100" in output
         assert "rusty key" in output
 
     def test_width_override(self, composer):

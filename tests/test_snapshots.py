@@ -146,8 +146,8 @@ CANONICAL_PROPS: dict[str, dict] = {
         "tail": "left",
     },
     "status-bar.default": {
-        "hp_current": 85,
-        "hp_max": 100,
+        "flesh_current": 85,
+        "flesh_max": 100,
         "location": "The Clearing",
         "turn_count": 12,
     },

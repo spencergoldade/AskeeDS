@@ -87,8 +87,8 @@ class AskeeDemo(App):
                 yield AskeeWidget.from_component(
                     renderer, components["status-bar.default"],
                     props={
-                        "hp_current": 73,
-                        "hp_max": 100,
+                        "flesh_current": 73,
+                        "flesh_max": 100,
                         "location": "The Undercroft",
                         "turn_count": 42,
                     },

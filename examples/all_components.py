@@ -30,7 +30,7 @@ SAMPLE_STRINGS = {
 }
 
 SAMPLE_NUMBERS = {
-    "hp_current": 8, "hp_max": 10,
+    "flesh_current": 8, "flesh_max": 10,
     "current": 7, "max": 10, "value": 7,
     "turn_count": 5, "segments": 4, "filled": 2,
     "current_stage_index": 0, "columns": 3,

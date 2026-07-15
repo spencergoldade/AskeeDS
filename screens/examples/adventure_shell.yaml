@@ -11,8 +11,8 @@ slots:
   header:
     component: status-bar.default
     props:
-      hp_current: 72
-      hp_max: 100
+      flesh_current: 72
+      flesh_max: 100
       location: Dark Corridor
       turn_count: 23
 

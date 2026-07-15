@@ -28,7 +28,7 @@ def test_render_join(renderer, components):
 def test_render_box(renderer, components):
     output = renderer.render(
         components["status-bar.default"],
-        {"hp_current": 85, "hp_max": 100, "location": "The Clearing", "turn_count": 12},
+        {"flesh_current": 85, "flesh_max": 100, "location": "The Clearing", "turn_count": 12},
     )
     assert "85" in output
     assert "The Clearing" in output

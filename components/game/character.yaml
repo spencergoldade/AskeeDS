@@ -36,8 +36,8 @@ character-sheet.compact:
         template: " {label:<5} [{bar}] {current}/{max}"
   art: |2
     Hero
-    HP:  [=========>    ] 85/100
-    Mana: [====          ] 20/50
+    Flesh: [=========>    ] 85/100
+    Grit:  [====          ] 20/50
   notes: >-
     Show as a sidebar or dedicated screen summarizing the current
     character state.

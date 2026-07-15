@@ -108,7 +108,7 @@ label.inline:
     type: inline
     template: "{label}: {value}"
   art: |2
-    HP: 85
+    Flesh: 85
   notes: "Pair with numbers or short values in HUDs, sheets, and summary rows."
 
 card.simple:

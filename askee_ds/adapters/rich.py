@@ -39,7 +39,7 @@ except ImportError:
 
 _BOX_CHARS = set("+-|┌┐└┘├┤┬┴┼─│═║╔╗╚╝╠╣╦╩╬━┃┏┓┗┛┣┫┳┻╋")
 _HIGHLIGHT_RE = re.compile(
-    r"(\[x\]|\[ \]|HP:|MP:|Stamina|Turn \d+|Exits?:|Items?:|NPCs?:|>)"
+    r"(\[x\]|\[ \]|Flesh:|Grit:|HP:|MP:|Stamina|Turn \d+|Exits?:|Items?:|NPCs?:|>)"
 )
 
 

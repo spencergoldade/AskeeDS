@@ -20,8 +20,8 @@ composer = Composer(renderer, components)
 
 print(composer.compose("layout.app.shell", {
     "header": ("status-bar.default", {
-        "hp_current": 73,
-        "hp_max": 100,
+        "flesh_current": 73,
+        "flesh_max": 100,
         "location": "The Undercroft",
         "turn_count": 42,
     }),
@@ -54,8 +54,8 @@ print()
 print(composer.compose("layout.stack", {
     "blocks": [
         ("status-bar.default", {
-            "hp_current": 73,
-            "hp_max": 100,
+            "flesh_current": 73,
+            "flesh_max": 100,
             "location": "The Undercroft",
             "turn_count": 42,
         }),

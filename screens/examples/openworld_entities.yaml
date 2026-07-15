@@ -11,8 +11,8 @@ slots:
   blocks:
     - component: status-bar.default
       props:
-        hp_current: 65
-        hp_max: 100
+        flesh_current: 65
+        flesh_max: 100
         location: Mountain Pass
         turn_count: 201
 

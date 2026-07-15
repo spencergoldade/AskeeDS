@@ -11,8 +11,8 @@ slots:
   blocks:
     - component: status-bar.default
       props:
-        hp_current: 85
-        hp_max: 100
+        flesh_current: 85
+        flesh_max: 100
         location: "Town Square"
         turn_count: 15
 

@@ -11,8 +11,8 @@ slots:
   header:
     component: status-bar.default
     props:
-      hp_current: 78
-      hp_max: 100
+      flesh_current: 78
+      flesh_max: 100
       location: Open Plains
       turn_count: 112
 

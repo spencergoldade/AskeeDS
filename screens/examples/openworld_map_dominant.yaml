@@ -44,8 +44,8 @@ slots:
       blocks:
         - component: status-bar.default
           props:
-            hp_current: 90
-            hp_max: 100
+            flesh_current: 90
+            flesh_max: 100
             location: "Dungeon Level 2"
             turn_count: 47
 

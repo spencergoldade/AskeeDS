@@ -46,7 +46,7 @@ combat-card.actions:
       required: false
   render:
     type: inline
-    template: "HP {player_hp}/{player_hp_max} Round {round}"
+    template: "Flesh {player_hp}/{player_hp_max} Round {round}"
   notes: >-
     Pyglet-only component. All drawing is handled by _draw_combat_card_actions()
     in pyglet_renderer.py.

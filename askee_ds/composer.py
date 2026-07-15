@@ -16,7 +16,7 @@ full-screen UIs.
 
     output = composer.compose("layout.stack", {
         "blocks": [
-            ("status-bar.default", {"hp_current": 85, "hp_max": 100,
+            ("status-bar.default", {"flesh_current": 85, "flesh_max": 100,
                                     "location": "Cavern", "turn_count": 5}),
             ("room-card.default",  {"title": "Cavern", ...}),
             ("command-input.default", {"prompt": ">"}),
